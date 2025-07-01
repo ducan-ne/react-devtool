@@ -672,7 +672,7 @@ export const Widget = () => {
 			<ScanOverlay />
 			<ToolbarElementContext.Provider value={refWidget.current}>
 				<div
-					id="react-scan-toolbar"
+					id="react-devtool-toolbar"
 					dir="ltr"
 					ref={refWidget}
 					onPointerDown={!isCollapsed ? handleDrag : handleCollapsedDrag}

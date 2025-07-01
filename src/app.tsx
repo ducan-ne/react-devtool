@@ -48,7 +48,7 @@ export function App() {
 			<Devtool>
 				<div className="flex flex-col gap-2">
 					Hello world
-					<div className="react-scan-toggle">
+					<div className="react-devtool-toggle">
 						<input type="checkbox" />
 						<div />
 					</div>

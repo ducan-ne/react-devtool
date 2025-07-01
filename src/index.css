@@ -181,12 +181,12 @@ svg {
   }
 }
 
-#react-scan-toolbar {
+#react-devtool-toolbar {
   @apply fixed left-0 top-0;
   @apply flex flex-col;
   @apply shadow-lg;
   @apply font-mono text-[13px] text-white;
-  @apply bg-black;
+  @apply bg-wash-dark;
   @apply select-none;
   @apply cursor-move;
   @apply opacity-0;
@@ -324,7 +324,7 @@ svg {
   }
 }
 
-.react-scan-header {
+.react-devtool-header {
   @apply flex items-center gap-x-2;
   @apply pl-3 pr-2;
   @apply min-h-9;
@@ -332,8 +332,8 @@ svg {
   @apply whitespace-nowrap overflow-hidden;
 }
 
-.react-scan-replay-button,
-.react-scan-close-button {
+.react-devtool-replay-button,
+.react-devtool-close-button {
   @apply flex items-center;
   @apply p-1;
   @apply min-w-fit;
@@ -341,7 +341,7 @@ svg {
   @apply transition-all duration-300;
 }
 
-.react-scan-replay-button {
+.react-devtool-replay-button {
   @apply relative;
   @apply overflow-hidden;
   @apply !bg-purple-500/50;
@@ -370,7 +370,7 @@ svg {
   }
 }
 
-.react-scan-close-button {
+.react-devtool-close-button {
   @apply bg-white/10;
 
   &:hover {
@@ -393,19 +393,19 @@ svg {
   @apply bg-[#0a0a0a] border-b-1 border-[#222];
 }
 
-.react-scan-section {
+.react-devtool-section {
   @apply flex flex-col;
   @apply px-2;
   @apply text-[#888];
   @apply before:content-[attr(data-section)] before:text-gray-500;
   @apply text-xs;
 
-  > .react-scan-property {
+  > .react-devtool-property {
     @apply -ml-3.5;
   }
 }
 
-.react-scan-property {
+.react-devtool-property {
   @apply relative;
   @apply flex flex-col;
   @apply pl-8;
@@ -413,31 +413,31 @@ svg {
   @apply overflow-hidden;
 }
 
-.react-scan-property-content {
+.react-devtool-property-content {
   @apply flex-1 flex flex-col;
   @apply min-h-7;
   @apply max-w-full;
   @apply overflow-hidden;
 }
 
-.react-scan-string {
+.react-devtool-string {
   color: #9ecbff;
 }
 
-.react-scan-number {
+.react-devtool-number {
   color: #79c7ff;
 }
 
-.react-scan-boolean {
+.react-devtool-boolean {
   color: #56b6c2;
 }
 
-.react-scan-key {
+.react-devtool-key {
   @apply w-fit max-w-60;
   @apply text-white whitespace-nowrap;
 }
 
-.react-scan-input {
+.react-devtool-input {
   @apply text-white;
   @apply bg-black;
 }
@@ -451,7 +451,7 @@ svg {
   }
 } */
 
-.react-scan-arrow {
+.react-devtool-arrow {
   @apply absolute top-0 left-7;
   @apply flex items-center justify-center;
   @apply cursor-pointer;
@@ -464,17 +464,17 @@ svg {
   }
 }
 
-.react-scan-expandable {
+.react-devtool-expandable {
   @apply grid grid-rows-[0fr];
   @apply transition-all duration-75;
 
-  &.react-scan-expanded {
+  &.react-devtool-expanded {
     @apply grid-rows-[1fr];
     @apply duration-100;
   }
 }
 
-.react-scan-nested {
+.react-devtool-nested {
   @apply relative;
   @apply overflow-hidden;
 
@@ -486,7 +486,7 @@ svg {
   }
 }
 
-.react-scan-settings {
+.react-devtool-settings {
   @apply absolute inset-0;
   @apply flex flex-col gap-4;
   @apply py-2 px-4;
@@ -498,12 +498,12 @@ svg {
   }
 }
 
-.react-scan-preview-line {
+.react-devtool-preview-line {
   @apply relative;
   @apply flex items-center min-h-7 gap-x-2;
 }
 
-.react-scan-flash-overlay {
+.react-devtool-flash-overlay {
   @apply absolute inset-0;
   @apply opacity-0;
   @apply z-50;
@@ -513,7 +513,7 @@ svg {
   @apply bg-purple-500/90;
 }
 
-.react-scan-toggle {
+.react-devtool-toggle {
   @apply relative;
   @apply inline-flex;
   @apply w-10 h-6;
@@ -558,12 +558,12 @@ svg {
   }
 }
 
-.react-scan-flash-active {
+.react-devtool-flash-active {
   @apply opacity-40;
   @apply transition-opacity duration-300;
 }
 
-.react-scan-inspector-overlay {
+.react-devtool-inspector-overlay {
   @apply flex flex-col;
   @apply opacity-0;
   @apply transition-opacity duration-300;
@@ -577,7 +577,7 @@ svg {
   }
 }
 
-.react-scan-what-changed {
+.react-devtool-what-changed {
   ul {
     @apply list-disc;
     @apply pl-4;
@@ -626,7 +626,7 @@ svg {
   }
 }
 
-.react-scan-slider {
+.react-devtool-slider {
   @apply relative;
   @apply min-h-6;
 
@@ -730,7 +730,7 @@ svg {
   }
 }
 
-.react-scan-toolbar-notification {
+.react-devtool-toolbar-notification {
   @apply absolute inset-x-0;
   @apply flex items-center gap-x-2;
   @apply p-1 pl-2 text-[10px];
@@ -768,7 +768,7 @@ svg {
   }
 }
 
-.react-scan-header-item {
+.react-devtool-header-item {
   @apply absolute inset-0 -translate-y-[200%];
   @apply transition-transform duration-300;
 
@@ -777,12 +777,12 @@ svg {
   }
 }
 
-.react-scan-components-tree:has(.resize-v-line:hover, .resize-v-line:active)
+.react-devtool-components-tree:has(.resize-v-line:hover, .resize-v-line:active)
   .tree {
   overflow: hidden;
 }
 
-.react-scan-expandable {
+.react-devtool-expandable {
   display: grid;
   grid-template-rows: 0fr;
   @apply overflow-hidden;
@@ -793,7 +793,7 @@ svg {
     min-height: 0;
   }
 
-  &.react-scan-expanded {
+  &.react-devtool-expanded {
     grid-template-rows: 1fr;
     transition-duration: 100ms;
   }

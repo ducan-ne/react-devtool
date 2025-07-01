@@ -1,7 +1,7 @@
 // MIT License
 // Copyright (c) 2025 Kristian Dupont
 
-import { isFirefox, readLocalStorage } from './helpers';
+import { isFirefox, readLocalStorage } from "./helpers";
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,28 +34,31 @@ const DEFAULT_VOLUME = 0.5;
 
 // Ensure volume is between 0 and 1
 const storedVolume = Math.max(
-  0,
-  Math.min(1, readLocalStorage<number>('react-scan-volume') ?? DEFAULT_VOLUME),
+	0,
+	Math.min(
+		1,
+		readLocalStorage<number>("react-devtool-volume") ?? DEFAULT_VOLUME,
+	),
 );
 
 // Audio configurations for different browsers
 const config = {
-  firefox: {
-    duration: 0.02,
-    oscillatorType: 'sine' as const,
-    startFreq: 220,
-    endFreq: 110,
-    attack: 0.0005,
-    volumeMultiplier: storedVolume,
-  },
-  default: {
-    duration: 0.001,
-    oscillatorType: 'sine' as const,
-    startFreq: 440,
-    endFreq: 220,
-    attack: 0.0005,
-    volumeMultiplier: storedVolume,
-  },
+	firefox: {
+		duration: 0.02,
+		oscillatorType: "sine" as const,
+		startFreq: 220,
+		endFreq: 110,
+		attack: 0.0005,
+		volumeMultiplier: storedVolume,
+	},
+	default: {
+		duration: 0.001,
+		oscillatorType: "sine" as const,
+		startFreq: 440,
+		endFreq: 220,
+		attack: 0.0005,
+		volumeMultiplier: storedVolume,
+	},
 } as const; // Make entire config readonly
 
 // Cache the selected config
@@ -66,43 +69,43 @@ const audioConfig = isFirefox ? config.firefox : config.default;
  * Cross-browser compatible version (Firefox, Chrome, Safari)
  */
 export const playGeigerClickSound = (
-  audioContext: AudioContext,
-  amplitude: number,
+	audioContext: AudioContext,
+	amplitude: number,
 ) => {
-  const now = performance.now();
-  if (now - lastPlayTime < MIN_INTERVAL) {
-    return;
-  }
-  lastPlayTime = now;
+	const now = performance.now();
+	if (now - lastPlayTime < MIN_INTERVAL) {
+		return;
+	}
+	lastPlayTime = now;
 
-  // Cache currentTime for consistent timing
-  const currentTime = audioContext.currentTime;
-  const { duration, oscillatorType, startFreq, endFreq, attack } = audioConfig;
+	// Cache currentTime for consistent timing
+	const currentTime = audioContext.currentTime;
+	const { duration, oscillatorType, startFreq, endFreq, attack } = audioConfig;
 
-  // Pre-calculate volume once
-  const volume =
-    Math.max(BASE_VOLUME, amplitude) * audioConfig.volumeMultiplier;
+	// Pre-calculate volume once
+	const volume =
+		Math.max(BASE_VOLUME, amplitude) * audioConfig.volumeMultiplier;
 
-  // Create and configure nodes in one go
-  const oscillator = new OscillatorNode(audioContext, {
-    type: oscillatorType,
-    frequency: startFreq + amplitude * FREQ_MULTIPLIER,
-  });
+	// Create and configure nodes in one go
+	const oscillator = new OscillatorNode(audioContext, {
+		type: oscillatorType,
+		frequency: startFreq + amplitude * FREQ_MULTIPLIER,
+	});
 
-  const gainNode = new GainNode(audioContext, {
-    gain: 0,
-  });
+	const gainNode = new GainNode(audioContext, {
+		gain: 0,
+	});
 
-  // Schedule all parameters
-  oscillator.frequency.exponentialRampToValueAtTime(
-    endFreq,
-    currentTime + duration,
-  );
-  gainNode.gain.linearRampToValueAtTime(volume, currentTime + attack);
+	// Schedule all parameters
+	oscillator.frequency.exponentialRampToValueAtTime(
+		endFreq,
+		currentTime + duration,
+	);
+	gainNode.gain.linearRampToValueAtTime(volume, currentTime + attack);
 
-  // Connect and schedule playback
-  oscillator.connect(gainNode).connect(audioContext.destination);
+	// Connect and schedule playback
+	oscillator.connect(gainNode).connect(audioContext.destination);
 
-  oscillator.start(currentTime);
-  oscillator.stop(currentTime + duration);
+	oscillator.start(currentTime);
+	oscillator.stop(currentTime + duration);
 };
