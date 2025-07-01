@@ -87,32 +87,18 @@ export interface SlowDowns {
 	hideNotification: boolean;
 }
 
-export type WidgetStates =
-	| {
-			view: "none";
-	  }
-	| {
-			view: "inspector";
-			// extra params
-	  }
-	// | {
-	//     view: 'settings';
-	//     // extra params
-	//   }
-	| {
-			view: "notifications";
-			// extra params
-	  };
-// | {
-//     view: 'summary';
-//     // extra params
-//   };
-export const signalWidgetViews = signal<WidgetStates>({
-	view: "none",
-});
+export interface WidgetStates {
+	view: "inspector" | "settings" | "notifications" | "none";
+	data?: unknown;
+}
+
+export const signalWidgetViews = signal<WidgetStates>({ view: "none" });
 
 const storedCollapsed = readLocalStorage<CollapsedPosition | null>(
 	LOCALSTORAGE_COLLAPSED_KEY,
 );
 export const signalWidgetCollapsed =
 	/* @__PURE__ */ signal<CollapsedPosition | null>(storedCollapsed ?? null);
+
+// biome-ignore lint/suspicious/noExplicitAny: This will hold React elements
+export const userChildren = signal<any>(null);

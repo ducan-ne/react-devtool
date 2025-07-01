@@ -1,7 +1,7 @@
 import { type ReactNode, forwardRef } from "preact/compat";
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import { cn } from "~web/utils/helpers";
-import { signalWidgetViews } from "~web/state";
+import { signalWidgetViews, userChildren } from "~web/state";
 import { Logo } from "~web/components/logo";
 import { Icon } from "~web/components/icon";
 
@@ -15,7 +15,9 @@ const MainViewHeader = () => {
 			>
 				<div className="flex items-center gap-x-2">
 					<Logo className="text-sm me-0 w-4 h-4 text-brand-dark flex origin-center transition-all ease-in-out" />
-					<span className="font-medium text-white">React Devtool</span>
+					<span className="font-medium font-display text-white">
+						React Devtool
+					</span>
 				</div>
 				<div className={cn(["flex items-center gap-x-2 justify-end ml-auto"])}>
 					<div
@@ -44,8 +46,8 @@ const MainViewHeader = () => {
 // Mock data for tabs, this will be replaced with plugins and children
 const TABS = [
 	{ id: "app", title: "App" },
-	{ id: "router", title: "Router" },
-	{ id: "feature-flags", title: "Feature Flags" },
+	// { id: "router", title: "Router" },
+	// { id: "feature-flags", title: "Feature Flags" },
 ];
 
 const ResizablePanel = ({
@@ -127,27 +129,96 @@ const ResizablePanel = ({
 	);
 };
 
-const TabsSidebar = ({
-	tabs,
+const ReactContentRenderer = () => {
+	const refContainer = useRef<HTMLDivElement>(null);
+	// biome-ignore lint/suspicious/noExplicitAny: Root will be dynamically imported
+	const refRoot = useRef<any | null>(null);
+
+	useEffect(() => {
+		const container = refContainer.current;
+		if (!container) return;
+
+		let unmounted = false;
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		let createRootPromise: Promise<any> | null = null;
+
+		const renderReactContent = (children: React.ReactNode) => {
+			if (!children) {
+				if (refRoot.current) {
+					refRoot.current.unmount();
+					refRoot.current = null;
+				}
+				return;
+			}
+
+			if (!createRootPromise) {
+				createRootPromise = import("react-dom/client").catch((err) => {
+					console.error(
+						"react-devtool: Failed to import 'react-dom/client'. If you are passing React children to <Devtool>, please ensure 'react-dom' is installed.",
+						err,
+					);
+					if (container && !unmounted) {
+						container.innerHTML = `<div style="color: #f87171; padding: 1rem; font-family: sans-serif;"><strong>Devtool Error</strong><br/>Could not render content because <code>react-dom</code> is not installed.</div>`;
+					}
+					return null;
+				});
+			}
+
+			createRootPromise.then((ReactDOMClient) => {
+				if (unmounted || !ReactDOMClient) return;
+
+				if (!refRoot.current) {
+					refRoot.current = ReactDOMClient.createRoot(container);
+				}
+				refRoot.current.render(children);
+			});
+		};
+
+		const unsubscribe = userChildren.subscribe(renderReactContent);
+
+		// Initial render
+		if (userChildren.value) {
+			renderReactContent(userChildren.value);
+		}
+
+		return () => {
+			unmounted = true;
+			unsubscribe();
+			if (refRoot.current) {
+				refRoot.current.unmount();
+				refRoot.current = null;
+			}
+		};
+	}, []);
+
+	return <div ref={refContainer} className="h-full w-full" />;
+};
+
+const TabSidebar = ({
 	selectedTab,
 	onSelectTab,
 }: {
-	tabs: { id: string; title: string }[];
 	selectedTab: string;
-	onSelectTab: (id: string) => void;
+	onSelectTab: (tabId: string) => void;
 }) => {
+	const handleTabClick = (tabId: string) => {
+		document.startViewTransition(() => {
+			onSelectTab(tabId);
+		});
+	};
+
 	return (
-		<div className="flex flex-col h-full bg-[#1e1e1e] p-2 gap-1">
-			{tabs.map((tab) => (
+		<div className="flex flex-col h-full bg-[#1e1e1e] p-2 gap-1 font-text">
+			{TABS.map((tab) => (
 				<button
 					key={tab.id}
 					type="button"
-					onClick={() => onSelectTab(tab.id)}
+					onClick={() => handleTabClick(tab.id)}
 					className={cn(
 						"p-2 rounded text-left text-sm transition-colors w-full truncate",
 						selectedTab === tab.id
 							? "bg-brand-dark text-white"
-							: "text-neutral-400 hover:bg-[#27272A] hover:text-white",
+							: "text-gray-300 hover:bg-gray-700 hover:text-white",
 					)}
 				>
 					{tab.title}
@@ -158,22 +229,66 @@ const TabsSidebar = ({
 };
 
 const TabContent = ({ selectedTab }: { selectedTab: string }) => {
-	// This will render the content based on the selected tab.
-	// The user's application content (<Devtool>'s children) will be one of these.
-	const content = TABS.find((tab) => tab.id === selectedTab)?.title;
+	const renderTabContent = () => {
+		switch (selectedTab) {
+			case "router":
+				return (
+					<div
+						className="h-full w-full p-4 text-white"
+						style={{ viewTransitionName: "tab-content" }}
+					>
+						<div className="p-4 border border-gray-600 rounded">
+							<h3 className="text-lg font-semibold mb-2">Router</h3>
+							<p className="text-gray-300">
+								Router configuration and debugging tools will be available here.
+							</p>
+						</div>
+					</div>
+				);
+			case "feature-flags":
+				return (
+					<div
+						className="h-full w-full p-4 text-white"
+						style={{ viewTransitionName: "tab-content" }}
+					>
+						<div className="p-4 border border-gray-600 rounded">
+							<h3 className="text-lg font-semibold mb-2">Feature Flags</h3>
+							<p className="text-gray-300">
+								Feature flag management and testing tools will be available
+								here.
+							</p>
+						</div>
+					</div>
+				);
+			default:
+				return (
+					<div
+						className="h-full w-full p-4 text-white flex items-center justify-center"
+						style={{ viewTransitionName: "tab-content" }}
+					>
+						<div className="text-gray-400">Select a tab to view content</div>
+					</div>
+				);
+		}
+	};
 
 	return (
-		<div className="p-4 text-white">
-			<h2 className="text-xl font-bold mb-4">{content}</h2>
-			<p>Content for the "{content}" tab goes here.</p>
-			{selectedTab === "app" && (
-				<div className="mt-4 p-4 border border-dashed border-neutral-600 rounded">
-					<p className="text-neutral-400">
-						This area will display the children passed to the `Devtool`
-						component.
-					</p>
-				</div>
-			)}
+		<div className="h-full w-full font-text overflow-auto">
+			{/* Always render ReactContentRenderer but conditionally show it */}
+			<div
+				className={cn(
+					"h-full w-full p-4 text-white",
+					selectedTab === "app" ? "block" : "hidden",
+				)}
+				style={{
+					viewTransitionName: selectedTab === "app" ? "tab-content" : undefined,
+				}}
+			>
+				<ReactContentRenderer />
+			</div>
+
+			{/* Render other tab content only when not showing app */}
+			{selectedTab !== "app" && renderTabContent()}
 		</div>
 	);
 };
@@ -188,11 +303,7 @@ export const MainView = () => {
 			<ResizablePanel
 				showLeftPanel={showTabs}
 				leftPanel={
-					<TabsSidebar
-						tabs={TABS}
-						selectedTab={selectedTab}
-						onSelectTab={setSelectedTab}
-					/>
+					<TabSidebar selectedTab={selectedTab} onSelectTab={setSelectedTab} />
 				}
 				rightPanel={<TabContent selectedTab={selectedTab} />}
 			/>

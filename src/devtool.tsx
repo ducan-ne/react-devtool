@@ -1,12 +1,9 @@
-import { ToolbarErrorBoundary } from "~web/toolbar";
-import { SvgSprite } from "~web/components/svg-sprite";
-import { Widget } from "~web/widget";
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { scan } from "~core/index";
+import { userChildren } from "~web/state";
 
 type DevtoolProps = {
-	// biome-ignore lint/suspicious/noExplicitAny: any is fine here
-	children: any;
+	children: ReactNode;
 };
 
 export const Devtool = ({ children }: DevtoolProps) => {
@@ -16,6 +13,14 @@ export const Devtool = ({ children }: DevtoolProps) => {
 			showToolbar: true,
 			showFPS: false,
 		});
-	}, []);
+
+		userChildren.value = children;
+
+		return () => {
+			userChildren.value = null;
+		};
+	}, [children]);
+
+	// This component only sets up the devtool and doesn't render anything itself.
 	return null;
 };

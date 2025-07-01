@@ -5,16 +5,6 @@ export default {
 	darkMode: "class",
 	theme: {
 		extend: {
-			fontFamily: {
-				mono: [
-					"Menlo",
-					"Consolas",
-					"Monaco",
-					"Liberation Mono",
-					"Lucida Console",
-					"monospace",
-				],
-			},
 			spacing: {
 				3.5: "0.875rem",
 				4.5: "1.125rem",

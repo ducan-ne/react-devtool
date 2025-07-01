@@ -30,6 +30,314 @@ import { createToolbar } from "~web/toolbar";
 let rootContainer: HTMLDivElement | null = null;
 let shadowRoot: ShadowRoot | null = null;
 
+// Font loading function for shadow DOM compatibility
+const loadOptimisticFonts = () => {
+	if (!IS_CLIENT || document.getElementById("react-devtool-fonts")) {
+		return; // Fonts already loaded or not in client
+	}
+
+	const fontCSS = `
+		/* Arabic */
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Arbc_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0600-06FF;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Arbc_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0600-06FF;
+		}
+
+		/* Cyrillic */
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_Cyrl_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0400-045F, U+2116;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_Cyrl_W_SBd.woff2') format('woff2');
+			font-weight: 600;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0400-045F, U+2116;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_Cyrl_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0400-045F, U+2116;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Cyrl_W_Rg.woff2') format('woff2');
+			font-weight: 400;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0400-045F, U+2116;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Cyrl_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0400-045F, U+2116;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Cyrl_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0400-045F, U+2116;
+		}
+
+		/* Devanagari */
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_Deva_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0900-097F, U+1CD0-1CF6, U+1CF8-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_Deva_W_SBd.woff2') format('woff2');
+			font-weight: 600;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0900-097F, U+1CD0-1CF6, U+1CF8-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_Deva_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0900-097F, U+1CD0-1CF6, U+1CF8-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Deva_W_Rg.woff2') format('woff2');
+			font-weight: 400;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0900-097F, U+1CD0-1CF6, U+1CF8-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Deva_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0900-097F, U+1CD0-1CF6, U+1CF8-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Deva_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0900-097F, U+1CD0-1CF6, U+1CF8-1CF9, U+200C-200D, U+20A8, U+20B9, U+25CC, U+A830-A839, U+A8E0-A8FB;
+		}
+
+		/* Vietnamese */
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_Viet_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_Viet_W_SBd.woff2') format('woff2');
+			font-weight: 600;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_Viet_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Viet_W_Rg.woff2') format('woff2');
+			font-weight: 400;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Viet_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_Viet_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
+		}
+
+		/* Latin Extended */
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_W_SBd.woff2') format('woff2');
+			font-weight: 600;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_W_Rg.woff2') format('woff2');
+			font-weight: 400;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+		}
+
+		/* Latin */
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_W_SBd.woff2') format('woff2');
+			font-weight: 600;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Display';
+			src: url('https://react.dev/fonts/Optimistic_Display_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_W_Rg.woff2') format('woff2');
+			font-weight: 400;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_W_Md.woff2') format('woff2');
+			font-weight: 500;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+		}
+
+		@font-face {
+			font-family: 'Optimistic Text';
+			src: url('https://react.dev/fonts/Optimistic_Text_W_Bd.woff2') format('woff2');
+			font-weight: 700;
+			font-style: normal;
+			font-display: swap;
+			unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+		}
+	`;
+
+	const styleElement = document.createElement("style");
+	styleElement.id = "react-devtool-fonts";
+	styleElement.textContent = fontCSS;
+	document.head.appendChild(styleElement);
+};
+
 // @TODO: @pivanov - add back in when options are implemented
 // const audioContext: AudioContext | null = null;
 
@@ -544,6 +852,9 @@ export const start = () => {
 		if (!IS_CLIENT) {
 			return;
 		}
+
+		// Load fonts early for shadow DOM compatibility
+		loadOptimisticFonts();
 
 		if (
 			!ReactScanInternals.runInAllEnvironments &&
