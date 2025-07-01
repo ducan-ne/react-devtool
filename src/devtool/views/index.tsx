@@ -1,4 +1,8 @@
-import { type ReadonlySignal, computed } from "@preact/signals";
+import {
+	type ReadonlySignal,
+	computed,
+	useSignalEffect,
+} from "@preact/signals";
 import type { ReactNode } from "preact/compat";
 import { Store } from "~core/index";
 import { signalWidgetViews } from "~web/state";
@@ -6,7 +10,7 @@ import { cn } from "~web/utils/helpers";
 import { Header } from "~web/widget/header";
 import { ViewInspector } from "./inspector";
 import { Toolbar } from "./toolbar";
-import { NotificationWrapper } from "./notifications/notifications";
+import { MainViewWrapper } from "./main";
 
 const isInspecting = computed(
 	() => Store.inspectState.value.kind === "inspecting",
@@ -32,22 +36,24 @@ const isNotificationsViewOpen = computed(
 	() => signalWidgetViews.value.view === "notifications",
 );
 
+const contentClassName = computed(() => {
+	return cn(
+		"flex flex-1 flex-col",
+		"overflow-hidden z-10",
+		"rounded-lg",
+		"bg-black",
+		"opacity-100",
+		"transition-[border-radius]",
+		"peer-hover/left:rounded-l-none",
+		"peer-hover/right:rounded-r-none",
+		"peer-hover/top:rounded-t-none",
+		"peer-hover/bottom:rounded-b-none",
+	);
+});
+
 export const Content = () => {
 	return (
-		<div
-			className={cn(
-				"flex flex-1 flex-col",
-				"overflow-hidden z-10",
-				"rounded-lg",
-				"bg-black",
-				"opacity-100",
-				"transition-[border-radius]",
-				"peer-hover/left:rounded-l-none",
-				"peer-hover/right:rounded-r-none",
-				"peer-hover/top:rounded-t-none",
-				"peer-hover/bottom:rounded-b-none",
-			)}
-		>
+		<div className={contentClassName}>
 			<div className={headerClassName}>
 				<Header />
 				<div
@@ -66,7 +72,7 @@ export const Content = () => {
 					</ContentView>
 
 					<ContentView isOpen={isNotificationsViewOpen}>
-						<NotificationWrapper />
+						<MainViewWrapper />
 					</ContentView>
 				</div>
 			</div>

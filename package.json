@@ -20,6 +20,7 @@
 		"@tailwindcss/vite": "^4.1.11",
 		"@types/react": "^19.1.8",
 		"@types/react-dom": "^19.1.6",
+		"@vitejs/plugin-react": "^4.6.0",
 		"bippy": "^0.3.17",
 		"clsx": "^2.1.1",
 		"code-inspector-plugin": "^0.20.14",

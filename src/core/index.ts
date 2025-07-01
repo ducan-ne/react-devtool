@@ -651,7 +651,6 @@ export const scan = (options: Options = {}) => {
 
 	start();
 };
-scan();
 
 export const useScan = (options: Options = {}) => {
 	setOptions(options);

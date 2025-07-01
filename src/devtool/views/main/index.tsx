@@ -2,7 +2,8 @@ import { type ReactNode, forwardRef } from "preact/compat";
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 import { cn } from "~web/utils/helpers";
 import { signalWidgetViews } from "~web/state";
-import { CloseIcon } from "./icons";
+import { Logo } from "~web/components/logo";
+import { Icon } from "~web/components/icon";
 
 const MainViewHeader = () => {
 	return (
@@ -12,7 +13,10 @@ const MainViewHeader = () => {
 					"min-w-fit w-full justify-start flex items-center pl-5 pr-2 text-sm gap-x-4",
 				])}
 			>
-				<span className="font-medium text-white">Devtool</span>
+				<div className="flex items-center gap-x-2">
+					<Logo className="text-sm me-0 w-4 h-4 text-brand-dark flex origin-center transition-all ease-in-out" />
+					<span className="font-medium text-white">React Devtool</span>
+				</div>
 				<div className={cn(["flex items-center gap-x-2 justify-end ml-auto"])}>
 					<div
 						className={cn([
@@ -28,7 +32,7 @@ const MainViewHeader = () => {
 							}}
 							title="Close"
 						>
-							<CloseIcon size={18} className="text-[#6F6F78]" />
+							<Icon name="icon-close" size={18} className="text-[#6F6F78]" />
 						</button>
 					</div>
 				</div>
@@ -55,7 +59,7 @@ const ResizablePanel = ({
 }) => {
 	const refSidebar = useRef<HTMLDivElement>(null);
 	const refIsResizing = useRef(false);
-	const [sidebarWidth, setSidebarWidth] = useState(250);
+	const [sidebarWidth, setSidebarWidth] = useState(150);
 
 	const handleResize = useCallback((e: PointerEvent) => {
 		e.preventDefault();
@@ -112,7 +116,7 @@ const ResizablePanel = ({
 						aria-label="Resize sidebar"
 						className="group w-2 !cursor-col-resize flex items-center justify-center bg-transparent"
 					>
-						<div className="w-[3px] h-8 bg-neutral-700 rounded-full group-hover:bg-purple-500 transition-colors" />
+						<div className="w-[3px] h-8 bg-neutral-700 rounded-full group-hover:bg-brand-dark transition-colors" />
 					</button>
 				</>
 			)}
@@ -142,7 +146,7 @@ const TabsSidebar = ({
 					className={cn(
 						"p-2 rounded text-left text-sm transition-colors w-full truncate",
 						selectedTab === tab.id
-							? "bg-[#7521c8] text-white"
+							? "bg-brand-dark text-white"
 							: "text-neutral-400 hover:bg-[#27272A] hover:text-white",
 					)}
 				>
@@ -196,9 +200,7 @@ export const MainView = () => {
 	);
 };
 
-// Renaming NotificationWrapper to MainViewWrapper but keeping the export name
-// to avoid breaking changes in other files for now.
-export const NotificationWrapper = forwardRef<HTMLDivElement>((_, ref) => {
+export const MainViewWrapper = forwardRef<HTMLDivElement>((_, ref) => {
 	return (
 		<div ref={ref} className="h-full w-full bg-black">
 			<MainView />

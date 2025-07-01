@@ -654,6 +654,7 @@ export const Widget = () => {
 	}, []);
 
 	const isCollapsed = signalWidgetCollapsed.value;
+	console.log(signalWidgetViews.value);
 
 	let arrowRotationClass = "";
 	if (isCollapsed) {

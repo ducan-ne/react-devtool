@@ -1,29 +1,16 @@
-import { useState } from "preact/hooks";
-import { Test } from "./test";
-import { SampleReact } from "./react/sample";
-import { Widget } from "~web/widget";
-import { SvgSprite } from "~web/components/svg-sprite";
-import { ToolbarErrorBoundary } from "~web/toolbar";
 import { setOptions } from "~core/index";
+import { Devtool } from "./devtool";
 
 setOptions({
 	showFPS: false,
-	showToolbar: true,
+	// showToolbar: true,
 });
 
 export function App() {
-	const [count, setCount] = useState(0);
-
 	return (
 		<>
-			<Test>
-				<SampleReact />
-			</Test>
-			{/* <ToolbarErrorBoundary>
-				<SvgSprite />
-				<Widget />
-			</ToolbarErrorBoundary> */}
-			,
+			123
+			<Devtool>Hello world</Devtool>
 		</>
 	);
 }

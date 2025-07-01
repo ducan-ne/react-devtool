@@ -49,7 +49,7 @@ import { Devtool } from "react-devtool";
 function App() {
   return (
     ...
-      <Devtool plugins={[posthogPlugin, tanstackRouterPlugin]}>
+      <Devtool plugins={[posthogPlugin, tanstackRouterPlugin, reactScanPlugin /* reuse forked react scan source code to make the devtool feature rich */]}>
       <UI
         featureFlagsSchema={featureFlagsSchema}
       />

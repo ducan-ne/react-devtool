@@ -7,9 +7,18 @@ import {
 } from "preact/hooks";
 import { ReactScanInternals, Store } from "~core/index";
 import { Icon } from "~web/components/icon";
+import { Logo } from "~web/components/logo";
 import { signalWidgetViews } from "~web/state";
 import { constant } from "~web/utils/preact/constant";
 import { FPSMeter } from "~web/widget/fps-meter";
+
+if (import.meta.env.DEV) {
+	setTimeout(() => {
+		signalWidgetViews.value = {
+			view: "notifications",
+		};
+	}, 100);
+}
 
 export const Toolbar = constant(() => {
 	const inspectState = Store.inspectState;
@@ -98,25 +107,7 @@ export const Toolbar = constant(() => {
 		inspectColor = "#999";
 	}
 	return (
-		<button
-			type="button"
-			className="flex max-h-9 min-h-9 flex-1 items-stretch overflow-hidden"
-			onClick={() => {
-				if (Store.inspectState.value.kind !== "inspect-off") {
-					Store.inspectState.value = {
-						kind: "inspect-off",
-					};
-				}
-				switch (signalWidgetViews.value.view) {
-					case "none": {
-						signalWidgetViews.value = {
-							view: "notifications",
-						};
-						return;
-					}
-				}
-			}}
-		>
+		<div className="flex max-h-9 min-h-9 flex-1 items-stretch overflow-hidden">
 			<div className="h-full flex items-center min-w-fit">
 				<button
 					type="button"
@@ -128,8 +119,27 @@ export const Toolbar = constant(() => {
 				>
 					{inspectIcon}
 				</button>
-				Devtool
 			</div>
+			<button
+				onClick={() => {
+					if (Store.inspectState.value.kind !== "inspect-off") {
+						Store.inspectState.value = {
+							kind: "inspect-off",
+						};
+					}
+					switch (signalWidgetViews.value.view) {
+						case "none": {
+							signalWidgetViews.value = {
+								view: "notifications",
+							};
+							return;
+						}
+					}
+				}}
+				className="flex items-center min-w-fit w-6 h-4 mt-2.5"
+			>
+				<Logo className="text-sm me-0 w-4 h-4 text-brand-dark flex origin-center transition-all ease-in-out" />
+			</button>
 
 			{/* <Toggle
 				checked={!ReactScanInternals.instrumentation?.isPaused.value}
@@ -140,6 +150,6 @@ export const Toolbar = constant(() => {
 
 			{/* todo add back showFPS*/}
 			{ReactScanInternals.options.value.showFPS && <FPSMeter />}
-		</button>
+		</div>
 	);
 });
