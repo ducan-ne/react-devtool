@@ -5,7 +5,7 @@ import { signalWidgetViews, userChildren } from "~web/state";
 import { Logo } from "~web/components/logo";
 import { Icon } from "~web/components/icon";
 import { onCLS, onINP, onFCP, onLCP, onTTFB } from "web-vitals";
-import { PropertiesView, } from "../inspector/properties";
+import { PropertiesView } from "../inspector/properties";
 
 const MainViewHeader = () => {
 	return (

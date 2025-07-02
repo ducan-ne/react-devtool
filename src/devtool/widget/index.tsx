@@ -180,7 +180,12 @@ export const Widget = () => {
 		(e: JSX.TargetedPointerEvent<HTMLDivElement>) => {
 			e.preventDefault();
 
-			if (!refWidget.current || (e.target as HTMLElement).closest("button"))
+			if (
+				!refWidget.current ||
+				(e.target as HTMLElement).closest("button") ||
+				(e.target as HTMLElement).closest("input") ||
+				(e.target as HTMLElement).closest("select")
+			)
 				return;
 
 			const container = refWidget.current;

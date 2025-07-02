@@ -7,11 +7,11 @@ type Subscribable = {
   subscribe: (fn: (value: any) => void) => () => void
 }
 
-const defaultFlags: Subscribable<Record<string, boolean>> = createState({
+const values: Subscribable<Record<string, boolean>> = state({
   flags: {}
 })
 
-const defaultFlags: Subscribable<Record<string, boolean>> = createFlags({
+const defaultFlags: Subscribable<Record<string, boolean>> = flags({
   'aaaa': true,
   'abc-0123': true,
 })

@@ -29,9 +29,9 @@ export default defineConfig({
 		minify: false,
 		sourcemap: true,
 		lib: {
-			entry: "./src/devtool.tsx",
+			entry: ["./src/devtool.tsx", "./src/ui.tsx"],
 			formats: ["es"],
-			fileName: () => `index.js`,
+			fileName: () => `[name].js`,
 		},
 		rollupOptions: {
 			preserveEntrySignatures: "strict",

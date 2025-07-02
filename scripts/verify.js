@@ -30,4 +30,42 @@ export const customAssertMap = {
 		).innerText();
 		assert(content.includes("Hello world"));
 	},
+	"with-ui": async (page) => {
+		// Check initial dark mode state (should be ON by default)
+		const initialContent = await (
+			await page.waitForSelector("[data-testid='dark-mode-value']")
+		).innerText();
+		assert(initialContent.includes("Dark mode: ON"));
+
+		// Open the devtool
+		await page.click("[data-testid='open-devtool']");
+		await page.waitForTimeout(500);
+
+		// Navigate to Feature Flags tab
+		await page.click("text=Feature Flags");
+		await page.waitForTimeout(300);
+
+		// Find and click the darkMode toggle
+		const darkModeToggle = page.locator(
+			'.react-devtool-preview-line:has(.react-devtool-key:text("darkMode:")) .react-devtool-toggle input[type="checkbox"]',
+		);
+		await darkModeToggle.click();
+		await page.waitForTimeout(300);
+
+		// Check that dark mode is now OFF
+		const updatedContent = await (
+			await page.waitForSelector("[data-testid='dark-mode-value']")
+		).innerText();
+		assert(updatedContent.includes("Dark mode: OFF"));
+
+		// Toggle it back ON to verify it works both ways
+		await darkModeToggle.click();
+		await page.waitForTimeout(300);
+
+		// Check that dark mode is back ON
+		const finalContent = await (
+			await page.waitForSelector("[data-testid='dark-mode-value']")
+		).innerText();
+		assert(finalContent.includes("Dark mode: ON"));
+	},
 };

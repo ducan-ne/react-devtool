@@ -60,11 +60,7 @@ interface EditableValueProps {
 	onCancel: () => void;
 }
 
-const EditableValue = ({
-	value,
-	onSave,
-	onCancel,
-}: EditableValueProps) => {
+const EditableValue = ({ value, onSave, onCancel }: EditableValueProps) => {
 	const refInput = useRef<HTMLInputElement>(null);
 	const [editValue, setEditValue] = useState("");
 
@@ -462,7 +458,7 @@ const PropertyElement = ({
 	);
 };
 
-const PropertySection = ({
+export const PropertySection = ({
 	refSticky,
 	isSticky,
 	name,
@@ -494,7 +490,6 @@ const PropertySection = ({
 		});
 	}, [isExpanded, isSticky]);
 
-	console.log(currentData);
 	if (
 		!currentData ||
 		(Array.isArray(currentData)
@@ -564,6 +559,32 @@ const PropertySection = ({
 		</>
 	);
 };
+
+// React-compatible API for rendering PropertySection
+export function createPropertyRenderer() {
+	return {
+		renderToDOM: (
+			container: HTMLElement,
+			props: {
+				name: string;
+				data: Signal<Record<string, unknown>>;
+				refSticky?:
+					| ReturnType<typeof useMergedRefs<HTMLElement>>
+					| ((node: HTMLElement | null) => void);
+				isSticky?: boolean;
+			},
+		) => {
+			import("preact").then(({ render, h }) => {
+				render(h(PropertySection, props), container);
+			});
+		},
+		unmount: (container: HTMLElement) => {
+			import("preact").then(({ render }) => {
+				render(null, container);
+			});
+		},
+	};
+}
 
 // Example of how to use it with a mock signal
 export const PropertiesView = () => {
