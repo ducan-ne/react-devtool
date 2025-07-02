@@ -67,6 +67,7 @@ function App() {
 	return (
 		<>
 			<SubscribeToFlags />
+			Radio value2: {radioValue}
 			<div>
 				<a href="https://vite.dev" target="_blank" rel="noopener noreferrer">
 					<img src={viteLogo} className="logo" alt="Vite logo" />
@@ -89,9 +90,7 @@ function App() {
 			</p>
 			<Devtool>
 				<div className="space-y-6">
-					<h2 className="text-xl font-bold text-white mb-4">
-						React Devtool UI Components Demo
-					</h2>
+					<h2 className="text-xl font-bold text-white mb-4">123</h2>
 
 					{/* Tabs Container */}
 					<Tabs defaultValue="demo">

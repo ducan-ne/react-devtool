@@ -7,13 +7,13 @@ import { signalWidgetViews } from "~web/state";
 import { constant } from "~web/utils/preact/constant";
 import { FPSMeter } from "~web/widget/fps-meter";
 
-if (import.meta.env.DEV) {
-	setTimeout(() => {
-		signalWidgetViews.value = {
-			view: "notifications",
-		};
-	}, 300);
-}
+// if (import.meta.env.DEV) {
+// 	setTimeout(() => {
+// 		signalWidgetViews.value = {
+// 			view: "notifications",
+// 		};
+// 	}, 300);
+// }
 
 export const Toolbar = constant(() => {
 	const inspectState = Store.inspectState;
