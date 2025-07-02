@@ -1,6 +1,6 @@
 import { type Fiber, getDisplayName } from "bippy";
 import { useEffect, useRef } from "preact/hooks";
-import { ReactScanInternals, Store } from "~core/index";
+import { ReactDevtoolInternals, Store } from "~core/index";
 
 import { signalIsSettingsOpen, signalWidgetViews } from "~web/state";
 import { IS_CLIENT } from "~web/utils/constants";
@@ -184,7 +184,7 @@ export const ScanOverlay = () => {
 		parentCompositeFiber: Fiber,
 		onComplete?: () => void,
 	) => {
-		const speed = ReactScanInternals.options.value
+		const speed = ReactDevtoolInternals.options.value
 			.animationSpeed as keyof typeof ANIMATION_CONFIG.speeds;
 		const t = ANIMATION_CONFIG.speeds[speed] ?? ANIMATION_CONFIG.speeds.off;
 
@@ -464,7 +464,7 @@ export const ScanOverlay = () => {
 		) {
 			const syntheticEvent = new MouseEvent(e.type, e);
 			// @ts-ignore - this allows to know to not re-process this event when this event handler captures it
-			syntheticEvent.__reactScanSyntheticEvent = true;
+			syntheticEvent.__reactDevtoolSyntheticEvent = true;
 			clickedEl.dispatchEvent(syntheticEvent);
 			return;
 		}
@@ -492,7 +492,7 @@ export const ScanOverlay = () => {
 
 	const handleClick = (e: MouseEvent) => {
 		// @ts-ignore - metadata added to toolbar button events we create and dispatch
-		if (e.__reactScanSyntheticEvent) {
+		if (e.__reactDevtoolSyntheticEvent) {
 			return;
 		}
 

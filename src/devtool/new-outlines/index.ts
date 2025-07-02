@@ -12,7 +12,7 @@ import {
 	type Change,
 	type ContextChange,
 	type PropsChange,
-	ReactScanInternals,
+	ReactDevtoolInternals,
 	Store,
 	ignoredProps,
 } from "~core/index";
@@ -23,7 +23,7 @@ import {
 	getStateChanges,
 	type OldRenderData,
 } from "~core/instrumentation";
-import { log, } from "~web/utils/log";
+import { log } from "~web/utils/log";
 import { inspectorUpdateSignal } from "~web/views/inspector/states";
 import {
 	OUTLINE_ARRAY_SIZE,
@@ -294,7 +294,7 @@ const getDpr = () => {
 const getCanvasEl = () => {
 	cleanup();
 	const host = document.createElement("div");
-	host.setAttribute("data-react-scan", "true");
+	host.setAttribute("data-react-devtool", "true");
 	const shadowRoot = host.attachShadow({ mode: "open" });
 
 	const canvasEl = document.createElement("canvas");
@@ -319,10 +319,7 @@ const getCanvasEl = () => {
 	canvasEl.width = width;
 	canvasEl.height = height;
 
-	if (
-		IS_OFFSCREEN_CANVAS_WORKER_SUPPORTED &&
-		!window.__REACT_SCAN_EXTENSION__
-	) {
+	if (IS_OFFSCREEN_CANVAS_WORKER_SUPPORTED) {
 		try {
 			worker = new workerCode();
 			const offscreenCanvas = canvasEl.transferControlToOffscreen();
@@ -419,16 +416,16 @@ const getCanvasEl = () => {
 };
 
 const hasStopped = () => {
-	return globalThis.__REACT_SCAN_STOP__;
+	return globalThis.__REACT_DEVTOOL_STOP__;
 };
 
-const stop = () => {
-	globalThis.__REACT_SCAN_STOP__ = true;
-	cleanup();
-};
+// const stop = () => {
+// 	globalThis.__REACT_DEVTOOL_STOP__ = true;
+// 	cleanup();
+// };
 
 const cleanup = () => {
-	const host = document.querySelector("[data-react-scan]");
+	const host = document.querySelector("[data-react-devtool]");
 	if (host) {
 		host.remove();
 	}
@@ -438,7 +435,7 @@ const reportRenderToListeners = (fiber: Fiber) => {
 	if (isCompositeFiber(fiber)) {
 		// report render has a non trivial cost because it calls Date.now(), so we want to avoid the computation if possible
 		if (
-			ReactScanInternals.options.value.showToolbar !== false &&
+			ReactDevtoolInternals.options.value.showToolbar !== false &&
 			Store.inspectState.value.kind === "focused"
 		) {
 			const reportFiber = fiber;
@@ -523,7 +520,7 @@ const isValidFiber = (fiber: Fiber) => {
 
 	return true;
 };
-export const initReactScanInstrumentation = (setupToolbar: () => void) => {
+export const initReactDevtoolInstrumentation = (setupToolbar: () => void) => {
 	if (hasStopped()) return;
 	// todo: don't hardcode string getting weird ref error in iife when using process.env
 	let schedule: ReturnType<typeof requestAnimationFrame>;
@@ -546,19 +543,14 @@ export const initReactScanInstrumentation = (setupToolbar: () => void) => {
 		}); // TODO(Alexis): perhaps a better timing
 	};
 
-	const instrumentation = createInstrumentation("react-scan-devtools-0.1.0", {
+	const instrumentation = createInstrumentation("react-devtools", {
 		onCommitStart: () => {
-			ReactScanInternals.options.value.onCommitStart?.();
+			ReactDevtoolInternals.options.value.onCommitStart?.();
 		},
 		onActive: () => {
 			if (hasStopped()) return;
 
 			scheduleSetup();
-			if (!window.__REACT_SCAN_EXTENSION__) {
-				globalThis.__REACT_SCAN__ = {
-					ReactScanInternals,
-				};
-			}
 			startReportInterval();
 		},
 		onError: () => {
@@ -570,7 +562,7 @@ export const initReactScanInstrumentation = (setupToolbar: () => void) => {
 				Store.interactionListeningForRenders?.(fiber, renders);
 			}
 			const isOverlayPaused =
-				ReactScanInternals.instrumentation?.isPaused.value;
+				ReactDevtoolInternals.instrumentation?.isPaused.value;
 			const isInspectorInactive =
 				Store.inspectState.value.kind === "inspect-off" ||
 				Store.inspectState.value.kind === "uninitialized";
@@ -582,7 +574,7 @@ export const initReactScanInstrumentation = (setupToolbar: () => void) => {
 			if (!isOverlayPaused) {
 				outlineFiber(fiber);
 			}
-			if (ReactScanInternals.options.value.log) {
+			if (ReactDevtoolInternals.options.value.log) {
 				// this can be expensive given enough re-renders
 				log(renders);
 			}
@@ -594,16 +586,16 @@ export const initReactScanInstrumentation = (setupToolbar: () => void) => {
 				reportRenderToListeners(fiber);
 			}
 
-			ReactScanInternals.options.value.onRender?.(fiber, renders);
+			ReactDevtoolInternals.options.value.onRender?.(fiber, renders);
 		},
 		onCommitFinish: () => {
 			scheduleSetup();
-			ReactScanInternals.options.value.onCommitFinish?.();
+			ReactDevtoolInternals.options.value.onCommitFinish?.();
 		},
 		onPostCommitFiberRoot() {
 			scheduleSetup();
 		},
 		trackChanges: false,
 	});
-	ReactScanInternals.instrumentation = instrumentation;
+	ReactDevtoolInternals.instrumentation = instrumentation;
 };

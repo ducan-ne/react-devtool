@@ -3,18 +3,17 @@ import {
 	type Fiber,
 	detectReactBuildType,
 	getRDTHook,
-	getType,
 	isInstrumentationActive,
 } from "bippy";
 import type { ComponentType } from "preact";
 import type { ReactNode } from "preact/compat";
 import type { RenderData } from "~core/utils";
-import { initReactScanInstrumentation } from "../new-outlines";
-import styles from "../../index.css?inline";
+import { createToolbar } from "~web/toolbar";
 import { IS_CLIENT } from "~web/utils/constants";
 import { readLocalStorage, saveLocalStorage } from "~web/utils/helpers";
 import type { Outline } from "~web/utils/outline";
 import type { States } from "~web/views/inspector/utils";
+import styles from "../../index.css?inline";
 import type {
 	ChangeReason,
 	Render,
@@ -24,7 +23,15 @@ import type { InternalInteraction } from "./monitor/types";
 import type { getSession } from "./monitor/utils";
 import { startTimingTracking } from "./notifications/event-tracking";
 import { createHighlightCanvas } from "./notifications/outline-overlay";
-import { createToolbar } from "~web/toolbar";
+
+declare global {
+	interface Window {
+		__REACT_DEVTOOL_VERSION__?: string;
+		__REACT_DEVTOOL_STOP__?: () => void;
+		__REACT_DEVTOOL_TOOLBAR_CONTAINER__?: HTMLElement;
+		reactDevtoolCleanupListeners?: () => void;
+	}
+}
 
 let rootContainer: HTMLDivElement | null = null;
 let shadowRoot: ShadowRoot | null = null;
@@ -351,7 +358,7 @@ const initRootContainer = (): RootContainer => {
 	}
 
 	rootContainer = document.createElement("div");
-	rootContainer.id = "react-scan-root";
+	rootContainer.id = "react-devtool-root";
 
 	shadowRoot = rootContainer.attachShadow({ mode: "open" });
 
@@ -497,16 +504,6 @@ interface Options {
 	onPaintFinish?: (outlines: Array<Outline>) => void;
 }
 
-type MonitoringOptions = Pick<
-	Options,
-	| "enabled"
-	| "onCommitStart"
-	| "onCommitFinish"
-	| "onPaintStart"
-	| "onPaintFinish"
-	| "onRender"
->;
-
 interface Monitor {
 	pendingRequests: number;
 	interactions: Array<InternalInteraction>;
@@ -608,7 +605,7 @@ export const Store: StoreType = {
 	changesListeners: new Map(),
 };
 
-export const ReactScanInternals: Internals = {
+export const ReactDevtoolInternals: Internals = {
 	instrumentation: null,
 	componentAllowList: null,
 	options: signal({
@@ -633,6 +630,7 @@ export const ReactScanInternals: Internals = {
 	scheduledOutlines: new Map(),
 	activeOutlines: new Map(),
 	Store,
+	version: "0.0.1",
 };
 
 type LocalStorageOptions = Omit<
@@ -645,7 +643,7 @@ type LocalStorageOptions = Omit<
 >;
 
 function isOptionKey(key: string): key is keyof Options {
-	return key in ReactScanInternals.options.value;
+	return key in ReactDevtoolInternals.options.value;
 }
 
 const validateOptions = (options: Partial<Options>): Partial<Options> => {
@@ -745,18 +743,6 @@ const validateOptions = (options: Partial<Options>): Partial<Options> => {
 	return validOptions;
 };
 
-const getReport = (type?: ComponentType<unknown>) => {
-	if (type) {
-		for (const reportData of Array.from(Store.legacyReportData.values())) {
-			if (reportData.type === type) {
-				return reportData;
-			}
-		}
-		return null;
-	}
-	return Store.legacyReportData;
-};
-
 export const setOptions = (userOptions: Partial<Options>) => {
 	try {
 		const validOptions = validateOptions(userOptions);
@@ -769,29 +755,29 @@ export const setOptions = (userOptions: Partial<Options>) => {
 			"showToolbar" in validOptions && validOptions.showToolbar !== undefined;
 
 		const newOptions = {
-			...ReactScanInternals.options.value,
+			...ReactDevtoolInternals.options.value,
 			...validOptions,
 		};
 
-		const { instrumentation } = ReactScanInternals;
+		const { instrumentation } = ReactDevtoolInternals;
 		if (instrumentation && "enabled" in validOptions) {
 			instrumentation.isPaused.value = validOptions.enabled === false;
 		}
 
-		ReactScanInternals.options.value = newOptions;
+		ReactDevtoolInternals.options.value = newOptions;
 
 		// temp hack since defaults override stored local storage values
 		// we actually don't care about any other local storage option other than enabled, we should not be syncing those to local storage
 		try {
 			const existing = readLocalStorage<undefined | Record<string, unknown>>(
-				"react-scan-options",
+				"react-devtool-options",
 			)?.enabled;
 
 			if (typeof existing === "boolean") {
 				newOptions.enabled = existing;
 			}
 		} catch (e) {
-			if (ReactScanInternals.options.value._debug === "verbose") {
+			if (ReactDevtoolInternals.options.value._debug === "verbose") {
 				// biome-ignore lint/suspicious/noConsole: intended debug output
 				console.error(
 					"[React Scan Internal Error]",
@@ -802,7 +788,7 @@ export const setOptions = (userOptions: Partial<Options>) => {
 			/** */
 		}
 
-		saveLocalStorage("react-scan-options", newOptions);
+		saveLocalStorage("react-devtool-options", newOptions);
 
 		if (shouldInitToolbar) {
 			initToolbar(!!newOptions.showToolbar);
@@ -810,7 +796,7 @@ export const setOptions = (userOptions: Partial<Options>) => {
 
 		return newOptions;
 	} catch (e) {
-		if (ReactScanInternals.options.value._debug === "verbose") {
+		if (ReactDevtoolInternals.options.value._debug === "verbose") {
 			// biome-ignore lint/suspicious/noConsole: intended debug output
 			console.error(
 				"[React Scan Internal Error]",
@@ -822,7 +808,7 @@ export const setOptions = (userOptions: Partial<Options>) => {
 	}
 };
 
-const getOptions = () => ReactScanInternals.options;
+const getOptions = () => ReactDevtoolInternals.options;
 
 // we only need to run this check once and will read the value in hot path
 let isProduction: boolean | null = null;
@@ -851,22 +837,23 @@ const start = () => {
 		loadOptimisticFonts();
 
 		if (
-			!ReactScanInternals.runInAllEnvironments &&
+			!ReactDevtoolInternals.runInAllEnvironments &&
 			getIsProduction() &&
-			!ReactScanInternals.options.value.dangerouslyForceRunInProduction
+			!ReactDevtoolInternals.options.value.dangerouslyForceRunInProduction
 		) {
 			return;
 		}
 
-		const localStorageOptions =
-			readLocalStorage<LocalStorageOptions>("react-scan-options");
+		const localStorageOptions = readLocalStorage<LocalStorageOptions>(
+			"react-devtool-options",
+		);
 
 		if (localStorageOptions) {
 			const validLocalOptions = validateOptions(localStorageOptions);
 
 			if (Object.keys(validLocalOptions).length > 0) {
-				ReactScanInternals.options.value = {
-					...ReactScanInternals.options.value,
+				ReactDevtoolInternals.options.value = {
+					...ReactDevtoolInternals.options.value,
 					...validLocalOptions,
 				};
 			}
@@ -874,9 +861,9 @@ const start = () => {
 
 		const options = getOptions();
 
-		initReactScanInstrumentation(() => {
-			initToolbar(!!options.value.showToolbar);
-		});
+		// initReactDevtoolInstrumentation(() => {
+		initToolbar(!!options.value.showToolbar);
+		// });
 
 		if (!Store.monitor.value && IS_CLIENT) {
 			setTimeout(() => {
@@ -888,7 +875,7 @@ const start = () => {
 			}, 5000);
 		}
 	} catch (e) {
-		if (ReactScanInternals.options.value._debug === "verbose") {
+		if (ReactDevtoolInternals.options.value._debug === "verbose") {
 			// biome-ignore lint/suspicious/noConsole: intended debug output
 			console.error(
 				"[React Scan Internal Error]",
@@ -900,17 +887,17 @@ const start = () => {
 };
 
 const initToolbar = (showToolbar: boolean) => {
-	window.reactScanCleanupListeners?.();
+	window.reactDevtoolCleanupListeners?.();
 
 	const cleanupTimingTracking = startTimingTracking();
 	const cleanupOutlineCanvas = createNotificationsOutlineCanvas();
 
-	window.reactScanCleanupListeners = () => {
+	window.reactDevtoolCleanupListeners = () => {
 		cleanupTimingTracking();
 		cleanupOutlineCanvas?.();
 	};
 
-	const windowToolbarContainer = window.__REACT_SCAN_TOOLBAR_CONTAINER__;
+	const windowToolbarContainer = window.__REACT_DEVTOOL_TOOLBAR_CONTAINER__;
 
 	if (!showToolbar) {
 		windowToolbarContainer?.remove();
@@ -927,7 +914,7 @@ const createNotificationsOutlineCanvas = () => {
 		const highlightRoot = document.documentElement;
 		return createHighlightCanvas(highlightRoot);
 	} catch (e) {
-		if (ReactScanInternals.options.value._debug === "verbose") {
+		if (ReactDevtoolInternals.options.value._debug === "verbose") {
 			// biome-ignore lint/suspicious/noConsole: intended debug output
 			console.error(
 				"[React Scan Internal Error]",
@@ -947,8 +934,8 @@ export const scan = (options: Options = {}) => {
 
 	if (
 		isInIframe &&
-		!ReactScanInternals.options.value.allowInIframe &&
-		!ReactScanInternals.runInAllEnvironments
+		!ReactDevtoolInternals.options.value.allowInIframe &&
+		!ReactDevtoolInternals.runInAllEnvironments
 	) {
 		return;
 	}
@@ -960,30 +947,6 @@ export const scan = (options: Options = {}) => {
 	start();
 };
 
-const useScan = (options: Options = {}) => {
-	setOptions(options);
-	start();
-};
-
-const onRender = (
-	type: unknown,
-	_onRender: (fiber: Fiber, renders: Array<Render>) => void,
-) => {
-	const prevOnRender = ReactScanInternals.onRender;
-	ReactScanInternals.onRender = (fiber, renders) => {
-		prevOnRender?.(fiber, renders);
-		if (getType(fiber.type) === type) {
-			_onRender(fiber, renders);
-		}
-	};
-};
-
 export const ignoredProps = new WeakSet<
 	Exclude<ReactNode, undefined | null | string | number | boolean | bigint>
 >();
-
-const ignoreScan = (node: ReactNode) => {
-	if (node && typeof node === "object") {
-		ignoredProps.add(node);
-	}
-};

@@ -8,7 +8,7 @@ import {
   isHostFiber,
   traverseFiber,
 } from 'bippy';
-import { type PropsChange, ReactScanInternals } from '~core/index';
+import { type PropsChange, ReactDevtoolInternals } from '~core/index';
 import { ChangeReason } from '~core/instrumentation';
 import { isEqual } from '~core/utils';
 import { batchGetBoundingRects } from '~web/utils/outline';
@@ -172,7 +172,7 @@ const isCurrentTree = (fiber: Fiber) => {
     // if the app never rendered then fiber roots will always return false, but thats fine since we don't care which
     // fiber we read from when there never has been a re-render
     // todo: document that better
-    if (ReactScanInternals.instrumentation?.fiberRoots.has(curr.stateNode)) {
+    if (ReactDevtoolInternals.instrumentation?.fiberRoots.has(curr.stateNode)) {
       rootFiber = curr;
 
       break;
@@ -241,7 +241,7 @@ export const getCompositeFiberFromElement = (
       curr = curr.return;
       continue;
     }
-    if (ReactScanInternals.instrumentation?.fiberRoots.has(curr.stateNode)) {
+    if (ReactDevtoolInternals.instrumentation?.fiberRoots.has(curr.stateNode)) {
       rootFiber = curr;
       currentRootFiber = curr.stateNode.current;
       break;

@@ -1,10 +1,14 @@
 import { useEffect, type ReactNode } from "react";
-import { scan } from "./devtool/core/index";
-import { userChildren } from "./devtool/state";
+import { scan } from "@devtool/core/index";
+import { userChildren } from "@devtool/state";
 
 type DevtoolProps = {
 	children: ReactNode;
 };
+
+export function abc() {
+	return 123;
+}
 
 /**
  * @public

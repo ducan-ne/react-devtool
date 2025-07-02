@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { type Fiber, getType } from 'bippy';
 // import type { ComponentType } from 'preact';
-import { ReactScanInternals } from '~core/index';
+import { ReactDevtoolInternals } from '~core/index';
 import type { AggregatedRender } from '~web/utils/outline';
 import type { AggregatedChange, Render } from './instrumentation';
 
@@ -167,7 +167,7 @@ export const getLabelText = (
 };
 
 const updateFiberRenderData = (fiber: Fiber, renders: Array<Render>) => {
-  ReactScanInternals.options.value.onRender?.(fiber, renders);
+  ReactDevtoolInternals.options.value.onRender?.(fiber, renders);
   const type = getType(fiber.type) || fiber.type;
   if (type && (typeof type === 'function' || typeof type === 'object')) {
     const renderData = (type.renderData || {

@@ -82,10 +82,6 @@ export const updateDimensions = (): void => {
 	};
 };
 
-interface SlowDowns {
-	slowDowns: number;
-	hideNotification: boolean;
-}
 
 export interface WidgetStates {
 	view: "inspector" | "settings" | "notifications" | "none";

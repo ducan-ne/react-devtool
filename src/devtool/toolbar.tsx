@@ -49,7 +49,7 @@ class ToolbarErrorBoundary extends Component {
 export const createToolbar = (root: ShadowRoot): HTMLElement => {
 	const container = document.createElement("div");
 	container.id = "react-devtool-toolbar-root";
-	window.__REACT_SCAN_TOOLBAR_CONTAINER__ = container;
+	window.__REACT_DEVTOOL_TOOLBAR_CONTAINER__ = container;
 	root.appendChild(container);
 
 	render(
@@ -65,7 +65,7 @@ export const createToolbar = (root: ShadowRoot): HTMLElement => {
 	const originalRemove = container.remove.bind(container);
 
 	container.remove = () => {
-		window.__REACT_SCAN_TOOLBAR_CONTAINER__ = undefined;
+		window.__REACT_DEVTOOL_TOOLBAR_CONTAINER__ = undefined;
 
 		if (container.hasChildNodes()) {
 			// Double render(null) is needed to fully unmount Preact components.

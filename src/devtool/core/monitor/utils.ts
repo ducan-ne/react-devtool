@@ -127,7 +127,7 @@ export const getSession = async ({
     agent: navigator.userAgent,
     commit,
     branch,
-    version: process.env.NPM_PACKAGE_VERSION,
+    version: "",
   };
   cachedSession = session;
   return session;
@@ -139,10 +139,10 @@ export const not_globally_unique_generateId = () => {
   }
 
   // @ts-expect-error
-  if (window.reactScanIdCounter === undefined) {
+  if (window.reactDevtoolIdCounter === undefined) {
     // @ts-expect-error
-    window.reactScanIdCounter = 0;
+    window.reactDevtoolIdCounter = 0;
   }
   // @ts-expect-error
-  return `${++window.reactScanIdCounter}`;
+  return `${++window.reactDevtoolIdCounter}`;
 };

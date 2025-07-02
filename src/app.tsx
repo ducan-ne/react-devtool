@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { setOptions } from "./devtool/core/index";
 import { Inspector } from "react-inspector";
 import { Devtool } from "./devtool";
+import { FormExample } from "./form";
 
 setOptions({
 	showFPS: false,
@@ -91,7 +92,7 @@ export function Timer({ onCallback }: { onCallback: () => void }) {
 export function App() {
 	return (
 		<>
-			123
+			<FormExample />
 			<Devtool>
 				<div className="flex flex-col gap-2">
 					Hello world

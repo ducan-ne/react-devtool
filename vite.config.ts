@@ -1,8 +1,8 @@
-
 import tailwindcss from "@tailwindcss/vite";
 import { codeInspectorPlugin } from "code-inspector-plugin";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import dts from "vite-plugin-dts";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -12,6 +12,10 @@ export default defineConfig({
 		}),
 		tsconfigPaths(),
 		tailwindcss(),
+		dts({
+			insertTypesEntry: true,
+			tsconfigPath: "./tsconfig.app.json",
+		}),
 		// preact({
 		// 	include: [__dirname + "/src/devtool"],
 		// 	exclude: [__dirname + "/src/*.tsx"],
@@ -24,13 +28,20 @@ export default defineConfig({
 		target: "esnext",
 		minify: false,
 		sourcemap: true,
+		lib: {
+			entry: "./src/devtool.tsx",
+			formats: ["es"],
+			fileName: () => `index.js`,
+		},
 		rollupOptions: {
 			preserveEntrySignatures: "strict",
-			input: {
-				devtool: "./src/devtool.tsx",
-			},
+			// input: {
+			// 	devtool: "./src/devtool.tsx",
+			// },
 			output: {
 				entryFileNames: "[name].js",
+				chunkFileNames: "[name].js",
+				assetFileNames: "[name].[ext]",
 			},
 			external: ["react", "react/jsx-runtime", "react-dom/client"],
 			onwarn(warning, warn) {

@@ -34,7 +34,7 @@ import {
 import {
   type Change,
   type ContextChange,
-  ReactScanInternals,
+  ReactDevtoolInternals,
   type StateChange,
 } from './index';
 
@@ -371,7 +371,7 @@ const isRenderUnnecessary = (fiber: Fiber) => {
 // // re-implement this in new-outlines
 // const shouldRunUnnecessaryRenderCheck = () => {
 //   // yes, this can be condensed into one conditional, but ifs are easier to reason/build on than long boolean expressions
-//   if (!ReactScanInternals.options.value.trackUnnecessaryRenders) {
+//   if (!ReactDevtoolInternals.options.value.trackUnnecessaryRenders) {
 //     return false;
 //   }
 
@@ -379,8 +379,8 @@ const isRenderUnnecessary = (fiber: Fiber) => {
 //   if (
 //     getIsProduction() &&
 //     Store.monitor.value &&
-//     ReactScanInternals.options.value.dangerouslyForceRunInProduction &&
-//     ReactScanInternals.options.value.trackUnnecessaryRenders
+//     ReactDevtoolInternals.options.value.dangerouslyForceRunInProduction &&
+//     ReactDevtoolInternals.options.value.trackUnnecessaryRenders
 //   ) {
 //     return true;
 //   }
@@ -389,7 +389,7 @@ const isRenderUnnecessary = (fiber: Fiber) => {
 //     return false;
 //   }
 
-//   return ReactScanInternals.options.value.trackUnnecessaryRenders;
+//   return ReactDevtoolInternals.options.value.trackUnnecessaryRenders;
 // };
 
 const TRACK_UNNECESSARY_RENDERS = false;
@@ -482,7 +482,7 @@ export const createInstrumentation = (
 ) => {
   const instrumentation: Instrumentation = {
     // this will typically be false, but in cases where a user provides showToolbar: true, this will be true
-    isPaused: signal(!ReactScanInternals.options.value.enabled),
+    isPaused: signal(!ReactDevtoolInternals.options.value.enabled),
     fiberRoots: new WeakSet<FiberRoot>(),
   };
   instrumentationInstances.set(instanceKey, {
@@ -494,13 +494,13 @@ export const createInstrumentation = (
     inited = true;
 
     instrument({
-      name: 'react-scan',
+      name: 'react-devtool',
       onActive: config.onActive,
       onCommitFiberRoot(_rendererID, root) {
         instrumentation.fiberRoots.add(root);
         // for now we always track everything for notifications, it may be worth it to make this configurable
         // if (
-        //   ReactScanInternals.instrumentation?.isPaused.value &&
+        //   ReactDevtoolInternals.instrumentation?.isPaused.value &&
         //   (Store.inspectState.value.kind === "inspect-off" ||
         //     Store.inspectState.value.kind === "uninitialized") &&
         //   !config.forceAlwaysTrackRenders

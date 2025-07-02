@@ -1,6 +1,6 @@
 import { createContext, type JSX } from "preact";
 import { useCallback, useEffect, useRef, useState } from "preact/hooks";
-import { Store, ReactScanInternals } from "~core/index";
+import { Store, ReactDevtoolInternals } from "~core/index";
 import {
 	cn,
 	saveLocalStorage,
@@ -247,7 +247,7 @@ export const Widget = () => {
 					// todo: delete this doesn't do anything
 					let shouldCollapse = areaOutside > totalArea * 0.35;
 
-					if (!shouldCollapse && ReactScanInternals.options.value.showFPS) {
+					if (!shouldCollapse && ReactDevtoolInternals.options.value.showFPS) {
 						const fpsRight = currentX + dimensions.width;
 						const fpsLeft = fpsRight - 100;
 

@@ -1,8 +1,6 @@
 import { useSignalEffect } from "@preact/signals";
-import {
-	useCallback,
-	} from "preact/hooks";
-import { ReactScanInternals, Store } from "~core/index";
+import { useCallback } from "preact/hooks";
+import { ReactDevtoolInternals, Store } from "~core/index";
 import { Icon } from "~web/components/icon";
 import { Logo } from "~web/components/logo";
 import { signalWidgetViews } from "~web/state";
@@ -14,7 +12,7 @@ if (import.meta.env.DEV) {
 		signalWidgetViews.value = {
 			view: "notifications",
 		};
-	}, 100);
+	}, 300);
 }
 
 export const Toolbar = constant(() => {
@@ -67,12 +65,12 @@ export const Toolbar = constant(() => {
 		e.preventDefault();
 		e.stopPropagation();
 
-		if (!ReactScanInternals.instrumentation) {
+		if (!ReactDevtoolInternals.instrumentation) {
 			return;
 		}
 		// todo: set a single source of truth
-		const isPaused = !ReactScanInternals.instrumentation.isPaused.value;
-		ReactScanInternals.instrumentation.isPaused.value = isPaused;
+		const isPaused = !ReactDevtoolInternals.instrumentation.isPaused.value;
+		ReactDevtoolInternals.instrumentation.isPaused.value = isPaused;
 		const existingLocalStorageOptions =
 			readLocalStorage<LocalStorageOptions>("react-devtool-options");
 		saveLocalStorage("react-devtool-options", {
@@ -134,19 +132,20 @@ export const Toolbar = constant(() => {
 					}
 				}}
 				className="flex items-center min-w-fit w-6 h-4 mt-2.5"
+				data-testid="open-devtool"
 			>
 				<Logo className="text-sm me-0 w-4 h-4 text-brand-dark flex origin-center transition-all ease-in-out" />
 			</button>
 
 			{/* <Toggle
-				checked={!ReactScanInternals.instrumentation?.isPaused.value}
+				checked={!ReactDevtoolInternals.instrumentation?.isPaused.value}
 				onChange={onToggleActive}
 				className="place-self-center"
 				title="Outline Re-renders"
 			/> */}
 
 			{/* todo add back showFPS*/}
-			{ReactScanInternals.options.value.showFPS && <FPSMeter />}
+			{ReactDevtoolInternals.options.value.showFPS && <FPSMeter />}
 		</div>
 	);
 });
