@@ -8,7 +8,6 @@ import { Store } from "~core/index";
 import { signalWidgetViews } from "~web/state";
 import { cn } from "~web/utils/helpers";
 import { Header } from "~web/widget/header";
-import { ViewInspector } from "./inspector";
 import { Toolbar } from "./toolbar";
 import { MainViewWrapper } from "./main";
 
@@ -67,10 +66,6 @@ export const Content = () => {
 						"border-b border-[#222]",
 					)}
 				>
-					<ContentView isOpen={isInspectorViewOpen}>
-						<ViewInspector />
-					</ContentView>
-
 					<ContentView isOpen={isNotificationsViewOpen}>
 						<MainViewWrapper />
 					</ContentView>

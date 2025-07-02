@@ -149,6 +149,15 @@ input {
   @apply placeholder-shown:truncate;
 }
 
+hr {
+  @apply border-none;
+  @apply h-px;
+  @apply bg-neutral-700;
+  @apply my-2;
+  @apply opacity-60;
+}
+
+
 svg {
   /* @apply w-auto h-auto; */
   @apply pointer-events-none;
@@ -387,7 +396,7 @@ svg {
 .react-section-header {
   @apply sticky z-100;
   @apply flex items-center gap-x-2;
-  @apply px-3;
+  /* @apply px-3; */
   @apply w-full h-7;
   @apply text-[#888] truncate;
   @apply bg-[#0a0a0a] border-b-1 border-[#222];
@@ -510,7 +519,7 @@ svg {
   @apply pointer-events-none;
   @apply transition-opacity;
   @apply mix-blend-multiply;
-  @apply bg-purple-500/90;
+  @apply bg-brand-dark text-secondary;
 }
 
 .react-devtool-toggle {
@@ -621,6 +630,7 @@ svg {
     @apply transition-all duration-300 delay-150;
 
     &[data-flash="true"] {
+      /* @apply bg-[#a855f7]/10 text-[#a855f7]; */
       @apply bg-[#a855f7]/10 text-[#a855f7];
     }
   }

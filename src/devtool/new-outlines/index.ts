@@ -34,9 +34,7 @@ import {
 } from "./canvas";
 import type { ActiveOutline, BlueprintOutline, OutlineData } from "./types";
 import { getChangedPropsDetailed } from "~web/views/inspector/utils";
-
-// The worker code will be replaced at build time
-const workerCode = "__WORKER_CODE__";
+import workerCode from "./offscreen-canvas.worker?worker";
 
 let worker: Worker | null = null;
 let canvas: HTMLCanvasElement | null = null;
@@ -326,22 +324,18 @@ export const getCanvasEl = () => {
 		!window.__REACT_SCAN_EXTENSION__
 	) {
 		try {
-			// worker = new Worker(
-			//   URL.createObjectURL(
-			//     new Blob([workerCode], { type: 'application/javascript' }),
-			//   ),
-			// );
-			// const offscreenCanvas = canvasEl.transferControlToOffscreen();
-			// worker?.postMessage(
-			//   {
-			//     type: 'init',
-			//     canvas: offscreenCanvas,
-			//     width: canvasEl.width,
-			//     height: canvasEl.height,
-			//     dpr,
-			//   },
-			//   [offscreenCanvas],
-			// );
+			worker = new workerCode();
+			const offscreenCanvas = canvasEl.transferControlToOffscreen();
+			worker?.postMessage(
+				{
+					type: "init",
+					canvas: offscreenCanvas,
+					width: canvasEl.width,
+					height: canvasEl.height,
+					dpr,
+				},
+				[offscreenCanvas],
+			);
 		} catch (e) {
 			// biome-ignore lint/suspicious/noConsole: Intended debug output
 			console.warn("Failed to initialize OffscreenCanvas worker:", e);

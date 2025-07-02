@@ -1,11 +1,14 @@
 import { useEffect, type ReactNode } from "react";
-import { scan } from "~core/index";
-import { userChildren } from "~web/state";
+import { scan } from "./devtool/core/index";
+import { userChildren } from "./devtool/state";
 
 type DevtoolProps = {
 	children: ReactNode;
 };
 
+/**
+ * @public
+ */
 export const Devtool = ({ children }: DevtoolProps) => {
 	useEffect(() => {
 		scan({
@@ -24,3 +27,13 @@ export const Devtool = ({ children }: DevtoolProps) => {
 	// This component only sets up the devtool and doesn't render anything itself.
 	return null;
 };
+
+/**
+ * @public
+ */
+export { signal as createValues } from "@preact/signals";
+
+/**
+ * @public
+ */
+export { signal as createFlags } from "@preact/signals";

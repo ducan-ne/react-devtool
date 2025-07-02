@@ -1,0 +1,17 @@
+{
+	"workspaces": {
+		".": {
+			"entry": ["src/main.tsx!", "src/app.tsx!"],
+			"project": ["src/**/*.ts!", "src/**/*.tsx!"],
+			"typescript": {
+				"config": ["tsconfig.json"]
+			}
+		},
+		"src/devtool": {
+			"entry": "src/devtool/core/index.ts!",
+			"typescript": {
+				"config": "./src/devtool/tsconfig.json"
+			}
+		}
+	}
+}

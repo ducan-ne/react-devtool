@@ -21,7 +21,7 @@
         ".//*"
       ],
       "~core/*": [
-        "../core/*"
+        "./core/*"
       ]
     },
     /* Bundler mode */

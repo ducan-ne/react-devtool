@@ -10,14 +10,7 @@
       "DOM.Iterable"
     ],
     "skipLibCheck": true,
-    "paths": {
-      "~web/*": [
-        "./src/devtool/*"
-      ],
-      "~core/*": [
-        "./src/core/*"
-      ]
-    },
+    "paths": {},
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -36,5 +29,8 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/devtool"
   ]
 }

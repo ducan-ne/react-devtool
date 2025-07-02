@@ -10,6 +10,7 @@ export class ToolbarErrorBoundary extends Component {
 	};
 
 	static getDerivedStateFromError(error: Error) {
+		console.log(error);
 		return { hasError: true, error };
 	}
 

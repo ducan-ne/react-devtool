@@ -1,4 +1,4 @@
-import { getDisplayName } from "bippy";
+import { signal, Signal } from "@preact/signals";
 import {
 	useCallback,
 	useEffect,
@@ -11,17 +11,14 @@ import { isEqual } from "~core/utils";
 import { CopyToClipboard } from "~web/components/copy-to-clipboard";
 import { Icon } from "~web/components/icon";
 import { useMergedRefs } from "~web/hooks/use-merged-refs";
-import { cn, tryOrElse } from "~web/utils/helpers";
+import { cn } from "~web/utils/helpers";
 import { globalInspectorState } from ".";
 import { flashManager } from "./flash-overlay";
-import { timelineState } from "./states";
 import {
 	detectValueType,
 	formatForClipboard,
 	formatInitialValue,
 	formatValue,
-	getOverrideMethods,
-	getPath,
 	isEditableValue,
 	isExpandable,
 	isPromise,
@@ -42,12 +39,10 @@ interface ValueMetadata {
 interface PropertyElementProps {
 	name: string;
 	value: unknown | ValueMetadata;
-	section: string;
 	level: number;
 	parentPath?: string;
-	objectPathMap?: WeakMap<object, Set<string>>;
-	changedKeys?: Set<string | number>;
 	allowEditing?: boolean;
+	onSave: (path: string[], value: unknown) => void;
 }
 
 interface PropertySectionProps {
@@ -55,7 +50,8 @@ interface PropertySectionProps {
 		| ReturnType<typeof useMergedRefs<HTMLElement>>
 		| ((node: HTMLElement | null) => void);
 	isSticky?: boolean;
-	section: "props" | "state" | "context";
+	name: string;
+	data: Signal<Record<string, unknown>>;
 }
 
 interface EditableValueProps {
@@ -145,7 +141,7 @@ export const EditableValue = ({
 		<input
 			ref={refInput}
 			type={value instanceof Date ? "datetime-local" : "text"}
-			className="react-devtool-input flex-1"
+			className="react-devtool-input flex-1 font-text"
 			value={editValue}
 			onChange={handleChange}
 			onKeyDown={handleKeyDown}
@@ -158,24 +154,14 @@ export const EditableValue = ({
 export const PropertyElement = ({
 	name,
 	value,
-	section,
 	level,
 	parentPath,
-	objectPathMap = new WeakMap(),
-	changedKeys = new Set(),
 	allowEditing = true,
+	onSave,
 }: PropertyElementProps) => {
-	const { updates, currentIndex } = timelineState.value;
-	const currentUpdate = updates[currentIndex];
-	const fiberInfo = currentUpdate?.fiberInfo;
 	const refElement = useRef<HTMLDivElement>(null);
 
-	const currentPath = getPath(
-		fiberInfo.displayName,
-		section,
-		parentPath ?? "",
-		name,
-	);
+	const currentPath = parentPath ? `${parentPath}.${name}` : name;
 	const [isExpanded, setIsExpanded] = useState(
 		globalInspectorState.expandedPaths.has(currentPath),
 	);
@@ -188,11 +174,6 @@ export const PropertyElement = ({
 		if (name === "children") {
 			return;
 		}
-		if (section === "context") {
-			// we avoid flashing context purple to avoid confusion to user that this causes a render
-			// it may be the case context changes but a fiber does not a depend on it, and the fiber is memoized
-			return;
-		}
 
 		const isFirstRender = !globalInspectorState.lastRendered.has(currentPath);
 		const shouldFlash = isChanged && refElement.current && !isFirstRender;
@@ -202,7 +183,7 @@ export const PropertyElement = ({
 		if (shouldFlash && refElement.current && level === 0) {
 			flashManager.create(refElement.current);
 		}
-	}, [value, isChanged, currentPath, level, name, section]);
+	}, [value, isChanged, currentPath, level, name]);
 
 	const handleToggleExpand = useCallback(() => {
 		setIsExpanded((prevState: boolean) => {
@@ -268,13 +249,10 @@ export const PropertyElement = ({
 		return isExpandable(value);
 	}, [value]);
 
-	const { overrideProps, overrideHookState } = getOverrideMethods();
 	const canEdit = useMemo(() => {
 		if (!allowEditing) return false;
-		if (section === "props") return !!overrideProps && name !== "children";
-		if (section === "state") return !!overrideHookState;
-		return false;
-	}, [section, overrideProps, overrideHookState, allowEditing, name]);
+		return true;
+	}, [allowEditing]);
 
 	const handleEdit = useCallback(() => {
 		if (canEdit) {
@@ -282,87 +260,9 @@ export const PropertyElement = ({
 		}
 	}, [canEdit]);
 
-	const handleSave = (section: string, name: string, value: unknown) => {
-		const { updates, currentIndex, latestFiber } = timelineState.value;
-		const currentUpdate = updates[currentIndex];
-		if (!latestFiber) return;
-
-		const { overrideProps, overrideHookState } = getOverrideMethods();
-		if (!overrideProps || !overrideHookState) return;
-
-		if (section === "props") {
-			tryOrElse(() => {
-				const currentProps = latestFiber.memoizedProps || {};
-				let currentValue: unknown;
-				let path: string[];
-
-				if (parentPath) {
-					const parts = parentPath.split(".");
-					path = parts.filter(
-						(part) =>
-							part !== "props" && part !== getDisplayName(latestFiber.type),
-					);
-					path.push(name);
-					currentValue = path.reduce(
-						(obj: Record<string, unknown>, key) =>
-							obj && typeof obj === "object"
-								? (obj[key] as Record<string, unknown>)
-								: {},
-						currentProps as Record<string, unknown>,
-					);
-				} else {
-					path = [name];
-					currentValue = currentProps[name];
-				}
-
-				if (!isEqual(currentValue, value)) {
-					overrideProps(latestFiber, path, value);
-
-					// @pivanov: on first render, the alternate is null and we can't update it
-					if (latestFiber.alternate) {
-						overrideProps(latestFiber.alternate, path, value);
-					}
-				}
-			}, null);
-		} else if (section === "state") {
-			tryOrElse(() => {
-				if (!parentPath) {
-					const stateNames = currentUpdate.stateNames;
-					const namedStateIndex = stateNames.indexOf(name);
-					const hookId =
-						namedStateIndex !== -1 ? namedStateIndex.toString() : name;
-					overrideHookState(latestFiber, hookId, [], value);
-				} else {
-					const fullPathParts = parentPath.split(".");
-					const stateIndex = fullPathParts.indexOf("state");
-					if (stateIndex === -1) return;
-
-					const statePath = fullPathParts.slice(stateIndex + 1);
-					const baseStateKey = statePath[0];
-					const stateNames = currentUpdate.stateNames;
-					const namedStateIndex = stateNames.indexOf(baseStateKey);
-					const hookId =
-						namedStateIndex !== -1 ? namedStateIndex.toString() : "0";
-
-					const currentState = currentUpdate.state.current;
-					if (
-						!currentState ||
-						!currentState.find((item) => item.name === Number(baseStateKey))
-					) {
-						return;
-					}
-
-					const updatedState = updateNestedValue(
-						currentState.find((item) => item.name === Number(baseStateKey))
-							?.value,
-						statePath.slice(1).concat(name),
-						value,
-					);
-					overrideHookState(latestFiber, hookId, [], updatedState);
-				}
-			}, null);
-		}
-
+	const handleSave = (newValue: unknown) => {
+		const path = currentPath.split(".");
+		onSave(path, newValue);
 		setIsEditing(false);
 	};
 
@@ -389,12 +289,10 @@ export const PropertyElement = ({
 									key={`${currentPath}-entry-${key}`}
 									name={key}
 									value={val}
-									section={section}
 									level={level + 1}
 									parentPath={currentPath}
-									objectPathMap={objectPathMap}
-									changedKeys={changedKeys}
 									allowEditing={allowEditing}
+									onSave={onSave}
 								/>
 							))}
 						</div>
@@ -412,12 +310,10 @@ export const PropertyElement = ({
 										key={itemKey}
 										name={`${i}`}
 										value={item}
-										section={section}
 										level={level + 1}
 										parentPath={currentPath}
-										objectPathMap={objectPathMap}
-										changedKeys={changedKeys}
 										allowEditing={allowEditing}
+										onSave={onSave}
 									/>
 								);
 							})}
@@ -469,19 +365,17 @@ export const PropertyElement = ({
 								key={itemKey}
 								name={String(key)}
 								value={val}
-								section={section}
 								level={level + 1}
 								parentPath={currentPath}
-								objectPathMap={objectPathMap}
-								changedKeys={changedKeys}
 								allowEditing={canEditChildren}
+								onSave={onSave}
 							/>
 						);
 					})}
 				</div>
 			);
 		},
-		[section, level, currentPath, objectPathMap, changedKeys, allowEditing],
+		[level, currentPath, allowEditing, onSave],
 	);
 
 	if (checkCircularInValue) {
@@ -521,13 +415,24 @@ export const PropertyElement = ({
 						isChanged && "react-devtool-highlight",
 					)}
 				>
-					<div className="react-devtool-key">{name}:</div>
+					<div className="react-devtool-key !text-white z-[99999] font-display">
+						{name}:
+					</div>
 					{isEditing && isEditableValue(value, parentPath) ? (
 						<EditableValue
 							value={value}
-							onSave={(newValue) => handleSave(section, name, newValue)}
+							onSave={handleSave}
 							onCancel={() => setIsEditing(false)}
 						/>
+					) : typeof value === "boolean" && canEdit ? (
+						<div className="react-devtool-toggle">
+							<input
+								type="checkbox"
+								checked={value}
+								onChange={(e) => handleSave(e.currentTarget.checked)}
+							/>
+							<div />
+						</div>
 					) : (
 						<button type="button" className="truncate" onClick={handleEdit}>
 							{valuePreview}
@@ -560,45 +465,25 @@ export const PropertyElement = ({
 export const PropertySection = ({
 	refSticky,
 	isSticky,
-	section,
+	name,
+	data,
 }: PropertySectionProps) => {
 	const refStickyElement = useRef<HTMLElement | null>(null);
-	const { updates, currentIndex } = timelineState.value;
 	const [isExpanded, setIsExpanded] = useState(true);
 
 	const refs = useMergedRefs(refStickyElement, refSticky);
 
-	const pathMap = useMemo(() => new WeakMap<object, Set<string>>(), []);
-	const { currentData, changedKeys } = useMemo(() => {
-		const data = updates[currentIndex] ?? {
-			props: { current: {}, changes: new Set() },
-			state: { current: {}, changes: new Set() },
-			context: { current: {}, changes: new Set() },
-		};
+	const currentData = data.value;
 
-		switch (section) {
-			case "props":
-				return {
-					currentData: data.props.current,
-					changedKeys: data.props.changes,
-				};
-			case "state":
-				return {
-					currentData: data.state.current,
-					changedKeys: data.state.changes,
-				};
-			case "context":
-				return {
-					currentData: data.context.current,
-					changedKeys: data.context.changes,
-				};
-			default:
-				return {
-					currentData: {},
-					changedKeys: new Set<string>(),
-				};
-		}
-	}, [section, currentIndex, updates]);
+	const handleSave = useCallback(
+		(path: string[], value: unknown) => {
+			const newData = updateNestedValue(data.value, path, value);
+			if (typeof newData === "object" && newData !== null) {
+				data.value = { ...(newData as object) };
+			}
+		},
+		[data],
+	);
 
 	const toggleExpanded = useCallback(() => {
 		setIsExpanded((state) => {
@@ -609,6 +494,7 @@ export const PropertySection = ({
 		});
 	}, [isExpanded, isSticky]);
 
+	console.log(currentData);
 	if (
 		!currentData ||
 		(Array.isArray(currentData)
@@ -642,7 +528,7 @@ export const PropertySection = ({
 					/>
 				</div>
 				<span className="capitalize">
-					{section} {!isExpanded && propertyCount > 0 && `(${propertyCount})`}
+					{name} {!isExpanded && propertyCount > 0 && `(${propertyCount})`}
 				</span>
 			</button>
 			<div className="react-devtool-section">
@@ -659,10 +545,8 @@ export const PropertySection = ({
 										key={name}
 										name={name}
 										value={value}
-										section={section}
 										level={0}
-										objectPathMap={pathMap}
-										changedKeys={changedKeys}
+										onSave={handleSave}
 									/>
 								))
 							: Object.entries(currentData).map(([key, value]) => (
@@ -670,15 +554,79 @@ export const PropertySection = ({
 										key={key}
 										name={key}
 										value={value}
-										section={section}
 										level={0}
-										objectPathMap={pathMap}
-										changedKeys={changedKeys}
+										onSave={handleSave}
 									/>
 								))}
 					</div>
 				</div>
 			</div>
 		</>
+	);
+};
+
+// Example of how to use it with a mock signal
+export const PropertiesView = () => {
+	const mockSignal = useMemo(
+		() =>
+			signal({
+				props: {
+					className: "button primary",
+					onClick: () => {},
+					disabled: false,
+					children: "Click me",
+					style: {
+						backgroundColor: "#007bff",
+						padding: "10px 20px",
+					},
+				},
+				state: {
+					isLoading: false,
+					count: 42,
+					items: ["item1", "item2", "item3"],
+					formData: {
+						username: "testUser",
+						email: "test@example.com",
+					},
+				},
+				context: {
+					theme: "dark",
+					user: {
+						id: 1,
+						name: "John Doe",
+						role: "admin",
+					},
+					settings: {
+						notifications: true,
+						language: "en",
+					},
+				},
+			}),
+		[],
+	);
+
+	const propsData = useMemo(() => signal(mockSignal.value.props), [mockSignal]);
+
+	const stateData = useMemo(() => signal(mockSignal.value.state), [mockSignal]);
+
+	const contextData = useMemo(
+		() => signal(mockSignal.value.context),
+		[mockSignal],
+	);
+
+	useEffect(() => {
+		mockSignal.subscribe((value) => {
+			propsData.value = value.props;
+			stateData.value = value.state;
+			contextData.value = value.context;
+		});
+	}, [mockSignal, propsData, stateData, contextData]);
+
+	return (
+		<div className="react-devtool-properties">
+			<PropertySection name="Flags" data={propsData} />
+			<PropertySection name="State" data={stateData} />
+			<PropertySection name="Context" data={contextData} />
+		</div>
 	);
 };

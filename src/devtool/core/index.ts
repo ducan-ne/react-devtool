@@ -10,7 +10,7 @@ import type { ComponentType } from "preact";
 import type { ReactNode } from "preact/compat";
 import type { RenderData } from "~core/utils";
 import { initReactScanInstrumentation } from "../new-outlines";
-import styles from "../index.css?inline";
+import styles from "../../index.css?inline";
 import { IS_CLIENT } from "~web/utils/constants";
 import { readLocalStorage, saveLocalStorage } from "~web/utils/helpers";
 import type { Outline } from "~web/utils/outline";
@@ -24,7 +24,6 @@ import type { InternalInteraction } from "./monitor/types";
 import type { getSession } from "./monitor/utils";
 import { startTimingTracking } from "./notifications/event-tracking";
 import { createHighlightCanvas } from "./notifications/outline-overlay";
-import packageJson from "../../package.json";
 import { createToolbar } from "~web/toolbar";
 
 let rootContainer: HTMLDivElement | null = null;
@@ -634,12 +633,7 @@ export const ReactScanInternals: Internals = {
 	scheduledOutlines: new Map(),
 	activeOutlines: new Map(),
 	Store,
-	version: packageJson.version,
 };
-
-if (IS_CLIENT && window.__REACT_SCAN_EXTENSION__) {
-	window.__REACT_SCAN_VERSION__ = ReactScanInternals.version;
-}
 
 export type LocalStorageOptions = Omit<
 	Options,
@@ -944,6 +938,9 @@ const createNotificationsOutlineCanvas = () => {
 	}
 };
 
+/**
+ * @public
+ */
 export const scan = (options: Options = {}) => {
 	setOptions(options);
 	const isInIframe = Store.isInIframe.value;
