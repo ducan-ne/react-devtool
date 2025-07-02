@@ -1,7 +1,27 @@
 {
 	"name": "react-devtool",
 	"version": "0.0.1",
-	"files": [],
+	"description": "Easy solution to have your own internal devtool, unleash the DX of React",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ducan-ne/react-devtool.git"
+	},
+	"homepage": "https://github.com/ducan-ne/react-devtool",
+	"bugs": {
+		"url": "https://github.com/ducan-ne/react-devtool/issues"
+	},
+	"keywords": [
+		"react",
+		"devtool",
+		"debugging",
+		"ui",
+		"development"
+	],
+	"author": "ducan-ne",
+	"license": "MIT",
+	"files": [
+		"dist"
+	],
 	"type": "module",
 	"main": "./dist/devtool.js",
 	"types": "./dist/devtool.d.ts",

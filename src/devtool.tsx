@@ -8,6 +8,10 @@ type DevtoolProps = {
 	children: ReactNode;
 };
 
+export function abc() {
+	return 123;
+}
+
 /**
  * @public
  */
