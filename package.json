@@ -1,6 +1,6 @@
 {
 	"name": "react-devtool",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Easy solution to have your own internal devtool, unleash the DX of React",
 	"repository": {
 		"type": "git",
@@ -40,6 +40,8 @@
 		"build": "vite build",
 		"typecheck": "tsc -b",
 		"preview": "vite preview",
+		"rl-next": "bunx bumpp && bun run build && npm publish --tag next",
+		"rl-latest": "bunx bumpp && bun run build && npm publish",
 		"knip": "knip"
 	},
 	"peerDependencies": {
