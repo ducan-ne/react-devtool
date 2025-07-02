@@ -554,6 +554,7 @@ svg {
     @apply transition-colors duration-300;
 
     &:before {
+      --tw-translate-x: 0px;
       @apply content-[''];
       @apply absolute top-1/2 left-0;
       @apply -translate-y-1/2;
