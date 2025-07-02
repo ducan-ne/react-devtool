@@ -3,7 +3,7 @@ import { Icon } from "./components/icon";
 import { Widget } from "./widget";
 import { SvgSprite } from "./components/svg-sprite";
 
-export class ToolbarErrorBoundary extends Component {
+class ToolbarErrorBoundary extends Component {
 	state: { hasError: boolean; error: Error | null } = {
 		hasError: false,
 		error: null,

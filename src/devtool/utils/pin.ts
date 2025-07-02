@@ -3,7 +3,7 @@ import { Store } from "~core/index";
 import { findComponentDOMNode } from "~web/views/inspector/utils";
 import { readLocalStorage } from "./helpers";
 
-export interface FiberMetadata {
+interface FiberMetadata {
 	componentName: string;
 	parent: string;
 	position: number;
@@ -37,7 +37,7 @@ export const getFiberPath = (fiber: Fiber): string => {
 	return pathSegments.join("::");
 };
 
-export const getFiberMetadata = (fiber: Fiber): FiberMetadata | null => {
+const getFiberMetadata = (fiber: Fiber): FiberMetadata | null => {
 	if (!fiber || !fiber.elementType) return null;
 
 	const componentName = fiber.elementType.name || "UnknownComponent";
@@ -121,7 +121,7 @@ const processFiberQueue = (): void => {
 	});
 };
 
-export const enqueueFiber = (fiber: Fiber) => {
+const enqueueFiber = (fiber: Fiber) => {
 	if (metadata === null || metadata.componentName !== fiber.elementType?.name) {
 		return;
 	}

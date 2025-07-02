@@ -7,7 +7,7 @@ import {
 import { useEffect, useRef, useState } from "preact/hooks";
 import { type Fiber, getFiberId } from "bippy";
 import { isEqual } from "~core/utils";
-import { signal } from "@preact/signals";
+
 
 const CHANGES_QUEUE_INTERVAL = 50;
 
@@ -16,7 +16,7 @@ interface SectionData {
 	changes: Set<string>;
 }
 
-export interface InspectorData {
+interface InspectorData {
 	fiberProps: SectionData;
 	fiberState: SectionData;
 	fiberContext: SectionData;
@@ -25,14 +25,9 @@ interface InspectorState extends InspectorData {
 	fiber: Fiber | null;
 }
 
-export const inspectorState = signal<InspectorState>({
-	fiber: null,
-	fiberProps: { current: [], changes: new Set() },
-	fiberState: { current: [], changes: new Set() },
-	fiberContext: { current: [], changes: new Set() },
-});
 
-export type AggregatedChanges = {
+
+type AggregatedChanges = {
 	count: number;
 	currentValue: unknown;
 	previousValue: unknown;
@@ -41,7 +36,7 @@ export type AggregatedChanges = {
 	id: string;
 };
 
-export type AllAggregatedChanges = {
+type AllAggregatedChanges = {
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 	propsChanges: Map<any, AggregatedChanges>;
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>

@@ -9,7 +9,7 @@ import { getOverrideMethods } from "~web/views/inspector/utils";
 
 // const REPLAY_DELAY_MS = 300;
 
-export const BtnReplay = () => {
+const BtnReplay = () => {
 	// const refTimeout = useRef<TTimer>();
 	// const replayState = useRef({
 	//   isReplaying: false,

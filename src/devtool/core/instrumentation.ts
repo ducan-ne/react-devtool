@@ -64,7 +64,7 @@ export const getFPS = () => {
   return fps;
 };
 
-export const isElementVisible = (el: Element) => {
+const isElementVisible = (el: Element) => {
   const style = window.getComputedStyle(el);
   return (
     style.display !== 'none' &&
@@ -74,7 +74,7 @@ export const isElementVisible = (el: Element) => {
   );
 };
 
-export const isValueUnstable = (prevValue: unknown, nextValue: unknown) => {
+const isValueUnstable = (prevValue: unknown, nextValue: unknown) => {
   const prevValueString = fastSerialize(prevValue);
   const nextValueString = fastSerialize(nextValue);
   return (
@@ -84,7 +84,7 @@ export const isValueUnstable = (prevValue: unknown, nextValue: unknown) => {
   );
 };
 
-export const isElementInViewport = (
+const isElementInViewport = (
   el: Element,
   rect = el.getBoundingClientRect(),
 ) => {
@@ -125,7 +125,7 @@ const unstableTypes = ['function', 'object'];
 
 const cache = new WeakMap<object, string>();
 
-export function fastSerialize(value: unknown, depth = 0): string {
+function fastSerialize(value: unknown, depth = 0): string {
   if (depth < 0) return '…';
 
   switch (typeof value) {
@@ -354,7 +354,7 @@ function isRenderUnnecessaryTraversal(
 }
 
 // FIXME: calculation is slow
-export const isRenderUnnecessary = (fiber: Fiber) => {
+const isRenderUnnecessary = (fiber: Fiber) => {
   if (!didFiberCommit(fiber)) return true;
 
   const mutatedHostFibers = getMutatedHostFibers(fiber);
@@ -414,7 +414,7 @@ export interface OldRenderData {
 
 const RENDER_DEBOUNCE_MS = 16;
 
-export const renderDataMap = new WeakMap<object, Map<string, RenderData>>();
+const renderDataMap = new WeakMap<object, Map<string, RenderData>>();
 
 function getFiberIdentifier(fiber: Fiber) {
   return String(getFiberId(fiber));
@@ -431,7 +431,7 @@ export function getRenderData(fiber: Fiber) {
   return undefined;
 }
 
-export function setRenderData(fiber: Fiber, value: RenderData) {
+function setRenderData(fiber: Fiber, value: RenderData) {
   const type = getType(fiber.type);
   const id = getFiberIdentifier(fiber);
   let keyMap = renderDataMap.get(type as object);

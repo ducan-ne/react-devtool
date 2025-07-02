@@ -60,7 +60,7 @@ interface EditableValueProps {
 	onCancel: () => void;
 }
 
-export const EditableValue = ({
+const EditableValue = ({
 	value,
 	onSave,
 	onCancel,
@@ -151,7 +151,7 @@ export const EditableValue = ({
 	);
 };
 
-export const PropertyElement = ({
+const PropertyElement = ({
 	name,
 	value,
 	level,
@@ -462,7 +462,7 @@ export const PropertyElement = ({
 	);
 };
 
-export const PropertySection = ({
+const PropertySection = ({
 	refSticky,
 	isSticky,
 	name,

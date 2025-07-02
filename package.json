@@ -20,7 +20,6 @@
 		"react-dom": "^19.1.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.0.6",
 		"@preact/preset-vite": "^2.10.1",
 		"@preact/signals": "^2.2.1",
 		"@tailwindcss/vite": "^4.1.11",
@@ -32,6 +31,7 @@
 		"clsx": "^2.1.1",
 		"code-inspector-plugin": "^0.20.14",
 		"knip": "^5.61.3",
+		"oxlint": "^1.5.0",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
 		"react-inspector": "^6.0.2",

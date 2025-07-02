@@ -82,19 +82,3 @@ export const log = (renders: Array<Render>) => {
 	}
 };
 
-export const logIntro = () => {
-	if (window.hideIntro) {
-		window.hideIntro = undefined;
-		return;
-	}
-	// biome-ignore lint/suspicious/noConsole: Intended debug output
-	console.log(
-		"%c[·] %cReact Devtool",
-		"font-weight:bold;color:#7a68e8;font-size:20px;",
-		"font-weight:bold;font-size:14px;",
-	);
-	// biome-ignore lint/suspicious/noConsole: Intended debug output
-	console.log(
-		"Try React Devtool Monitoring to target performance issues in production: https://react-devtool.com/monitoring",
-	);
-};

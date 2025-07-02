@@ -5,7 +5,7 @@ import { signalWidgetViews, userChildren } from "~web/state";
 import { Logo } from "~web/components/logo";
 import { Icon } from "~web/components/icon";
 import { onCLS, onINP, onFCP, onLCP, onTTFB } from "web-vitals";
-import { PropertiesView, PropertySection } from "../inspector/properties";
+import { PropertiesView, } from "../inspector/properties";
 
 const MainViewHeader = () => {
 	return (
@@ -712,7 +712,7 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 	);
 };
 
-export const MainView = () => {
+const MainView = () => {
 	const [selectedTab, setSelectedTab] = useState(TABS[0].id);
 	const showTabs = TABS.length > 1;
 

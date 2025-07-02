@@ -25,7 +25,7 @@ import {
 import { getDisplayName, getType } from "bippy";
 import { Store } from "~core/index";
 
-export type Setter<T> = Dispatch<StateUpdater<T>>;
+type Setter<T> = Dispatch<StateUpdater<T>>;
 
 const safeGetValue = (value: unknown): { value: unknown; error?: string } => {
 	if (value === null || value === undefined) return { value };

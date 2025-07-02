@@ -754,4 +754,4 @@ export const Widget = () => {
 	);
 };
 
-export const ToolbarElementContext = createContext<HTMLElement | null>(null);
+const ToolbarElementContext = createContext<HTMLElement | null>(null);

@@ -26,7 +26,7 @@ const contextTracker = new Map<string, ChangeTrackingInfo>();
 let lastComponentType: unknown = null;
 
 const STATE_NAME_REGEX = /\[(?<name>\w+),\s*set\w+\]/g;
-const PROPS_ORDER_REGEX = /\(\s*{\s*(?<props>[^}]+)\s*}\s*\)/;
+
 
 export const getStateNames = (fiber: Fiber): Array<string> => {
   const componentSource = fiber.type?.toString?.() || '';
@@ -45,13 +45,13 @@ export const resetTracking = () => {
   lastComponentType = null;
 };
 
-export const isInitialComponentUpdate = (fiber: Fiber): boolean => {
+const isInitialComponentUpdate = (fiber: Fiber): boolean => {
   const isNewComponent = fiber.type !== lastComponentType;
   lastComponentType = fiber.type;
   return isNewComponent;
 };
 
-export const trackChange = (
+const trackChange = (
   tracker: Map<ChangeKey, ChangeTrackingInfo>,
   key: ChangeKey,
   currentValue: unknown,
@@ -90,7 +90,7 @@ export const trackChange = (
   return { hasChanged: false, count: existing.count };
 };
 
-export { propsTracker, stateTracker, contextTracker };
+;
 
 export interface SectionData {
   current: Array<{ name: string | number; value: unknown }>;
@@ -98,13 +98,13 @@ export interface SectionData {
   changesCounts: Map<string | number, number>;
 }
 
-export interface InspectorData {
+interface InspectorData {
   fiberProps: SectionData;
   fiberState: SectionData;
   fiberContext: SectionData;
 }
 
-export const getStateFromFiber = (
+const getStateFromFiber = (
   fiber: Fiber,
 ): Record<string | number, unknown> => {
   if (!fiber) return {};
@@ -137,21 +137,8 @@ export const getStateFromFiber = (
   return {};
 };
 
-/**
- * Used to preserve the order of the fiber's props as represented in source code
- */
-export const getPropsOrder = (fiber: Fiber): Array<string> => {
-  const componentSource = fiber.type?.toString?.() || '';
-  const match = componentSource.match(PROPS_ORDER_REGEX);
-  if (!match?.groups?.props) return [];
 
-  return match.groups.props
-    .split(',')
-    .map((prop: string) => prop.trim().split(':')[0].split('=')[0].trim())
-    .filter(Boolean);
-};
-
-export interface InspectorDataResult {
+interface InspectorDataResult {
   data: InspectorData;
   shouldUpdate: boolean;
 }

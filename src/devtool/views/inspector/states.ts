@@ -22,7 +22,7 @@ export interface TimelineUpdate {
   stateNames: string[];
 }
 
-export interface TimelineState {
+interface TimelineState {
   updates: Array<TimelineUpdate>;
   currentFiber: Fiber | null;
   totalUpdates: number;
@@ -36,7 +36,7 @@ export interface TimelineState {
 
 export const TIMELINE_MAX_UPDATES = 1000;
 
-export const timelineStateDefault: TimelineState = {
+const timelineStateDefault: TimelineState = {
   updates: [],
   currentFiber: null,
   totalUpdates: 0,
@@ -167,7 +167,7 @@ export const timelineActions = {
   },
 };
 
-export const globalInspectorState = {
+const globalInspectorState = {
   lastRendered: new Map<string, unknown>(),
   expandedPaths: new Set<string>(),
   cleanup: () => {

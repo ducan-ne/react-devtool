@@ -25,7 +25,7 @@ type FinalInteraction = {
   completedAt: number;
 };
 
-export const listenForProfile = (
+const listenForProfile = (
   listener: (interaction: FinalInteraction) => void,
 ) => {
   profileListeners.push(listener);
@@ -37,12 +37,7 @@ export const listenForProfile = (
   };
 };
 
-export const interactionStatus:
-  | { kind: 'started'; startedAt: number }
-  | { kind: 'completed'; startedAt: number; endedAt: number }
-  | { kind: 'no-interaction' } = {
-  kind: 'no-interaction',
-};
+
 
 type NewInteractionStoreState = {
   /**
@@ -55,7 +50,7 @@ type NewInteractionStoreState = {
   endAt: number;
 };
 
-export const interactionStatusStore: {
+const interactionStatusStore: {
   state: NewInteractionStoreState | null;
   listeners: Array<(state: NewInteractionStoreState) => void>;
   addListener: (cb: (state: NewInteractionStoreState) => void) => () => void;
@@ -98,7 +93,7 @@ type LongRenderPipeline = {
   };
 };
 
-export type SlowdownEvent = (InteractionEvent | LongRenderPipeline) & {
+type SlowdownEvent = (InteractionEvent | LongRenderPipeline) & {
   id: string;
 };
 
@@ -118,40 +113,11 @@ type DebugEvent = {
   at: number;
   meta?: unknown;
 };
-export const debugEventStore = createStore<{
-  state: {
-    events: Array<DebugEvent>;
-  };
-  actions: {
-    // biome-ignore lint/suspicious/noExplicitAny: debug only store
-    addEvent: (event: any) => void;
-    clear: () => void;
-  };
-}>()((set) => ({
-  state: {
-    events: [],
-  },
-  actions: {
-    addEvent: (event: DebugEvent) => {
-      set((store) => ({
-        state: {
-          events: [...store.state.events, event],
-        },
-      }));
-    },
-    clear: () => {
-      set({
-        state: {
-          events: [],
-        },
-      });
-    },
-  },
-}));
+
 
 const EVENT_STORE_CAPACITY = 200;
 
-export const toolbarEventStore = createStore<ToolbarEventStoreState>()(
+const toolbarEventStore = createStore<ToolbarEventStoreState>()(
   (set, get) => {
     const listeners = new Set<(event: SlowdownEvent) => void>();
 
@@ -269,7 +235,7 @@ export const toolbarEventStore = createStore<ToolbarEventStoreState>()(
   },
 );
 
-export const useToolbarEventLog = () => {
+const useToolbarEventLog = () => {
   return useSyncExternalStore(
     toolbarEventStore.subscribe,
     toolbarEventStore.getState,
@@ -308,7 +274,7 @@ const trackCurrentMouseOverToolbar = () => {
 };
 
 // stops long tasks b/c backgrounded from being reported
-export const startDirtyTaskTracking = () => {
+const startDirtyTaskTracking = () => {
   const onVisibilityChange = () => {
     taskDirtyAt = performance.now();
     taskDirtyOrigin = performance.timeOrigin;
@@ -321,11 +287,11 @@ export const startDirtyTaskTracking = () => {
   };
 };
 
-export const HIGH_SEVERITY_FPS_DROP_TIME = 150;
+const HIGH_SEVERITY_FPS_DROP_TIME = 150;
 
 let framesDrawnInTheLastSecond: Array<number> = [];
 
-export function startLongPipelineTracking() {
+function startLongPipelineTracking() {
   let rafHandle: number;
   let timeoutHandle: ReturnType<typeof setTimeout>;
 

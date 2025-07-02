@@ -4,7 +4,7 @@ import type { Fiber } from 'bippy';
 import type { OutlineKey } from '~core/index';
 import type { AggregatedChange } from '~core/instrumentation';
 
-export interface OutlineLabel {
+interface OutlineLabel {
   alpha: number;
   color: { r: number; g: number; b: number };
   reasons: number; // based on Reason enum

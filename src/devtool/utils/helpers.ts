@@ -14,9 +14,7 @@ export const cn = (...inputs: Array<ClassValue>): string => {
   return twMerge(clsx(inputs));
 };
 
-export const isFirefox =
-  /* @__PURE__ */ typeof navigator !== 'undefined' &&
-  navigator.userAgent.includes('Firefox');
+
 
 export const onIdle = (callback: () => void) => {
   if ('scheduler' in globalThis) {
@@ -45,7 +43,7 @@ export const throttle = <E>(
   };
 };
 
-export const tryOrElse = <T>(fn: () => T, defaultValue: T): T => {
+const tryOrElse = <T>(fn: () => T, defaultValue: T): T => {
   try {
     return fn();
   } catch {
@@ -79,7 +77,7 @@ export const removeLocalStorage = (storageKey: string): void => {
   } catch {}
 };
 
-export const toggleMultipleClasses = (
+const toggleMultipleClasses = (
   element: HTMLElement,
   classes: Array<string>,
 ) => {
@@ -94,7 +92,7 @@ interface WrapperBadge {
   compiler?: boolean;
 }
 
-export interface ExtendedDisplayName {
+interface ExtendedDisplayName {
   name: string | null;
   wrappers: Array<string>;
   wrapperTypes: Array<WrapperBadge>;

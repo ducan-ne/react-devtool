@@ -166,8 +166,8 @@ type CurrentInteraction = {
   >
 }
 
-export const currentInteractions: Array<CurrentInteraction> = []
-export const fastHash = (str: string): string => {
+
+const fastHash = (str: string): string => {
   let hash = 0
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i)
@@ -189,10 +189,10 @@ const getInteractionType = (eventName: string): "pointer" | "keyboard" | null =>
   return null
 }
 // biome-ignore lint/suspicious/noExplicitAny: shut up biome
-export const getInteractionId = (interaction: any) => {
+const getInteractionId = (interaction: any) => {
   return `${interaction.performanceEntry.type}::${normalizePath(interaction.componentPath)}::${interaction.url}`
 }
-export function normalizePath(path: string[]): string {
+function normalizePath(path: string[]): string {
   const cleaned = path.filter(Boolean)
 
   const deduped = cleaned.filter((name, i) => name !== cleaned[i - 1])
@@ -332,7 +332,7 @@ type Task = {
   type: "keyboard" | "pointer"
   interactionUUID: string
 }
-export const MAX_INTERACTION_TASKS = 25
+const MAX_INTERACTION_TASKS = 25
 
 let tasks = new BoundedArray<Task>(MAX_INTERACTION_TASKS)
 
@@ -765,7 +765,7 @@ export const setupDetailedPointerTimingListener = (
 }
 
 // unused, but will be soon for monitoring
-export const collectFiberSubtree = (
+const collectFiberSubtree = (
   fiber: Fiber,
   limit: number,
 ): Record<

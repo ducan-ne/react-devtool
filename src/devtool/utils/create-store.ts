@@ -13,7 +13,7 @@ type SetStateInternal<T> = {
   _(state: T | { _(state: T): T }['_'], replace: true): void;
 }['_'];
 
-export interface StoreApi<T> {
+interface StoreApi<T> {
   setState: SetStateInternal<T>;
   getState: () => T;
   getInitialState: () => T;
@@ -26,11 +26,9 @@ export interface StoreApi<T> {
   };
 }
 
-export type ExtractState<S> = S extends { getState: () => infer T } ? T : never;
-
 type Get<T, K, F> = K extends keyof T ? T[K] : F;
 
-export type Mutate<S, Ms> = number extends Ms['length' & keyof Ms]
+type Mutate<S, Ms> = number extends Ms['length' & keyof Ms]
   ? S
   : Ms extends []
     ? S
@@ -38,7 +36,7 @@ export type Mutate<S, Ms> = number extends Ms['length' & keyof Ms]
       ? Mutate<StoreMutators<S, Ma>[Mi & StoreMutatorIdentifier], Mrs>
       : never;
 
-export type StateCreator<
+type StateCreator<
   T,
   Mis extends [StoreMutatorIdentifier, unknown][] = [],
   Mos extends [StoreMutatorIdentifier, unknown][] = [],
@@ -49,9 +47,9 @@ export type StateCreator<
   store: Mutate<StoreApi<T>, Mis>,
 ) => U) & { $$storeMutators?: Mos };
 
-// biome-ignore lint/correctness/noUnusedVariables: <explanation>
-export type StoreMutators<S, A> = {}
-export type StoreMutatorIdentifier = keyof StoreMutators<unknown, unknown>;
+// oxlint-disable-next-line no-unused-vars
+type StoreMutators<S, A> = {}
+type StoreMutatorIdentifier = keyof StoreMutators<unknown, unknown>;
 
 type CreateStore = {
   <T, Mos extends [StoreMutatorIdentifier, unknown][] = []>(

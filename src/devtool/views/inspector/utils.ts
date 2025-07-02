@@ -16,7 +16,7 @@ import { globalInspectorState } from '.';
 import type { ExtendedReactRenderer } from '../../../types';
 import { TIMELINE_MAX_UPDATES } from './states';
 import type { MinimalFiberInfo } from './states';
-import { getAllFiberContexts, getStateNames } from './timeline/utils';
+import { } from './timeline/utils';
 
 interface StateItem {
   name: string;
@@ -88,7 +88,7 @@ export const getFiberFromElement = (element: Element): Fiber | null => {
   return null;
 };
 
-export const getFirstStateNode = (fiber: Fiber): Element | null => {
+const getFirstStateNode = (fiber: Fiber): Element | null => {
   let current: Fiber | null = fiber;
   while (current) {
     if (current.stateNode instanceof Element) {
@@ -114,7 +114,7 @@ export const getFirstStateNode = (fiber: Fiber): Element | null => {
   return null;
 };
 
-export const getNearestFiberFromElement = (
+const getNearestFiberFromElement = (
   element: Element | null,
 ): Fiber | null => {
   if (!element) return null;
@@ -158,7 +158,7 @@ const isFiberInTree = (fiber: Fiber, root: Fiber): boolean => {
   }
 };
 
-export const isCurrentTree = (fiber: Fiber) => {
+const isCurrentTree = (fiber: Fiber) => {
   let curr: Fiber | null = fiber;
   let rootFiber: Fiber | null = null;
 
@@ -295,7 +295,7 @@ export const getChangedPropsDetailed = (fiber: Fiber): Array<PropsChange> => {
   return changes;
 };
 
-export interface OverrideMethods {
+interface OverrideMethods {
   overrideProps:
     | ((fiber: Fiber, path: string[], value: unknown) => void)
     | null;
@@ -515,7 +515,7 @@ export const getInspectableElements = (
 
 const fiberMap = new WeakMap<HTMLElement, Fiber>();
 
-export const getInspectableAncestors = (
+const getInspectableAncestors = (
   element: HTMLElement,
 ): Array<InspectableElement> => {
   const result: Array<InspectableElement> = [];
@@ -677,7 +677,7 @@ export const isEditableValue = (
   }
 };
 
-export const getPath = (
+const getPath = (
   componentName: string,
   section: string,
   parentPath: string,
@@ -703,7 +703,7 @@ export const sanitizeString = (value: string): string => {
     .slice(0, 50000);
 };
 
-export const sanitizeErrorMessage = (error: string): string => {
+const sanitizeErrorMessage = (error: string): string => {
   return error
     .replace(/[<>]/g, '')
     .replace(/&/g, '&amp;')
@@ -778,7 +778,7 @@ export const formatForClipboard = (value: unknown): string => {
   }
 };
 
-export const parseArrayValue = (value: string): Array<unknown> => {
+const parseArrayValue = (value: string): Array<unknown> => {
   if (value.trim() === '[]') return [];
 
   const result: Array<unknown> = [];
@@ -841,7 +841,7 @@ export const parseArrayValue = (value: string): Array<unknown> => {
   return result;
 };
 
-export const parseValue = (value: string, currentType: unknown): unknown => {
+const parseValue = (value: string, currentType: unknown): unknown => {
   try {
     switch (typeof currentType) {
       case 'number':
@@ -1022,7 +1022,7 @@ export const updateNestedValue = (
   }
 };
 
-export const areFunctionsEqual = (prev: unknown, current: unknown): boolean => {
+const areFunctionsEqual = (prev: unknown, current: unknown): boolean => {
   try {
     // Check if both values are actually functions
     if (typeof prev !== 'function' || typeof current !== 'function') {
@@ -1149,7 +1149,7 @@ export const formatPath = (path: string[]): string => {
   }, '');
 };
 
-export const formatFunctionBody = (body: string): string => {
+const formatFunctionBody = (body: string): string => {
   // Remove newlines and extra spaces
   let formatted = body.replace(/\s+/g, ' ').trim();
 
@@ -1166,7 +1166,7 @@ export const formatFunctionBody = (body: string): string => {
   return formatted;
 };
 
-export function hackyJsFormatter(code: string) {
+function hackyJsFormatter(code: string) {
   //
   // 1) Collapse runs of whitespace to single spaces
   //
@@ -1531,7 +1531,7 @@ export const safeGetValue = (
   }
 };
 
-export interface TimelineSliderValues {
+interface TimelineSliderValues {
   leftValue: number;
   min: number;
   max: number;
@@ -1539,7 +1539,7 @@ export interface TimelineSliderValues {
   rightValue: number;
 }
 
-export const calculateSliderValues = (
+const calculateSliderValues = (
   totalUpdates: number,
   currentIndex: number,
 ): TimelineSliderValues => {
@@ -1577,7 +1577,7 @@ interface ExtendedMemoizedState extends MemoizedState {
   element?: unknown;
 }
 
-export const isDirectComponent = (fiber: Fiber): boolean => {
+const isDirectComponent = (fiber: Fiber): boolean => {
   if (!fiber || !fiber.type) return false;
 
   const isFunctionalComponent = typeof fiber.type === 'function';
@@ -1609,7 +1609,7 @@ export const isPromise = (value: unknown): value is Promise<unknown> => {
   );
 };
 
-export const ensureRecord = (
+const ensureRecord = (
   value: unknown,
   maxDepth = 2,
   seen = new WeakSet<object>(),
@@ -1803,7 +1803,7 @@ export const ensureRecord = (
   }
 };
 
-export const getCurrentFiberState = (
+const getCurrentFiberState = (
   fiber: Fiber,
 ): Record<string, unknown> | null => {
   if (fiber.tag !== FunctionComponentTag || !isDirectComponent(fiber)) {
@@ -1823,123 +1823,6 @@ export const getCurrentFiberState = (
   return memoizedState;
 };
 
-export const replayComponent = async (fiber: Fiber): Promise<void> => {
-  const { overrideProps, overrideHookState, overrideContext } =
-    getOverrideMethods();
-  if (!overrideProps || !overrideHookState || !fiber) return;
-
-  try {
-    // Handle props updates
-    const currentProps = fiber.memoizedProps || {};
-    const propKeys = Object.keys(currentProps).filter((key) => {
-      const value = currentProps[key];
-      if (Array.isArray(value) || typeof value === 'string') {
-        return !Number.isInteger(Number(key)) && key !== 'length';
-      }
-      return true;
-    });
-
-    for (const key of propKeys) {
-      try {
-        const value = currentProps[key];
-        // For arrays and objects, we need to clone to trigger updates
-        const propValue = Array.isArray(value)
-          ? [...value]
-          : typeof value === 'object' && value !== null
-            ? { ...value }
-            : value;
-        overrideProps(fiber, [key], propValue);
-      } catch {}
-    }
-
-    // Handle state updates
-    const currentState = getCurrentFiberState(fiber);
-    if (currentState) {
-      const stateNames = getStateNames(fiber);
-
-      // First, handle named state hooks
-      for (const [key, value] of Object.entries(currentState)) {
-        try {
-          const namedStateIndex = stateNames.indexOf(key);
-          if (namedStateIndex !== -1) {
-            const hookId = namedStateIndex.toString();
-            // For arrays and objects, we need to clone to trigger updates
-            const stateValue = Array.isArray(value)
-              ? [...value]
-              : typeof value === 'object' && value !== null
-                ? { ...value }
-                : value;
-            overrideHookState(fiber, hookId, [], stateValue);
-          }
-        } catch {}
-      }
-
-      // Then handle unnamed state hooks
-      let hookIndex = 0;
-      let currentHook = fiber.memoizedState;
-      while (currentHook !== null) {
-        try {
-          const hookId = hookIndex.toString();
-          const value = currentHook.memoizedState;
-
-          // Only update if this hook isn't already handled by named states
-          if (!stateNames.includes(hookId)) {
-            // For arrays and objects, we need to clone to trigger updates
-            const stateValue = Array.isArray(value)
-              ? [...value]
-              : typeof value === 'object' && value !== null
-                ? { ...value }
-                : value;
-            overrideHookState(fiber, hookId, [], stateValue);
-          }
-        } catch {}
-
-        currentHook = currentHook.next as typeof currentHook;
-        hookIndex++;
-      }
-    }
-
-    // Handle context updates
-    if (overrideContext) {
-      const contexts = getAllFiberContexts(fiber);
-      if (contexts) {
-        for (const [contextType, ctx] of contexts) {
-          try {
-            // Find the provider fiber for this context
-            let current: Fiber | null = fiber;
-            while (current) {
-              const type = current.type as { Provider?: unknown };
-              if (type === contextType || type?.Provider === contextType) {
-                // Get the value we want to update to
-                const newValue = ctx.value;
-                if (newValue === undefined || newValue === null) break;
-
-                // Only update if the value has actually changed
-                const currentValue = current.memoizedProps?.value;
-                if (isEqual(currentValue, newValue)) break;
-
-                // Update the provider's value prop
-                overrideProps(current, ['value'], newValue);
-                if (current.alternate) {
-                  overrideProps(current.alternate, ['value'], newValue);
-                }
-                break;
-              }
-              current = current.return;
-            }
-          } catch {}
-        }
-      }
-    }
-
-    // Recursively handle children
-    let child = fiber.child;
-    while (child) {
-      await replayComponent(child);
-      child = child.sibling;
-    }
-  } catch {}
-};
 
 export const extractMinimalFiberInfo = (fiber: Fiber): MinimalFiberInfo => {
   const timings = getTimings(fiber);

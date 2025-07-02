@@ -1,15 +1,11 @@
-import {
-	type ReadonlySignal,
-	computed,
-	useSignalEffect,
-} from "@preact/signals";
+import { type ReadonlySignal, computed } from "@preact/signals";
 import type { ReactNode } from "preact/compat";
 import { Store } from "~core/index";
 import { signalWidgetViews } from "~web/state";
 import { cn } from "~web/utils/helpers";
 import { Header } from "~web/widget/header";
-import { Toolbar } from "./toolbar";
 import { MainViewWrapper } from "./main";
+import { Toolbar } from "./toolbar";
 
 const isInspecting = computed(
 	() => Store.inspectState.value.kind === "inspecting",
@@ -28,9 +24,7 @@ const headerClassName = computed(() =>
 	),
 );
 
-const isInspectorViewOpen = computed(
-	() => signalWidgetViews.value.view === "inspector",
-);
+
 const isNotificationsViewOpen = computed(
 	() => signalWidgetViews.value.view === "notifications",
 );

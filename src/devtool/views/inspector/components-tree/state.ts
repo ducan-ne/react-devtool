@@ -28,7 +28,7 @@ export const searchState = signal<{
   currentMatchIndex: -1,
 });
 
-export interface TreeItem {
+interface TreeItem {
   name: string;
   depth: number;
   element: HTMLElement;

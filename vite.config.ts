@@ -1,4 +1,4 @@
-import preact from "@preact/preset-vite";
+
 import tailwindcss from "@tailwindcss/vite";
 import { codeInspectorPlugin } from "code-inspector-plugin";
 import { defineConfig } from "vite";

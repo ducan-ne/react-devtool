@@ -1,7 +1,7 @@
 import type { JSX } from 'preact';
 import { type ForwardedRef, forwardRef } from 'preact/compat';
 
-export interface SVGIconProps {
+interface SVGIconProps {
   size?: number | Array<number>;
   name: string;
   fill?: string;

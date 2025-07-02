@@ -19,7 +19,7 @@ export interface ResizeHandleProps {
   position: Corner | "top" | "bottom" | "left" | "right";
 }
 
-export interface WidgetDimensions {
+interface WidgetDimensions {
   isFullWidth: boolean;
   isFullHeight: boolean;
   width: number;
@@ -27,7 +27,7 @@ export interface WidgetDimensions {
   position: Position;
 }
 
-export interface ComponentsTreeConfig {
+interface ComponentsTreeConfig {
   width: number;
 }
 

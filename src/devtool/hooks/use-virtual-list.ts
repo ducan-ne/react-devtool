@@ -6,7 +6,7 @@ import {
   useState,
 } from 'preact/hooks';
 
-export interface VirtualItem {
+interface VirtualItem {
   key: number;
   index: number;
   start: number;

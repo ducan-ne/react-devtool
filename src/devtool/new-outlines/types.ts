@@ -9,7 +9,7 @@ export interface OutlineData {
   didCommit: 0 | 1;
 }
 
-export type InlineOutlineData = [
+type InlineOutlineData = [
   id: number,
   count: number,
   x: number,

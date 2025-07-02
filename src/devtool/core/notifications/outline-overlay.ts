@@ -1,18 +1,18 @@
 import { signal } from '@preact/signals';
 import { iife } from './performance-utils';
 
-export interface HeatmapOverlay {
+interface HeatmapOverlay {
   boundingRect: DOMRect;
   ms: number;
   name: string;
 }
 
-export let highlightCanvas: HTMLCanvasElement | null = null;
-export let highlightCtx: CanvasRenderingContext2D | null = null;
+let highlightCanvas: HTMLCanvasElement | null = null;
+let highlightCtx: CanvasRenderingContext2D | null = null;
 
 let animationFrame: number | null = null;
 
-export type TransitionHighlightState = {
+type TransitionHighlightState = {
   kind: 'transition';
   transitionTo: {
     name: string;
@@ -43,13 +43,13 @@ type HighlightState =
       } | null;
     };
 
-export const HighlightStore = signal<HighlightState>({
+const HighlightStore = signal<HighlightState>({
   kind: 'idle',
   current: null,
 });
 
 let currFrame: ReturnType<typeof requestAnimationFrame> | null = null;
-export const drawHighlights = () => {
+const drawHighlights = () => {
   if (currFrame) {
     cancelAnimationFrame(currFrame);
   }
@@ -205,7 +205,7 @@ export const createHighlightCanvas = (root: HTMLElement) => {
   return cleanup;
 };
 
-export function cleanup() {
+function cleanup() {
   if (animationFrame) {
     cancelAnimationFrame(animationFrame);
     animationFrame = null;

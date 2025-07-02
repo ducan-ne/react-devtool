@@ -166,7 +166,7 @@ const trackVisibilityChange = () => {
 }
 
 // todo: update monitoring api to expose filters for component names
-export function initPerformanceMonitoring(options?: Partial<PathFilters>) {
+function initPerformanceMonitoring(options?: Partial<PathFilters>) {
   const filters = { ...DEFAULT_FILTERS, ...options }
   const monitor = Store.monitor.value
   if (!monitor) return

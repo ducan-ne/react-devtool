@@ -35,7 +35,7 @@ function getLabelTextPart([count, names]: [number, string[]]): string {
   return part;
 }
 
-export const getLabelText = (outlines: ActiveOutline[]): string => {
+const getLabelText = (outlines: ActiveOutline[]): string => {
   const nameByCount = new Map<string, number>();
   for (const { name, count } of outlines) {
     nameByCount.set(name, (nameByCount.get(name) || 0) + count);
@@ -65,7 +65,7 @@ export const getLabelText = (outlines: ActiveOutline[]): string => {
   return labelText;
 };
 
-export const getAreaFromOutlines = (outlines: ActiveOutline[]) => {
+const getAreaFromOutlines = (outlines: ActiveOutline[]) => {
   let area = 0;
   for (const outline of outlines) {
     area += outline.width * outline.height;

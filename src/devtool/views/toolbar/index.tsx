@@ -1,10 +1,7 @@
 import { useSignalEffect } from "@preact/signals";
 import {
 	useCallback,
-	useEffect,
-	useLayoutEffect,
-	useState,
-} from "preact/hooks";
+	} from "preact/hooks";
 import { ReactScanInternals, Store } from "~core/index";
 import { Icon } from "~web/components/icon";
 import { Logo } from "~web/components/logo";

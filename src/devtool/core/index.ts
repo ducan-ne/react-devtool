@@ -407,7 +407,7 @@ const initRootContainer = (): RootContainer => {
 //   showToolbar?: boolean;
 // }
 
-export interface Options {
+interface Options {
 	/**
 	 * Enable/disable scanning
 	 *
@@ -497,7 +497,7 @@ export interface Options {
 	onPaintFinish?: (outlines: Array<Outline>) => void;
 }
 
-export type MonitoringOptions = Pick<
+type MonitoringOptions = Pick<
 	Options,
 	| "enabled"
 	| "onCommitStart"
@@ -518,7 +518,7 @@ interface Monitor {
 	branch: string | null;
 }
 
-export interface StoreType {
+interface StoreType {
 	inspectState: Signal<States>;
 	wasDetailsOpen: Signal<boolean>;
 	lastReportTime: Signal<number>;
@@ -535,7 +535,7 @@ export interface StoreType {
 
 export type OutlineKey = `${string}-${string}`;
 
-export interface Internals {
+interface Internals {
 	instrumentation: ReturnType<typeof createInstrumentation> | null;
 	componentAllowList: WeakMap<ComponentType<unknown>, Options> | null;
 	options: Signal<Options>;
@@ -548,14 +548,14 @@ export interface Internals {
 	runInAllEnvironments: boolean;
 }
 
-export type FunctionalComponentStateChange = {
+type FunctionalComponentStateChange = {
 	type: ChangeReason.FunctionalState;
 	value: unknown;
 	prevValue?: unknown;
 	count?: number | undefined;
 	name: string;
 };
-export type ClassComponentStateChange = {
+type ClassComponentStateChange = {
 	type: ChangeReason.ClassState;
 	value: unknown;
 	prevValue?: unknown;
@@ -635,7 +635,7 @@ export const ReactScanInternals: Internals = {
 	Store,
 };
 
-export type LocalStorageOptions = Omit<
+type LocalStorageOptions = Omit<
 	Options,
 	| "onCommitStart"
 	| "onRender"
@@ -745,7 +745,7 @@ const validateOptions = (options: Partial<Options>): Partial<Options> => {
 	return validOptions;
 };
 
-export const getReport = (type?: ComponentType<unknown>) => {
+const getReport = (type?: ComponentType<unknown>) => {
 	if (type) {
 		for (const reportData of Array.from(Store.legacyReportData.values())) {
 			if (reportData.type === type) {
@@ -822,12 +822,12 @@ export const setOptions = (userOptions: Partial<Options>) => {
 	}
 };
 
-export const getOptions = () => ReactScanInternals.options;
+const getOptions = () => ReactScanInternals.options;
 
 // we only need to run this check once and will read the value in hot path
 let isProduction: boolean | null = null;
 let rdtHook: ReturnType<typeof getRDTHook>;
-export const getIsProduction = () => {
+const getIsProduction = () => {
 	if (isProduction !== null) {
 		return isProduction;
 	}
@@ -841,7 +841,7 @@ export const getIsProduction = () => {
 	return isProduction;
 };
 
-export const start = () => {
+const start = () => {
 	try {
 		if (!IS_CLIENT) {
 			return;
@@ -960,12 +960,12 @@ export const scan = (options: Options = {}) => {
 	start();
 };
 
-export const useScan = (options: Options = {}) => {
+const useScan = (options: Options = {}) => {
 	setOptions(options);
 	start();
 };
 
-export const onRender = (
+const onRender = (
 	type: unknown,
 	_onRender: (fiber: Fiber, renders: Array<Render>) => void,
 ) => {
@@ -982,7 +982,7 @@ export const ignoredProps = new WeakSet<
 	Exclude<ReactNode, undefined | null | string | number | boolean | bigint>
 >();
 
-export const ignoreScan = (node: ReactNode) => {
+const ignoreScan = (node: ReactNode) => {
 	if (node && typeof node === "object") {
 		ignoredProps.add(node);
 	}

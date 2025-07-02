@@ -2,7 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { getFPS } from '~core/instrumentation';
 import { cn } from '~web/utils/helpers';
 
-export const FpsMeterInner = ({fps}:{fps: number}) => {
+const FpsMeterInner = ({fps}:{fps: number}) => {
 
 
   const getColor = (fps: number) => {

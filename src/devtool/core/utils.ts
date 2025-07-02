@@ -5,7 +5,7 @@ import { ReactScanInternals } from '~core/index';
 import type { AggregatedRender } from '~web/utils/outline';
 import type { AggregatedChange, Render } from './instrumentation';
 
-export const aggregateChanges = (
+const aggregateChanges = (
   changes: Array<Change>,
   prevAggregatedChange?: AggregatedChange,
 ) => {
@@ -21,7 +21,7 @@ export const aggregateChanges = (
   return newChange;
 };
 
-export const joinAggregations = ({
+const joinAggregations = ({
   from,
   to,
 }: {
@@ -40,7 +40,7 @@ export const joinAggregations = ({
   to.unnecessary = to.unnecessary || from.unnecessary;
 };
 
-export const aggregateRender = (
+const aggregateRender = (
   newRender: Render,
   prevAggregated: AggregatedRender,
 ) => {
@@ -166,7 +166,7 @@ export const getLabelText = (
   return labelText;
 };
 
-export const updateFiberRenderData = (fiber: Fiber, renders: Array<Render>) => {
+const updateFiberRenderData = (fiber: Fiber, renders: Array<Render>) => {
   ReactScanInternals.options.value.onRender?.(fiber, renders);
   const type = getType(fiber.type) || fiber.type;
   if (type && (typeof type === 'function' || typeof type === 'object')) {
@@ -196,7 +196,7 @@ export function isEqual(a: unknown, b: unknown): boolean {
   return a === b || (a !== a && b !== b);
 }
 
-export const playNotificationSound = (audioContext: AudioContext) => {
+const playNotificationSound = (audioContext: AudioContext) => {
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
 

@@ -20,7 +20,7 @@ export interface Session {
   branch: string | null;
 }
 
-export interface Interaction {
+interface Interaction {
   id: string | number; // index of the interaction in the batch at ingest | server converts to a hashed string from route, type, name, path
   path: Array<string>; // the path of the interaction
   name: string; // name of interaction
@@ -42,7 +42,7 @@ export interface Interaction {
   meta?: unknown;
 }
 
-export interface Component {
+interface Component {
   interactionId: string | number; // grouping components by interaction
   name: string;
   renders: number; // how many times it re-rendered / instances (normalized)
@@ -51,7 +51,7 @@ export interface Component {
   selfTime?: number;
 }
 
-export interface IngestRequest {
+interface IngestRequest {
   interactions: Array<Interaction>;
   components: Array<Component>;
   session: Session;
