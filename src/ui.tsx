@@ -1,5 +1,5 @@
-import { cn } from "@devtool/utils/helpers";
-import type { Signal } from "@preact/signals";
+import { cn } from "@devtool/utils/helpers"
+import type { Signal } from "@preact/signals"
 import {
 	useSyncExternalStore,
 	type ComponentProps,
@@ -9,19 +9,19 @@ import {
 	forwardRef,
 	useEffect,
 	useRef,
-} from "react";
-import { Inspector as ReactInspector } from "react-inspector";
-import { createPropertyRenderer } from "@devtool/views/inspector/properties";
+} from "react"
+import { Inspector as ReactInspector } from "react-inspector"
+import { createPropertyRenderer } from "@devtool/views/inspector/properties"
 
 export type Subscribable<T> = Signal<T> & {
-	subscribe: (fn: (value: T) => void) => () => void;
-};
+	subscribe: (fn: (value: T) => void) => () => void
+}
 
 type FeatureFlagsProps = {
-	name?: string;
-	values: Subscribable<Record<string, boolean>>;
-	onChange?: (key: string, value: boolean) => void;
-};
+	name?: string
+	values: Subscribable<Record<string, boolean>>
+	onChange?: (key: string, value: boolean) => void
+}
 
 function Properties({
 	name,
@@ -29,13 +29,13 @@ function Properties({
 	refSticky,
 	isSticky,
 }: {
-	name: string;
-	data: Subscribable<Record<string, unknown>>;
-	refSticky?: React.RefObject<HTMLElement>;
-	isSticky?: boolean;
+	name: string
+	data: Subscribable<Record<string, unknown>>
+	refSticky?: React.RefObject<HTMLElement>
+	isSticky?: boolean
 }) {
-	const containerRef = useRef<HTMLDivElement>(null);
-	const rendererRef = useRef(createPropertyRenderer());
+	const containerRef = useRef<HTMLDivElement>(null)
+	const rendererRef = useRef(createPropertyRenderer())
 
 	useEffect(() => {
 		if (containerRef.current) {
@@ -44,15 +44,15 @@ function Properties({
 				data,
 				refSticky: refSticky?.current ? () => refSticky.current : undefined,
 				isSticky,
-			});
+			})
 		}
 
 		return () => {
 			if (containerRef.current) {
-				rendererRef.current.unmount(containerRef.current);
+				rendererRef.current.unmount(containerRef.current)
 			}
-		};
-	}, [name, data, refSticky, isSticky]);
+		}
+	}, [name, data, refSticky, isSticky])
 
 	// Re-render when data changes
 	useEffect(() => {
@@ -63,14 +63,14 @@ function Properties({
 					data,
 					refSticky: refSticky?.current ? () => refSticky.current : undefined,
 					isSticky,
-				});
+				})
 			}
-		});
+		})
 
-		return unsubscribe;
-	}, [name, data, refSticky, isSticky]);
+		return unsubscribe
+	}, [name, data, refSticky, isSticky])
 
-	return <div ref={containerRef} />;
+	return <div ref={containerRef} />
 }
 
 export function FeatureFlags({
@@ -82,7 +82,7 @@ export function FeatureFlags({
 		<div className="react-devtool-properties">
 			<Properties name={name} data={values} />
 		</div>
-	);
+	)
 }
 
 const inspectorTheme: any = {
@@ -129,15 +129,15 @@ const inspectorTheme: any = {
 	TABLE_SORT_ICON_COLOR: "var(--color-gray-40)",
 	TABLE_DATA_BACKGROUND_IMAGE: "none",
 	TABLE_DATA_BACKGROUND_SIZE: "0",
-};
+}
 
 type InspectorProps = {
-	data: any;
-	theme?: any;
-	expandLevel?: number;
-	table?: boolean;
-	className?: string;
-};
+	data: any
+	theme?: any
+	expandLevel?: number
+	table?: boolean
+	className?: string
+}
 
 export function Inspector({
 	data,
@@ -155,17 +155,17 @@ export function Inspector({
 				table={table}
 			/>
 		</div>
-	);
+	)
 }
 
 export function useFlag<T>(flags: Subscribable<T>, key: keyof T) {
 	return useSyncExternalStore(
 		(cb) => flags.subscribe(cb),
 		() => {
-			return flags.value[key];
+			return flags.value[key]
 		},
 		() => null,
-	);
+	)
 }
 
 // -- a simple ui component library for users --
@@ -177,8 +177,8 @@ export function Button({
 	size = "default",
 	...props
 }: ComponentProps<"button"> & {
-	variant?: "default" | "outline" | "ghost" | "destructive";
-	size?: "default" | "sm" | "lg";
+	variant?: "default" | "outline" | "ghost" | "destructive"
+	size?: "default" | "sm" | "lg"
 }) {
 	return (
 		<button
@@ -203,16 +203,16 @@ export function Button({
 		>
 			{children}
 		</button>
-	);
+	)
 }
 
 type ToggleProps = {
-	checked?: boolean;
-	onChange?: (checked: boolean) => void;
-	disabled?: boolean;
-	className?: string;
-	id?: string;
-};
+	checked?: boolean
+	onChange?: (checked: boolean) => void
+	disabled?: boolean
+	className?: string
+	id?: string
+}
 
 export function Toggle({
 	checked = false,
@@ -242,19 +242,19 @@ export function Toggle({
 				])}
 			/>
 		</button>
-	);
+	)
 }
 
 type InputProps = ComponentProps<"input"> & {
-	label?: string;
-	error?: string;
-	helpText?: string;
-};
+	label?: string
+	error?: string
+	helpText?: string
+}
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
 	({ className, label, error, helpText, id: providedId, ...props }, ref) => {
-		const generatedId = useId();
-		const id = providedId || generatedId;
+		const generatedId = useId()
+		const id = providedId || generatedId
 
 		return (
 			<div className="space-y-1">
@@ -278,16 +278,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 					<p className="text-xs text-neutral-500">{helpText}</p>
 				)}
 			</div>
-		);
+		)
 	},
-);
+)
 
 type SelectProps = ComponentProps<"select"> & {
-	label?: string;
-	error?: string;
-	helpText?: string;
-	placeholder?: string;
-};
+	label?: string
+	error?: string
+	helpText?: string
+	placeholder?: string
+}
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 	(
@@ -303,8 +303,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 		},
 		ref,
 	) => {
-		const generatedId = useId();
-		const id = providedId || generatedId;
+		const generatedId = useId()
+		const id = providedId || generatedId
 
 		return (
 			<div className="space-y-1">
@@ -335,18 +335,18 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 					<p className="text-xs text-neutral-500">{helpText}</p>
 				)}
 			</div>
-		);
+		)
 	},
-);
+)
 
 type RadioProps = ComponentProps<"input"> & {
-	label?: string;
-};
+	label?: string
+}
 
 export const Radio = forwardRef<HTMLInputElement, RadioProps>(
 	({ className, label, id: providedId, ...props }, ref) => {
-		const generatedId = useId();
-		const id = providedId || generatedId;
+		const generatedId = useId()
+		const id = providedId || generatedId
 
 		return (
 			<div className="flex items-center space-x-2">
@@ -369,18 +369,18 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
 					</label>
 				)}
 			</div>
-		);
+		)
 	},
-);
+)
 
 type RadioGroupProps = {
-	value?: string;
-	onChange?: (value: string) => void;
-	name?: string;
-	children: ReactNode;
-	className?: string;
-	label?: string;
-};
+	value?: string
+	onChange?: (value: string) => void
+	name?: string
+	children: ReactNode
+	className?: string
+	label?: string
+}
 
 export function RadioGroup({
 	value,
@@ -390,8 +390,8 @@ export function RadioGroup({
 	className,
 	label,
 }: RadioGroupProps) {
-	const generatedId = useId();
-	const groupName = name || generatedId;
+	const generatedId = useId()
+	const groupName = name || generatedId
 
 	return (
 		<div className={cn("space-y-2", className)}>
@@ -405,7 +405,7 @@ export function RadioGroup({
 								"props" in child &&
 								child.props.value
 									? `${groupName}-${child.props.value}`
-									: `${groupName}-${index}`;
+									: `${groupName}-${index}`
 							return (
 								<div key={childKey}>
 									{child && typeof child === "object" && "props" in child
@@ -420,26 +420,26 @@ export function RadioGroup({
 											}
 										: child}
 								</div>
-							);
+							)
 						})
 					: children}
 			</div>
 		</div>
-	);
+	)
 }
 
 type ButtonGroupProps = {
-	children: ReactNode;
-	className?: string;
-	orientation?: "horizontal" | "vertical";
-};
+	children: ReactNode
+	className?: string
+	orientation?: "horizontal" | "vertical"
+}
 
 export function ButtonGroup({
 	children,
 	className,
 	orientation = "horizontal",
 }: ButtonGroupProps) {
-	const groupId = useId();
+	const groupId = useId()
 
 	return (
 		<div
@@ -479,18 +479,18 @@ export function ButtonGroup({
 					))
 				: children}
 		</div>
-	);
+	)
 }
 
 // Additional utility components for devtools
 
 type SectionProps = {
-	title: string;
-	children: ReactNode;
-	collapsible?: boolean;
-	defaultCollapsed?: boolean;
-	className?: string;
-};
+	title: string
+	children: ReactNode
+	collapsible?: boolean
+	defaultCollapsed?: boolean
+	className?: string
+}
 
 export function Section({
 	title,
@@ -510,7 +510,7 @@ export function Section({
 				</summary>
 				<div className="space-y-2 pl-6">{children}</div>
 			</details>
-		);
+		)
 	}
 
 	return (
@@ -518,16 +518,16 @@ export function Section({
 			<h3 className="text-sm font-medium text-neutral-300">{title}</h3>
 			<div className="space-y-2">{children}</div>
 		</div>
-	);
+	)
 }
 
 type TabsProps = {
-	children: ReactNode;
-	defaultValue?: string;
-	value?: string;
-	onValueChange?: (value: string) => void;
-	className?: string;
-};
+	children: ReactNode
+	defaultValue?: string
+	value?: string
+	onValueChange?: (value: string) => void
+	className?: string
+}
 
 export function Tabs({
 	children,
@@ -536,16 +536,16 @@ export function Tabs({
 	onValueChange,
 	className,
 }: TabsProps) {
-	const [internalValue, setInternalValue] = useState(defaultValue || "");
-	const value = controlledValue ?? internalValue;
-	const tabsId = useId();
+	const [internalValue, setInternalValue] = useState(defaultValue || "")
+	const value = controlledValue ?? internalValue
+	const tabsId = useId()
 
 	const handleValueChange = (newValue: string) => {
 		if (controlledValue === undefined) {
-			setInternalValue(newValue);
+			setInternalValue(newValue)
 		}
-		onValueChange?.(newValue);
-	};
+		onValueChange?.(newValue)
+	}
 
 	return (
 		<div className={cn("space-y-2", className)}>
@@ -563,8 +563,8 @@ export function Tabs({
 								"props" in child &&
 								child.props.label
 							) {
-								const tabValue = child.props.value || child.props.label;
-								const isSelected = value === tabValue;
+								const tabValue = child.props.value || child.props.label
+								const isSelected = value === tabValue
 								return (
 									<button
 										key={`tab-${tabValue}`}
@@ -584,9 +584,9 @@ export function Tabs({
 									>
 										{child.props.label}
 									</button>
-								);
+								)
 							}
-							return null;
+							return null
 						})
 					: null}
 			</div>
@@ -595,10 +595,10 @@ export function Tabs({
 			{Array.isArray(children)
 				? children.map((child, index) => {
 						if (child && typeof child === "object" && "props" in child) {
-							const tabValue = child.props.value || child.props.label;
-							const isSelected = value === tabValue;
+							const tabValue = child.props.value || child.props.label
+							const isSelected = value === tabValue
 
-							if (!isSelected) return null;
+							if (!isSelected) return null
 
 							return (
 								<div
@@ -610,31 +610,31 @@ export function Tabs({
 								>
 									{child}
 								</div>
-							);
+							)
 						}
-						return null;
+						return null
 					})
 				: children}
 		</div>
-	);
+	)
 }
 
 type TabProps = {
-	label: string;
-	value?: string;
-	children: ReactNode;
-};
+	label: string
+	value?: string
+	children: ReactNode
+}
 
 export function Tab({ children }: TabProps) {
-	return <div>{children}</div>;
+	return <div>{children}</div>
 }
 
 type CodeBlockProps = {
-	children: string;
-	language?: string;
-	className?: string;
-	title?: string;
-};
+	children: string
+	language?: string
+	className?: string
+	title?: string
+}
 
 export function CodeBlock({
 	children,
@@ -658,5 +658,5 @@ export function CodeBlock({
 				</code>
 			</pre>
 		</figure>
-	);
+	)
 }

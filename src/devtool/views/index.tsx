@@ -1,15 +1,15 @@
-import { type ReadonlySignal, computed } from "@preact/signals";
-import type { ReactNode } from "preact/compat";
-import { Store } from "~core/index";
-import { signalWidgetViews } from "~web/state";
-import { cn } from "~web/utils/helpers";
-import { Header } from "~web/widget/header";
-import { MainViewWrapper } from "./main";
-import { Toolbar } from "./toolbar";
+import { type ReadonlySignal, computed } from "@preact/signals"
+import type { ReactNode } from "preact/compat"
+import { Store } from "~core/index"
+import { signalWidgetViews } from "~web/state"
+import { cn } from "~web/utils/helpers"
+import { Header } from "~web/widget/header"
+import { MainViewWrapper } from "./main"
+import { Toolbar } from "./toolbar"
 
 const isInspecting = computed(
 	() => Store.inspectState.value.kind === "inspecting",
-);
+)
 
 const headerClassName = computed(() =>
 	cn(
@@ -22,12 +22,11 @@ const headerClassName = computed(() =>
 		"transition-[opacity]",
 		isInspecting.value && "opacity-0 duration-0 delay-0",
 	),
-);
-
+)
 
 const isNotificationsViewOpen = computed(
 	() => signalWidgetViews.value.view === "notifications",
-);
+)
 
 const contentClassName = computed(() => {
 	return cn(
@@ -41,8 +40,8 @@ const contentClassName = computed(() => {
 		"peer-hover/right:rounded-r-none",
 		"peer-hover/top:rounded-t-none",
 		"peer-hover/bottom:rounded-b-none",
-	);
-});
+	)
+})
 
 export const Content = () => {
 	return (
@@ -67,12 +66,12 @@ export const Content = () => {
 			</div>
 			<Toolbar />
 		</div>
-	);
-};
+	)
+}
 
 interface ContentViewProps {
-	isOpen: ReadonlySignal<boolean>;
-	children: ReactNode;
+	isOpen: ReadonlySignal<boolean>
+	children: ReactNode
 }
 
 const ContentView = ({ isOpen, children }: ContentViewProps) => {
@@ -89,5 +88,5 @@ const ContentView = ({ isOpen, children }: ContentViewProps) => {
 		>
 			<div className="absolute inset-0 flex">{children}</div>
 		</div>
-	);
-};
+	)
+}

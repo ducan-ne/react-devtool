@@ -1,4 +1,4 @@
-import type { SVGProps } from "preact/compat";
+import type { SVGProps } from "preact/compat"
 
 export function Logo(props: SVGProps<SVGSVGElement>) {
 	return (
@@ -17,5 +17,5 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
 				<ellipse rx="10" ry="4.5" transform="rotate(120)" />
 			</g>
 		</svg>
-	);
+	)
 }

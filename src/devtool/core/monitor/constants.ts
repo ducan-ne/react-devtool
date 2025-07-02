@@ -12,29 +12,24 @@
  * Do not destructure exports or import React from "react" here.
  * From empirical ad-hoc testing, this breaks in certain scenarios.
  */
-import * as React from 'react';
-import { IS_CLIENT } from '~web/utils/constants';
+import * as React from "react"
+import { IS_CLIENT } from "~web/utils/constants"
 
 /**
  * useRef will be undefined in "use server"
  *
  * @see https://nextjs.org/docs/messages/react-client-hook-in-server-component
  */
-const isRSC = () => !React.useRef;
-export const isSSR = () => !IS_CLIENT || isRSC();
+const isRSC = () => !React.useRef
+export const isSSR = () => !IS_CLIENT || isRSC()
 
 interface WindowWithCypress extends Window {
-  Cypress?: unknown;
+	Cypress?: unknown
 }
 
+// todo
+// todo
 
+// 5 minutes
 
- // todo
- // todo
-
-
-
- // 5 minutes
-
- // 1 minute
-
+// 1 minute

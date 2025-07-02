@@ -1,45 +1,45 @@
-import { type Signal, signal } from "@preact/signals";
+import { type Signal, signal } from "@preact/signals"
 import {
 	type Fiber,
 	detectReactBuildType,
 	getRDTHook,
 	isInstrumentationActive,
-} from "bippy";
-import type { ComponentType } from "preact";
-import type { ReactNode } from "preact/compat";
-import type { RenderData } from "~core/utils";
-import { createToolbar } from "~web/toolbar";
-import { IS_CLIENT } from "~web/utils/constants";
-import { readLocalStorage, saveLocalStorage } from "~web/utils/helpers";
-import type { Outline } from "~web/utils/outline";
-import type { States } from "~web/views/inspector/utils";
-import styles from "../../index.css?inline";
+} from "bippy"
+import type { ComponentType } from "preact"
+import type { ReactNode } from "preact/compat"
+import type { RenderData } from "~core/utils"
+import { createToolbar } from "~web/toolbar"
+import { IS_CLIENT } from "~web/utils/constants"
+import { readLocalStorage, saveLocalStorage } from "~web/utils/helpers"
+import type { Outline } from "~web/utils/outline"
+import type { States } from "~web/views/inspector/utils"
+import styles from "../../index.css?inline"
 import type {
 	ChangeReason,
 	Render,
 	createInstrumentation,
-} from "./instrumentation";
-import type { InternalInteraction } from "./monitor/types";
-import type { getSession } from "./monitor/utils";
-import { startTimingTracking } from "./notifications/event-tracking";
-import { createHighlightCanvas } from "./notifications/outline-overlay";
+} from "./instrumentation"
+import type { InternalInteraction } from "./monitor/types"
+import type { getSession } from "./monitor/utils"
+import { startTimingTracking } from "./notifications/event-tracking"
+import { createHighlightCanvas } from "./notifications/outline-overlay"
 
 declare global {
 	interface Window {
-		__REACT_DEVTOOL_VERSION__?: string;
-		__REACT_DEVTOOL_STOP__?: () => void;
-		__REACT_DEVTOOL_TOOLBAR_CONTAINER__?: HTMLElement;
-		reactDevtoolCleanupListeners?: () => void;
+		__REACT_DEVTOOL_VERSION__?: string
+		__REACT_DEVTOOL_STOP__?: () => void
+		__REACT_DEVTOOL_TOOLBAR_CONTAINER__?: HTMLElement
+		reactDevtoolCleanupListeners?: () => void
 	}
 }
 
-let rootContainer: HTMLDivElement | null = null;
-let shadowRoot: ShadowRoot | null = null;
+let rootContainer: HTMLDivElement | null = null
+let shadowRoot: ShadowRoot | null = null
 
 // Font loading function for shadow DOM compatibility
 const loadOptimisticFonts = () => {
 	if (!IS_CLIENT || document.getElementById("react-devtool-fonts")) {
-		return; // Fonts already loaded or not in client
+		return // Fonts already loaded or not in client
 	}
 
 	const fontCSS = `
@@ -336,41 +336,41 @@ const loadOptimisticFonts = () => {
 			font-display: swap;
 			unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 		}
-	`;
+	`
 
-	const styleElement = document.createElement("style");
-	styleElement.id = "react-devtool-fonts";
-	styleElement.textContent = fontCSS;
-	document.head.appendChild(styleElement);
-};
+	const styleElement = document.createElement("style")
+	styleElement.id = "react-devtool-fonts"
+	styleElement.textContent = fontCSS
+	document.head.appendChild(styleElement)
+}
 
 // @TODO: @pivanov - add back in when options are implemented
 // const audioContext: AudioContext | null = null;
 
 interface RootContainer {
-	rootContainer: HTMLDivElement;
-	shadowRoot: ShadowRoot;
+	rootContainer: HTMLDivElement
+	shadowRoot: ShadowRoot
 }
 
 const initRootContainer = (): RootContainer => {
 	if (rootContainer && shadowRoot) {
-		return { rootContainer, shadowRoot };
+		return { rootContainer, shadowRoot }
 	}
 
-	rootContainer = document.createElement("div");
-	rootContainer.id = "react-devtool-root";
+	rootContainer = document.createElement("div")
+	rootContainer.id = "react-devtool-root"
 
-	shadowRoot = rootContainer.attachShadow({ mode: "open" });
+	shadowRoot = rootContainer.attachShadow({ mode: "open" })
 
-	const cssStyles = document.createElement("style");
-	cssStyles.textContent = styles;
+	const cssStyles = document.createElement("style")
+	cssStyles.textContent = styles
 
-	shadowRoot.appendChild(cssStyles);
+	shadowRoot.appendChild(cssStyles)
 
-	document.documentElement.appendChild(rootContainer);
+	document.documentElement.appendChild(rootContainer)
 
-	return { rootContainer, shadowRoot };
-};
+	return { rootContainer, shadowRoot }
+}
 
 // export interface UnstableOptions {
 //   /**
@@ -423,14 +423,14 @@ interface Options {
 	 *
 	 * @default true
 	 */
-	enabled?: boolean;
+	enabled?: boolean
 
 	/**
 	 * Force React Scan to run in production (not recommended)
 	 *
 	 * @default false
 	 */
-	dangerouslyForceRunInProduction?: boolean;
+	dangerouslyForceRunInProduction?: boolean
 	/**
 	 * Log renders to the console
 	 *
@@ -438,7 +438,7 @@ interface Options {
 	 *
 	 * @default false
 	 */
-	log?: boolean;
+	log?: boolean
 
 	/**
 	 * Show toolbar bar
@@ -447,14 +447,14 @@ interface Options {
 	 *
 	 * @default true
 	 */
-	showToolbar?: boolean;
+	showToolbar?: boolean
 
 	/**
 	 * Animation speed
 	 *
 	 * @default "fast"
 	 */
-	animationSpeed?: "slow" | "fast" | "off";
+	animationSpeed?: "slow" | "fast" | "off"
 
 	/**
 	 * Track unnecessary renders, and mark their outlines gray when detected
@@ -465,28 +465,28 @@ interface Options {
 	 *  @default false
 	 *  @warning tracking unnecessary renders can add meaningful overhead to react-scan
 	 */
-	trackUnnecessaryRenders?: boolean;
+	trackUnnecessaryRenders?: boolean
 
 	/**
 	 * Should the FPS meter show in the toolbar
 	 *
 	 *  @default true
 	 */
-	showFPS?: boolean;
+	showFPS?: boolean
 
 	/**
 	 * Should the number of slowdown notifications be shown in the toolbar
 	 *
 	 *  @default true
 	 */
-	showNotificationCount?: boolean;
+	showNotificationCount?: boolean
 
 	/**
 	 * Allow React Scan to run inside iframes
 	 *
 	 * @default false
 	 */
-	allowInIframe?: boolean;
+	allowInIframe?: boolean
 
 	/**
 	 * Should react scan log internal errors to the console.
@@ -495,100 +495,100 @@ interface Options {
 	 *
 	 *  @default false
 	 */
-	_debug?: "verbose" | false;
+	_debug?: "verbose" | false
 
-	onCommitStart?: () => void;
-	onRender?: (fiber: Fiber, renders: Array<Render>) => void;
-	onCommitFinish?: () => void;
-	onPaintStart?: (outlines: Array<Outline>) => void;
-	onPaintFinish?: (outlines: Array<Outline>) => void;
+	onCommitStart?: () => void
+	onRender?: (fiber: Fiber, renders: Array<Render>) => void
+	onCommitFinish?: () => void
+	onPaintStart?: (outlines: Array<Outline>) => void
+	onPaintFinish?: (outlines: Array<Outline>) => void
 }
 
 interface Monitor {
-	pendingRequests: number;
-	interactions: Array<InternalInteraction>;
-	session: ReturnType<typeof getSession>;
-	url: string | null;
-	route: string | null;
-	apiKey: string | null;
-	commit: string | null;
-	branch: string | null;
+	pendingRequests: number
+	interactions: Array<InternalInteraction>
+	session: ReturnType<typeof getSession>
+	url: string | null
+	route: string | null
+	apiKey: string | null
+	commit: string | null
+	branch: string | null
 }
 
 interface StoreType {
-	inspectState: Signal<States>;
-	wasDetailsOpen: Signal<boolean>;
-	lastReportTime: Signal<number>;
-	isInIframe: Signal<boolean>;
-	monitor: Signal<Monitor | null>;
-	fiberRoots: WeakSet<Fiber>;
-	reportData: Map<number, RenderData>;
-	legacyReportData: Map<string, RenderData>;
-	changesListeners: Map<number, Array<ChangesListener>>;
+	inspectState: Signal<States>
+	wasDetailsOpen: Signal<boolean>
+	lastReportTime: Signal<number>
+	isInIframe: Signal<boolean>
+	monitor: Signal<Monitor | null>
+	fiberRoots: WeakSet<Fiber>
+	reportData: Map<number, RenderData>
+	legacyReportData: Map<string, RenderData>
+	changesListeners: Map<number, Array<ChangesListener>>
 	interactionListeningForRenders:
 		| ((fiber: Fiber, renders: Array<Render>) => void)
-		| null;
+		| null
 }
 
-export type OutlineKey = `${string}-${string}`;
+export type OutlineKey = `${string}-${string}`
 
 interface Internals {
-	instrumentation: ReturnType<typeof createInstrumentation> | null;
-	componentAllowList: WeakMap<ComponentType<unknown>, Options> | null;
-	options: Signal<Options>;
-	scheduledOutlines: Map<Fiber, Outline>; // we clear t,his nearly immediately, so no concern of mem leak on the fiber
+	instrumentation: ReturnType<typeof createInstrumentation> | null
+	componentAllowList: WeakMap<ComponentType<unknown>, Options> | null
+	options: Signal<Options>
+	scheduledOutlines: Map<Fiber, Outline> // we clear t,his nearly immediately, so no concern of mem leak on the fiber
 	// outlines at the same coordinates always get merged together, so we pre-compute the merge ahead of time when aggregating in activeOutlines
-	activeOutlines: Map<OutlineKey, Outline>; // we re-use the outline object on the scheduled outline
-	onRender: ((fiber: Fiber, renders: Array<Render>) => void) | null;
-	Store: StoreType;
-	version: string;
-	runInAllEnvironments: boolean;
+	activeOutlines: Map<OutlineKey, Outline> // we re-use the outline object on the scheduled outline
+	onRender: ((fiber: Fiber, renders: Array<Render>) => void) | null
+	Store: StoreType
+	version: string
+	runInAllEnvironments: boolean
 }
 
 type FunctionalComponentStateChange = {
-	type: ChangeReason.FunctionalState;
-	value: unknown;
-	prevValue?: unknown;
-	count?: number | undefined;
-	name: string;
-};
+	type: ChangeReason.FunctionalState
+	value: unknown
+	prevValue?: unknown
+	count?: number | undefined
+	name: string
+}
 type ClassComponentStateChange = {
-	type: ChangeReason.ClassState;
-	value: unknown;
-	prevValue?: unknown;
-	count?: number | undefined;
-	name: "state";
-};
+	type: ChangeReason.ClassState
+	value: unknown
+	prevValue?: unknown
+	count?: number | undefined
+	name: "state"
+}
 
 export type StateChange =
 	| FunctionalComponentStateChange
-	| ClassComponentStateChange;
+	| ClassComponentStateChange
 export type PropsChange = {
-	type: ChangeReason.Props;
-	name: string;
-	value: unknown;
-	prevValue?: unknown;
-	count?: number | undefined;
-};
+	type: ChangeReason.Props
+	name: string
+	value: unknown
+	prevValue?: unknown
+	count?: number | undefined
+}
 export type ContextChange = {
-	type: ChangeReason.Context;
-	name: string;
-	value: unknown;
-	prevValue?: unknown;
-	count?: number | undefined;
-	contextType: number;
-};
+	type: ChangeReason.Context
+	name: string
+	value: unknown
+	prevValue?: unknown
+	count?: number | undefined
+	contextType: number
+}
 
-export type Change = StateChange | PropsChange | ContextChange;
+export type Change = StateChange | PropsChange | ContextChange
 
 export type ChangesPayload = {
-	propsChanges: Array<PropsChange>;
+	propsChanges: Array<PropsChange>
 	stateChanges: Array<
 		FunctionalComponentStateChange | ClassComponentStateChange
-	>;
-	contextChanges: Array<ContextChange>;
-};
-export type ChangesListener = (changes: ChangesPayload) => void;
+	>
+	contextChanges: Array<ContextChange>
+}
+export type ChangesListener = (changes: ChangesPayload) => void
 
 export const Store: StoreType = {
 	wasDetailsOpen: signal(true),
@@ -603,7 +603,7 @@ export const Store: StoreType = {
 	lastReportTime: signal(0),
 	interactionListeningForRenders: null,
 	changesListeners: new Map(),
-};
+}
 
 export const ReactDevtoolInternals: Internals = {
 	instrumentation: null,
@@ -631,7 +631,7 @@ export const ReactDevtoolInternals: Internals = {
 	activeOutlines: new Map(),
 	Store,
 	version: "0.0.1",
-};
+}
 
 type LocalStorageOptions = Omit<
 	Options,
@@ -640,20 +640,20 @@ type LocalStorageOptions = Omit<
 	| "onCommitFinish"
 	| "onPaintStart"
 	| "onPaintFinish"
->;
+>
 
 function isOptionKey(key: string): key is keyof Options {
-	return key in ReactDevtoolInternals.options.value;
+	return key in ReactDevtoolInternals.options.value
 }
 
 const validateOptions = (options: Partial<Options>): Partial<Options> => {
-	const errors: Array<string> = [];
-	const validOptions: Partial<Options> = {};
+	const errors: Array<string> = []
+	const validOptions: Partial<Options> = {}
 
 	for (const key in options) {
-		if (!isOptionKey(key)) continue;
+		if (!isOptionKey(key)) continue
 
-		const value = options[key];
+		const value = options[key]
 		switch (key) {
 			case "enabled":
 			// case 'includeChildren':
@@ -666,11 +666,11 @@ const validateOptions = (options: Partial<Options>): Partial<Options> => {
 			case "showFPS":
 			case "allowInIframe":
 				if (typeof value !== "boolean") {
-					errors.push(`- ${key} must be a boolean. Got "${value}"`);
+					errors.push(`- ${key} must be a boolean. Got "${value}"`)
 				} else {
-					validOptions[key] = value;
+					validOptions[key] = value
 				}
-				break;
+				break
 			// case 'renderCountThreshold':
 			// case 'resetCountTimeout':
 			//   if (typeof value !== 'number' || value < 0) {
@@ -683,43 +683,43 @@ const validateOptions = (options: Partial<Options>): Partial<Options> => {
 				if (!["slow", "fast", "off"].includes(value as string)) {
 					errors.push(
 						`- Invalid animation speed "${value}". Using default "fast"`,
-					);
+					)
 				} else {
-					validOptions[key] = value as "slow" | "fast" | "off";
+					validOptions[key] = value as "slow" | "fast" | "off"
 				}
-				break;
+				break
 			case "onCommitStart":
 				if (typeof value !== "function") {
-					errors.push(`- ${key} must be a function. Got "${value}"`);
+					errors.push(`- ${key} must be a function. Got "${value}"`)
 				} else {
-					validOptions.onCommitStart = value as () => void;
+					validOptions.onCommitStart = value as () => void
 				}
-				break;
+				break
 			case "onCommitFinish":
 				if (typeof value !== "function") {
-					errors.push(`- ${key} must be a function. Got "${value}"`);
+					errors.push(`- ${key} must be a function. Got "${value}"`)
 				} else {
-					validOptions.onCommitFinish = value as () => void;
+					validOptions.onCommitFinish = value as () => void
 				}
-				break;
+				break
 			case "onRender":
 				if (typeof value !== "function") {
-					errors.push(`- ${key} must be a function. Got "${value}"`);
+					errors.push(`- ${key} must be a function. Got "${value}"`)
 				} else {
 					validOptions.onRender = value as (
 						fiber: Fiber,
 						renders: Array<Render>,
-					) => void;
+					) => void
 				}
-				break;
+				break
 			case "onPaintStart":
 			case "onPaintFinish":
 				if (typeof value !== "function") {
-					errors.push(`- ${key} must be a function. Got "${value}"`);
+					errors.push(`- ${key} must be a function. Got "${value}"`)
 				} else {
-					validOptions[key] = value as (outlines: Array<Outline>) => void;
+					validOptions[key] = value as (outlines: Array<Outline>) => void
 				}
-				break;
+				break
 			// case 'trackUnnecessaryRenders': {
 			//   validOptions.trackUnnecessaryRenders =
 			//     typeof value === 'boolean' ? value : false;
@@ -731,50 +731,50 @@ const validateOptions = (options: Partial<Options>): Partial<Options> => {
 			//   break;
 			// }
 			default:
-				errors.push(`- Unknown option "${key}"`);
+				errors.push(`- Unknown option "${key}"`)
 		}
 	}
 
 	if (errors.length > 0) {
 		// biome-ignore lint/suspicious/noConsole: Intended debug output
-		console.warn(`[React Scan] Invalid options:\n${errors.join("\n")}`);
+		console.warn(`[React Scan] Invalid options:\n${errors.join("\n")}`)
 	}
 
-	return validOptions;
-};
+	return validOptions
+}
 
 export const setOptions = (userOptions: Partial<Options>) => {
 	try {
-		const validOptions = validateOptions(userOptions);
+		const validOptions = validateOptions(userOptions)
 
 		if (Object.keys(validOptions).length === 0) {
-			return;
+			return
 		}
 
 		const shouldInitToolbar =
-			"showToolbar" in validOptions && validOptions.showToolbar !== undefined;
+			"showToolbar" in validOptions && validOptions.showToolbar !== undefined
 
 		const newOptions = {
 			...ReactDevtoolInternals.options.value,
 			...validOptions,
-		};
-
-		const { instrumentation } = ReactDevtoolInternals;
-		if (instrumentation && "enabled" in validOptions) {
-			instrumentation.isPaused.value = validOptions.enabled === false;
 		}
 
-		ReactDevtoolInternals.options.value = newOptions;
+		const { instrumentation } = ReactDevtoolInternals
+		if (instrumentation && "enabled" in validOptions) {
+			instrumentation.isPaused.value = validOptions.enabled === false
+		}
+
+		ReactDevtoolInternals.options.value = newOptions
 
 		// temp hack since defaults override stored local storage values
 		// we actually don't care about any other local storage option other than enabled, we should not be syncing those to local storage
 		try {
 			const existing = readLocalStorage<undefined | Record<string, unknown>>(
 				"react-devtool-options",
-			)?.enabled;
+			)?.enabled
 
 			if (typeof existing === "boolean") {
-				newOptions.enabled = existing;
+				newOptions.enabled = existing
 			}
 		} catch (e) {
 			if (ReactDevtoolInternals.options.value._debug === "verbose") {
@@ -783,18 +783,18 @@ export const setOptions = (userOptions: Partial<Options>) => {
 					"[React Scan Internal Error]",
 					"Failed to create notifications outline canvas",
 					e,
-				);
+				)
 			}
 			/** */
 		}
 
-		saveLocalStorage("react-devtool-options", newOptions);
+		saveLocalStorage("react-devtool-options", newOptions)
 
 		if (shouldInitToolbar) {
-			initToolbar(!!newOptions.showToolbar);
+			initToolbar(!!newOptions.showToolbar)
 		}
 
-		return newOptions;
+		return newOptions
 	} catch (e) {
 		if (ReactDevtoolInternals.options.value._debug === "verbose") {
 			// biome-ignore lint/suspicious/noConsole: intended debug output
@@ -802,77 +802,77 @@ export const setOptions = (userOptions: Partial<Options>) => {
 				"[React Scan Internal Error]",
 				"Failed to create notifications outline canvas",
 				e,
-			);
+			)
 		}
 		/** */
 	}
-};
+}
 
-const getOptions = () => ReactDevtoolInternals.options;
+const getOptions = () => ReactDevtoolInternals.options
 
 // we only need to run this check once and will read the value in hot path
-let isProduction: boolean | null = null;
-let rdtHook: ReturnType<typeof getRDTHook>;
+let isProduction: boolean | null = null
+let rdtHook: ReturnType<typeof getRDTHook>
 const getIsProduction = () => {
 	if (isProduction !== null) {
-		return isProduction;
+		return isProduction
 	}
-	rdtHook ??= getRDTHook();
+	rdtHook ??= getRDTHook()
 	for (const renderer of rdtHook.renderers.values()) {
-		const buildType = detectReactBuildType(renderer);
+		const buildType = detectReactBuildType(renderer)
 		if (buildType === "production") {
-			isProduction = true;
+			isProduction = true
 		}
 	}
-	return isProduction;
-};
+	return isProduction
+}
 
 const start = () => {
 	try {
 		if (!IS_CLIENT) {
-			return;
+			return
 		}
 
 		// Load fonts early for shadow DOM compatibility
-		loadOptimisticFonts();
+		loadOptimisticFonts()
 
 		if (
 			!ReactDevtoolInternals.runInAllEnvironments &&
 			getIsProduction() &&
 			!ReactDevtoolInternals.options.value.dangerouslyForceRunInProduction
 		) {
-			return;
+			return
 		}
 
 		const localStorageOptions = readLocalStorage<LocalStorageOptions>(
 			"react-devtool-options",
-		);
+		)
 
 		if (localStorageOptions) {
-			const validLocalOptions = validateOptions(localStorageOptions);
+			const validLocalOptions = validateOptions(localStorageOptions)
 
 			if (Object.keys(validLocalOptions).length > 0) {
 				ReactDevtoolInternals.options.value = {
 					...ReactDevtoolInternals.options.value,
 					...validLocalOptions,
-				};
+				}
 			}
 		}
 
-		const options = getOptions();
+		const options = getOptions()
 
 		// initReactDevtoolInstrumentation(() => {
-		initToolbar(!!options.value.showToolbar);
+		initToolbar(!!options.value.showToolbar)
 		// });
 
 		if (!Store.monitor.value && IS_CLIENT) {
 			setTimeout(() => {
-				if (isInstrumentationActive()) return;
+				if (isInstrumentationActive()) return
 				// biome-ignore lint/suspicious/noConsole: Intended debug output
 				console.error(
 					"[React Scan] Failed to load. Must import React Scan before React runs.",
-				);
-			}, 5000);
+				)
+			}, 5000)
 		}
 	} catch (e) {
 		if (ReactDevtoolInternals.options.value._debug === "verbose") {
@@ -881,38 +881,38 @@ const start = () => {
 				"[React Scan Internal Error]",
 				"Failed to create notifications outline canvas",
 				e,
-			);
+			)
 		}
 	}
-};
+}
 
 const initToolbar = (showToolbar: boolean) => {
-	window.reactDevtoolCleanupListeners?.();
+	window.reactDevtoolCleanupListeners?.()
 
-	const cleanupTimingTracking = startTimingTracking();
-	const cleanupOutlineCanvas = createNotificationsOutlineCanvas();
+	const cleanupTimingTracking = startTimingTracking()
+	const cleanupOutlineCanvas = createNotificationsOutlineCanvas()
 
 	window.reactDevtoolCleanupListeners = () => {
-		cleanupTimingTracking();
-		cleanupOutlineCanvas?.();
-	};
-
-	const windowToolbarContainer = window.__REACT_DEVTOOL_TOOLBAR_CONTAINER__;
-
-	if (!showToolbar) {
-		windowToolbarContainer?.remove();
-		return;
+		cleanupTimingTracking()
+		cleanupOutlineCanvas?.()
 	}
 
-	windowToolbarContainer?.remove();
-	const { shadowRoot } = initRootContainer();
-	createToolbar(shadowRoot);
-};
+	const windowToolbarContainer = window.__REACT_DEVTOOL_TOOLBAR_CONTAINER__
+
+	if (!showToolbar) {
+		windowToolbarContainer?.remove()
+		return
+	}
+
+	windowToolbarContainer?.remove()
+	const { shadowRoot } = initRootContainer()
+	createToolbar(shadowRoot)
+}
 
 const createNotificationsOutlineCanvas = () => {
 	try {
-		const highlightRoot = document.documentElement;
-		return createHighlightCanvas(highlightRoot);
+		const highlightRoot = document.documentElement
+		return createHighlightCanvas(highlightRoot)
 	} catch (e) {
 		if (ReactDevtoolInternals.options.value._debug === "verbose") {
 			// biome-ignore lint/suspicious/noConsole: intended debug output
@@ -920,33 +920,33 @@ const createNotificationsOutlineCanvas = () => {
 				"[React Scan Internal Error]",
 				"Failed to create notifications outline canvas",
 				e,
-			);
+			)
 		}
 	}
-};
+}
 
 /**
  * @public
  */
 export const scan = (options: Options = {}) => {
-	setOptions(options);
-	const isInIframe = Store.isInIframe.value;
+	setOptions(options)
+	const isInIframe = Store.isInIframe.value
 
 	if (
 		isInIframe &&
 		!ReactDevtoolInternals.options.value.allowInIframe &&
 		!ReactDevtoolInternals.runInAllEnvironments
 	) {
-		return;
+		return
 	}
 
 	if (options.enabled === false && options.showToolbar !== true) {
-		return;
+		return
 	}
 
-	start();
-};
+	start()
+}
 
 export const ignoredProps = new WeakSet<
 	Exclude<ReactNode, undefined | null | string | number | boolean | bigint>
->();
+>()

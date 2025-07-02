@@ -12,14 +12,14 @@ const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const appDir = path.resolve(__dirname, "../integrations");
 const list = fs.readdirSync(appDir);
 
-const urlRegex = /http:\/\/(?:www\.)?[a-zA-Z0-9-]+\:\d+/g;
+const _urlRegex = /http:\/\/(?:www\.)?[a-zA-Z0-9-]+:\d+/g;
 
 // ignore app list
 const ignoreList = [];
 const includeList = process.argv.slice(2);
 
 let hasError = false;
-for (let appName of list) {
+for (const appName of list) {
 	if (ignoreList.includes(appName)) {
 		console.warn(`Ignoring ${appName}`);
 		continue;
@@ -28,7 +28,7 @@ for (let appName of list) {
 		console.warn(`Ignoring ${appName} since it is not included`);
 		continue;
 	}
-	let abPath = path.resolve(appDir, appName);
+	const abPath = path.resolve(appDir, appName);
 	let err;
 	try {
 		await runInApp(abPath, appName);
@@ -60,7 +60,7 @@ function runInApp(dirPath, caseName) {
 			cwd: dirPath,
 		});
 
-		let data = "";
+		const _data = "";
 
 		setTimeout(() => {
 			runTest();
@@ -104,7 +104,7 @@ function runInApp(dirPath, caseName) {
 			// Teardown
 		}
 
-		function cleanUp(exitCode, cb) {
+		function cleanUp(_exitCode, cb) {
 			// @ts-ignore
 			treeKill(p.pid, cb);
 		}

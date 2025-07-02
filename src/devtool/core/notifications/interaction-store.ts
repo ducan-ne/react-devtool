@@ -1,36 +1,36 @@
-import { BoundedArray } from "~core/notifications/performance-utils";
-import type { CompletedInteraction } from "./performance";
+import { BoundedArray } from "~core/notifications/performance-utils"
+import type { CompletedInteraction } from "./performance"
 
-type Subscriber<T> = (data: T) => void;
+type Subscriber<T> = (data: T) => void
 
 class Store<T> {
-  private subscribers: Set<Subscriber<T>> = new Set();
-  private currentValue: T;
+	private subscribers: Set<Subscriber<T>> = new Set()
+	private currentValue: T
 
-  constructor(initialValue: T) {
-    this.currentValue = initialValue;
-  }
+	constructor(initialValue: T) {
+		this.currentValue = initialValue
+	}
 
-  subscribe(subscriber: Subscriber<T>): () => void {
-    this.subscribers.add(subscriber);
+	subscribe(subscriber: Subscriber<T>): () => void {
+		this.subscribers.add(subscriber)
 
-    subscriber(this.currentValue);
+		subscriber(this.currentValue)
 
-    return () => {
-      this.subscribers.delete(subscriber);
-    };
-  }
+		return () => {
+			this.subscribers.delete(subscriber)
+		}
+	}
 
-  setState(data: T) {
-    this.currentValue = data;
-    this.subscribers.forEach((subscriber) => subscriber(data));
-  }
+	setState(data: T) {
+		this.currentValue = data
+		this.subscribers.forEach((subscriber) => subscriber(data))
+	}
 
-  getCurrentState(): T {
-    return this.currentValue;
-  }
+	getCurrentState(): T {
+		return this.currentValue
+	}
 }
-export const MAX_INTERACTION_BATCH = 150;
+export const MAX_INTERACTION_BATCH = 150
 export const interactionStore = new Store<BoundedArray<CompletedInteraction>>(
-  new BoundedArray(MAX_INTERACTION_BATCH)
-);
+	new BoundedArray(MAX_INTERACTION_BATCH),
+)

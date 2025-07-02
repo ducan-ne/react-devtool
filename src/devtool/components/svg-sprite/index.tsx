@@ -267,5 +267,5 @@ export const SvgSprite = () => {
 				<path d="M18 3 19.1 5.2" />
 			</symbol>
 		</svg>
-	);
-};
+	)
+}

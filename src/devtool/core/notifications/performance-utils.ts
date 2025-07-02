@@ -1,68 +1,65 @@
-import type { Fiber } from 'bippy';
+import type { Fiber } from "bippy"
 const getChildrenFromFiberLL = (fiber: Fiber) => {
-  const children: Array<Fiber> = [];
+	const children: Array<Fiber> = []
 
-  let curr: typeof fiber.child = fiber.child;
+	let curr: typeof fiber.child = fiber.child
 
-  while (curr) {
-    children.push(curr);
+	while (curr) {
+		children.push(curr)
 
-    curr = curr.sibling;
-  }
+		curr = curr.sibling
+	}
 
-  return children;
-};
+	return children
+}
 
 type Node = Map<
-  Fiber,
-  {
-    children: Array<Fiber>;
-    parent: Fiber | null;
-    isRoot: boolean;
-    isSVG: boolean;
-  }
->;
+	Fiber,
+	{
+		children: Array<Fiber>
+		parent: Fiber | null
+		isRoot: boolean
+		isSVG: boolean
+	}
+>
 
 export const createChildrenAdjacencyList = (root: Fiber, limit: number) => {
-  const tree: Node = new Map([]);
+	const tree: Node = new Map([])
 
-  const queue: Array<[node: Fiber, parent: Fiber | null]> = [];
-  const visited = new Set<Fiber>();
+	const queue: Array<[node: Fiber, parent: Fiber | null]> = []
+	const visited = new Set<Fiber>()
 
-  queue.push([root, root.return]);
-  let traversed = 1;
+	queue.push([root, root.return])
+	let traversed = 1
 
-  while (queue.length) {
-    if (traversed >= limit) {
-      return tree;
-    }
-    // biome-ignore lint/style/noNonNullAssertion: invariant
-    const [node, parent] = queue.pop()!;
-    const children = getChildrenFromFiberLL(node);
+	while (queue.length) {
+		if (traversed >= limit) {
+			return tree
+		}
+		// biome-ignore lint/style/noNonNullAssertion: invariant
+		const [node, parent] = queue.pop()!
+		const children = getChildrenFromFiberLL(node)
 
-    tree.set(node, {
-      children: [],
-      parent,
-      isRoot: node === root,
-      isSVG: node.type === 'svg',
-    });
+		tree.set(node, {
+			children: [],
+			parent,
+			isRoot: node === root,
+			isSVG: node.type === "svg",
+		})
 
-    for (const child of children) {
-      traversed += 1;
-      // this isn't needed since the fiber tree is a TREE, not a graph, but it makes me feel safer
-      if (visited.has(child)) {
-        continue;
-      }
-      visited.add(child);
-      tree.get(node)?.children.push(child);
-      queue.push([child, node]);
-    }
-  }
-  return tree;
-};
-
-
-
+		for (const child of children) {
+			traversed += 1
+			// this isn't needed since the fiber tree is a TREE, not a graph, but it makes me feel safer
+			if (visited.has(child)) {
+				continue
+			}
+			visited.add(child)
+			tree.get(node)?.children.push(child)
+			queue.push([child, node])
+		}
+	}
+	return tree
+}
 
 // FIX ME THIS IS PRODUCTION INVARIANT LOL
 // function devInvariant(
@@ -84,32 +81,32 @@ export const createChildrenAdjacencyList = (root: Fiber, limit: number) => {
 //   throw new Error(value);
 // }
 
-const THROW_INVARIANTS = false;
+const THROW_INVARIANTS = false
 
 export const invariantError = (message: string | undefined) => {
-  if (THROW_INVARIANTS) {
-    throw new Error(message);
-  }
-};
+	if (THROW_INVARIANTS) {
+		throw new Error(message)
+	}
+}
 
-export const iife = <T>(fn: () => T): T => fn();
+export const iife = <T>(fn: () => T): T => fn()
 
 export class BoundedArray<T> extends Array<T> {
-  constructor(private capacity: number = 25) {
-    super();
-  }
+	constructor(private capacity: number = 25) {
+		super()
+	}
 
-  push(...items: T[]): number {
-    const result = super.push(...items);
-    while (this.length > this.capacity) {
-      this.shift();
-    }
-    return result;
-  }
-  // do not couple capacity with a default param, it must be explicit
-  static fromArray<T>(array: Array<T>, capacity: number) {
-    const arr = new BoundedArray<T>(capacity);
-    arr.push(...array);
-    return arr;
-  }
+	push(...items: T[]): number {
+		const result = super.push(...items)
+		while (this.length > this.capacity) {
+			this.shift()
+		}
+		return result
+	}
+	// do not couple capacity with a default param, it must be explicit
+	static fromArray<T>(array: Array<T>, capacity: number) {
+		const arr = new BoundedArray<T>(capacity)
+		arr.push(...array)
+		return arr
+	}
 }

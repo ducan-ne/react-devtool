@@ -2,165 +2,169 @@
 @config "../tailwind.config.mjs";
 
 @layer base {
-
 }
 @theme {
-  --color-primary: #23272F;
-  --color-primary-dark: #F6F7F9;
-  --color-secondary: #404756;
-  --color-secondary-dark: #EBECF0;
-  --color-tertiary: #5E687E;
-  --color-tertiary-dark: #99A1B3;
-  --color-link: #087EA4;
-  --color-link-dark: #58C4DC;
-  --color-syntax: #EBECF0;
-  --color-wash: #FFFFFF;
-  --color-wash-dark: #23272F;
-  --color-card: #F6F7F9;
-  --color-card-dark: #343A46;
-  --color-highlight: #E6F7FF;
-  --color-highlight-dark: rgba(88,175,223,.1);
-  --color-border: #EBECF0;
-  --color-border-dark: #343A46;
-  --color-secondary-button: #EBECF0;
-  --color-secondary-button-dark: #404756;
-  --color-brand: #087EA4;
-  --color-brand-dark: #58C4DC;
+	--color-primary: #23272f;
+	--color-primary-dark: #f6f7f9;
+	--color-secondary: #404756;
+	--color-secondary-dark: #ebecf0;
+	--color-tertiary: #5e687e;
+	--color-tertiary-dark: #99a1b3;
+	--color-link: #087ea4;
+	--color-link-dark: #58c4dc;
+	--color-syntax: #ebecf0;
+	--color-wash: #ffffff;
+	--color-wash-dark: #23272f;
+	--color-card: #f6f7f9;
+	--color-card-dark: #343a46;
+	--color-highlight: #e6f7ff;
+	--color-highlight-dark: rgba(88, 175, 223, 0.1);
+	--color-border: #ebecf0;
+	--color-border-dark: #343a46;
+	--color-secondary-button: #ebecf0;
+	--color-secondary-button-dark: #404756;
+	--color-brand: #087ea4;
+	--color-brand-dark: #58c4dc;
 
-  /* Gray */
-  --color-gray-95: #16181D;
-  --color-gray-90: #23272F;
-  --color-gray-80: #343A46;
-  --color-gray-70: #404756;
-  --color-gray-60: #4E5769;
-  --color-gray-50: #5E687E;
-  --color-gray-40: #78839B;
-  --color-gray-30: #99A1B3;
-  --color-gray-20: #BCC1CD;
-  --color-gray-15: #D0D3DC;
-  --color-gray-10: #EBECF0;
-  --color-gray-5: #F6F7F9;
+	/* Gray */
+	--color-gray-95: #16181d;
+	--color-gray-90: #23272f;
+	--color-gray-80: #343a46;
+	--color-gray-70: #404756;
+	--color-gray-60: #4e5769;
+	--color-gray-50: #5e687e;
+	--color-gray-40: #78839b;
+	--color-gray-30: #99a1b3;
+	--color-gray-20: #bcc1cd;
+	--color-gray-15: #d0d3dc;
+	--color-gray-10: #ebecf0;
+	--color-gray-5: #f6f7f9;
 
-  /* Blue */
-  --color-blue-80: #043849;
-  --color-blue-60: #045975;
-  --color-blue-50: #087EA4;
-  --color-blue-40: #149ECA;
-  --color-blue-30: #58C4DC;
-  --color-blue-20: #ABE2ED;
-  --color-blue-10: #E6F7FF;
-  --color-blue-5: #E6F6FA;
+	/* Blue */
+	--color-blue-80: #043849;
+	--color-blue-60: #045975;
+	--color-blue-50: #087ea4;
+	--color-blue-40: #149eca;
+	--color-blue-30: #58c4dc;
+	--color-blue-20: #abe2ed;
+	--color-blue-10: #e6f7ff;
+	--color-blue-5: #e6f6fa;
 
-  /* Yellow */
-  --color-yellow-60: #B65700;
-  --color-yellow-50: #C76A15;
-  --color-yellow-40: #DB7D27;
-  --color-yellow-30: #FABD62;
-  --color-yellow-20: #FCDEB0;
-  --color-yellow-10: #FDE7C7;
-  --color-yellow-5: #FEF5E7;
+	/* Yellow */
+	--color-yellow-60: #b65700;
+	--color-yellow-50: #c76a15;
+	--color-yellow-40: #db7d27;
+	--color-yellow-30: #fabd62;
+	--color-yellow-20: #fcdeb0;
+	--color-yellow-10: #fde7c7;
+	--color-yellow-5: #fef5e7;
 
-  /* Purple */
-  --color-purple-60: #2B3491;
-  --color-purple-50: #575FB7;
-  --color-purple-40: #6B75DB;
-  --color-purple-30: #8891EC;
-  --color-purple-20: #C3C8F5;
-  --color-purple-10: #E7E9FB;
-  --color-purple-5: #F3F4FD;
+	/* Purple */
+	--color-purple-60: #2b3491;
+	--color-purple-50: #575fb7;
+	--color-purple-40: #6b75db;
+	--color-purple-30: #8891ec;
+	--color-purple-20: #c3c8f5;
+	--color-purple-10: #e7e9fb;
+	--color-purple-5: #f3f4fd;
 
-  /* Green */
-  --color-green-60: #2B6E62;
-  --color-green-50: #388F7F;
-  --color-green-40: #44AC99;
-  --color-green-30: #7FCCBF;
-  --color-green-20: #ABDED5;
-  --color-green-10: #E5F5F2;
-  --color-green-5: #F4FBF9;
+	/* Green */
+	--color-green-60: #2b6e62;
+	--color-green-50: #388f7f;
+	--color-green-40: #44ac99;
+	--color-green-30: #7fccbf;
+	--color-green-20: #abded5;
+	--color-green-10: #e5f5f2;
+	--color-green-5: #f4fbf9;
 
-  /* Red */
-  --color-red-60: #712D28;
-  --color-red-50: #A6423A;
-  --color-red-40: #C1554D;
-  --color-red-30: #D07D77;
-  --color-red-20: #E5B7B3;
-  --color-red-10: #F2DBD9;
-  --color-red-5: #FAF1F0;
+	/* Red */
+	--color-red-60: #712d28;
+	--color-red-50: #a6423a;
+	--color-red-40: #c1554d;
+	--color-red-30: #d07d77;
+	--color-red-20: #e5b7b3;
+	--color-red-10: #f2dbd9;
+	--color-red-5: #faf1f0;
 
-  --font-display: 'Optimistic Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  --font-text: 'Optimistic Text', -apple-system, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
-  --font-mono: SFMono-Regular, 'SF Mono', ui-monospace, Consolas, 'Liberation Mono', Menlo, monospace;
+	--font-display:
+		"Optimistic Display", -apple-system, BlinkMacSystemFont, "Segoe UI",
+		"Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+		"Helvetica Neue", sans-serif;
+	--font-text:
+		"Optimistic Text", -apple-system, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+	--font-mono:
+		SFMono-Regular, "SF Mono", ui-monospace, Consolas, "Liberation Mono", Menlo,
+		monospace;
 }
 
 * {
-  outline: none !important;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  backface-visibility: hidden;
+	outline: none !important;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	backface-visibility: hidden;
 
-  /* WebKit (Chrome, Safari, Edge) specific scrollbar styles */
-  &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
+	/* WebKit (Chrome, Safari, Edge) specific scrollbar styles */
+	&::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
 
-  &::-webkit-scrollbar-track {
-    border-radius: 10px;
-    background: transparent;
-  }
+	&::-webkit-scrollbar-track {
+		border-radius: 10px;
+		background: transparent;
+	}
 
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.3);
-  }
+	&::-webkit-scrollbar-thumb {
+		border-radius: 10px;
+		background: rgba(255, 255, 255, 0.3);
+	}
 
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
-  }
+	&::-webkit-scrollbar-thumb:hover {
+		background: rgba(255, 255, 255, 0.4);
+	}
 
-  &::-webkit-scrollbar-corner {
-    background: transparent;
-  }
+	&::-webkit-scrollbar-corner {
+		background: transparent;
+	}
 }
 
 @-moz-document url-prefix() {
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
-    scrollbar-width: 6px;
-  }
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+		scrollbar-width: 6px;
+	}
 }
 
 button {
-  @apply hover:bg-none;
-  @apply outline-none;
-  @apply border-none;
-  @apply transition-colors ease-linear;
-  @apply cursor-pointer;
+	@apply hover:bg-none;
+	@apply outline-none;
+	@apply border-none;
+	@apply transition-colors ease-linear;
+	@apply cursor-pointer;
 }
 
 input {
-  @apply outline-none;
-  @apply border-none;
-  @apply bg-none bg-transparent;
-  @apply outline-none;
-  @apply placeholder:text-neutral-500 placeholder:italic placeholder:text-xs;
-  @apply placeholder-shown:truncate;
+	@apply outline-none;
+	@apply border-none;
+	@apply bg-none bg-transparent;
+	@apply outline-none;
+	@apply placeholder:text-neutral-500 placeholder:italic placeholder:text-xs;
+	@apply placeholder-shown:truncate;
 }
 
 hr {
-  @apply border-none;
-  @apply h-px;
-  @apply bg-neutral-700;
-  @apply my-2;
-  @apply opacity-60;
+	@apply border-none;
+	@apply h-px;
+	@apply bg-neutral-700;
+	@apply my-2;
+	@apply opacity-60;
 }
 
-
 svg {
-  /* @apply w-auto h-auto; */
-  @apply pointer-events-none;
+	/* @apply w-auto h-auto; */
+	@apply pointer-events-none;
 }
 
 /*
@@ -182,209 +186,205 @@ svg {
   - Keeps pseudo-element updates in render layer
 */
 .with-data-text {
-  overflow: hidden;
-  &::before {
-    content: attr(data-text);
-    @apply block;
-    @apply truncate;
-  }
+	overflow: hidden;
+	&::before {
+		content: attr(data-text);
+		@apply block;
+		@apply truncate;
+	}
 }
 
 #react-devtool-toolbar {
-  @apply fixed left-0 top-0;
-  @apply flex flex-col;
-  @apply shadow-lg;
-  @apply font-mono text-[13px] text-white;
-  @apply bg-wash-dark;
-  @apply select-none;
-  @apply cursor-move;
-  @apply opacity-0;
-  @apply z-[2147483678];
-  @apply animate-fade-in animation-duration-300 animation-delay-300;
-  @apply shadow-[0_4px_12px_rgba(0,0,0,0.2)];
-  @apply place-self-start;
+	@apply fixed left-0 top-0;
+	@apply flex flex-col;
+	@apply shadow-lg;
+	@apply font-mono text-[13px] text-white;
+	@apply bg-wash-dark;
+	@apply select-none;
+	@apply cursor-move;
+	@apply opacity-0;
+	@apply z-[2147483678];
+	@apply animate-fade-in animation-duration-300 animation-delay-300;
+	@apply shadow-[0_4px_12px_rgba(0,0,0,0.2)];
+	@apply place-self-start;
 
-  /* [CURSOR GENERATED] Anti-blur fixes:
+	/* [CURSOR GENERATED] Anti-blur fixes:
    * We removed will-change-transform and replaced it with these properties
    * because will-change was causing stacking context issues and inconsistent
    * text rendering. The new properties work together to force proper
    * GPU acceleration without z-index side effects:
    */
-  transform: translate3d(
-    0,
-    0,
-    0
-  ); /* Forces GPU acceleration without causing stacking issues */
-  backface-visibility: hidden; /* Prevents blurry text during transforms */
-  perspective: 1000; /* Creates proper 3D context for crisp text */
-  -webkit-transform-style: preserve-3d; /* Ensures consistent text rendering across browsers */
-  transform-style: preserve-3d;
+	transform: translate3d(0, 0, 0); /* Forces GPU acceleration without causing stacking issues */
+	backface-visibility: hidden; /* Prevents blurry text during transforms */
+	perspective: 1000; /* Creates proper 3D context for crisp text */
+	-webkit-transform-style: preserve-3d; /* Ensures consistent text rendering across browsers */
+	transform-style: preserve-3d;
 }
 
 .button {
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+	}
 
-  &:active {
-    background: rgba(255, 255, 255, 0.15);
-  }
+	&:active {
+		background: rgba(255, 255, 255, 0.15);
+	}
 }
 
 .resize-line-wrapper {
-  @apply absolute;
-  @apply overflow-hidden;
+	@apply absolute;
+	@apply overflow-hidden;
 }
 
 .resize-line {
-  @apply absolute inset-0;
-  @apply overflow-hidden;
-  @apply bg-black;
-  @apply transition-all;
+	@apply absolute inset-0;
+	@apply overflow-hidden;
+	@apply bg-black;
+	@apply transition-all;
 
-  svg {
-    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
-  }
+	svg {
+		@apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+	}
 }
 
 .resize-right,
 .resize-left {
-  @apply inset-y-0;
-  @apply w-6;
-  @apply cursor-ew-resize;
+	@apply inset-y-0;
+	@apply w-6;
+	@apply cursor-ew-resize;
 
-  .resize-line-wrapper {
-    @apply inset-y-0;
-    @apply w-1/2;
-  }
+	.resize-line-wrapper {
+		@apply inset-y-0;
+		@apply w-1/2;
+	}
 
-  &:hover {
-    .resize-line {
-      @apply translate-x-0;
-    }
-  }
+	&:hover {
+		.resize-line {
+			@apply translate-x-0;
+		}
+	}
 }
 .resize-right {
-  @apply right-0;
-  @apply translate-x-1/2;
+	@apply right-0;
+	@apply translate-x-1/2;
 
-  .resize-line-wrapper {
-    @apply right-0;
-  }
-  .resize-line {
-    @apply rounded-r-lg;
-    @apply -translate-x-full;
-  }
+	.resize-line-wrapper {
+		@apply right-0;
+	}
+	.resize-line {
+		@apply rounded-r-lg;
+		@apply -translate-x-full;
+	}
 }
 
 .resize-left {
-  @apply left-0;
-  @apply -translate-x-1/2;
+	@apply left-0;
+	@apply -translate-x-1/2;
 
-  .resize-line-wrapper {
-    @apply left-0;
-  }
-  .resize-line {
-    @apply rounded-l-lg;
-    @apply translate-x-full;
-  }
+	.resize-line-wrapper {
+		@apply left-0;
+	}
+	.resize-line {
+		@apply rounded-l-lg;
+		@apply translate-x-full;
+	}
 }
 
 .resize-top,
 .resize-bottom {
-  @apply inset-x-0;
-  @apply h-6;
-  @apply cursor-ns-resize;
+	@apply inset-x-0;
+	@apply h-6;
+	@apply cursor-ns-resize;
 
-  .resize-line-wrapper {
-    @apply inset-x-0;
-    @apply h-1/2;
-  }
+	.resize-line-wrapper {
+		@apply inset-x-0;
+		@apply h-1/2;
+	}
 
-  &:hover {
-    .resize-line {
-      @apply translate-y-0;
-    }
-  }
+	&:hover {
+		.resize-line {
+			@apply translate-y-0;
+		}
+	}
 }
 .resize-top {
-  @apply top-0;
-  @apply -translate-y-1/2;
+	@apply top-0;
+	@apply -translate-y-1/2;
 
-  .resize-line-wrapper {
-    @apply top-0;
-  }
-  .resize-line {
-    @apply rounded-t-lg;
-    @apply translate-y-full;
-  }
+	.resize-line-wrapper {
+		@apply top-0;
+	}
+	.resize-line {
+		@apply rounded-t-lg;
+		@apply translate-y-full;
+	}
 }
 
 .resize-bottom {
-  @apply bottom-0;
-  @apply translate-y-1/2;
+	@apply bottom-0;
+	@apply translate-y-1/2;
 
-  .resize-line-wrapper {
-    @apply bottom-0;
-  }
-  .resize-line {
-    @apply rounded-b-lg;
-    @apply -translate-y-full;
-  }
+	.resize-line-wrapper {
+		@apply bottom-0;
+	}
+	.resize-line {
+		@apply rounded-b-lg;
+		@apply -translate-y-full;
+	}
 }
 
 .react-devtool-header {
-  @apply flex items-center gap-x-2;
-  @apply pl-3 pr-2;
-  @apply min-h-9;
-  @apply border-b-1 border-[#222];
-  @apply whitespace-nowrap overflow-hidden;
+	@apply flex items-center gap-x-2;
+	@apply pl-3 pr-2;
+	@apply min-h-9;
+	@apply border-b-1 border-[#222];
+	@apply whitespace-nowrap overflow-hidden;
 }
 
 .react-devtool-replay-button,
 .react-devtool-close-button {
-  @apply flex items-center;
-  @apply p-1;
-  @apply min-w-fit;
-  @apply rounded;
-  @apply transition-all duration-300;
+	@apply flex items-center;
+	@apply p-1;
+	@apply min-w-fit;
+	@apply rounded;
+	@apply transition-all duration-300;
 }
 
 .react-devtool-replay-button {
-  @apply relative;
-  @apply overflow-hidden;
-  @apply !bg-purple-500/50;
+	@apply relative;
+	@apply overflow-hidden;
+	@apply !bg-purple-500/50;
 
-  &:hover {
-    @apply bg-purple-500/25;
-  }
+	&:hover {
+		@apply bg-purple-500/25;
+	}
 
-  &.disabled {
-    @apply opacity-50;
-    @apply pointer-events-none;
-  }
+	&.disabled {
+		@apply opacity-50;
+		@apply pointer-events-none;
+	}
 
-  &:before {
-    content: "";
-    @apply absolute;
-    @apply inset-0;
-    @apply -translate-x-full;
-    animation: shimmer 2s infinite;
-    background: linear-gradient(
-      to right,
-      transparent,
-      rgba(142, 97, 227, 0.3),
-      transparent
-    );
-  }
+	&:before {
+		content: "";
+		@apply absolute;
+		@apply inset-0;
+		@apply -translate-x-full;
+		animation: shimmer 2s infinite;
+		background: linear-gradient(
+			to right,
+			transparent,
+			rgba(142, 97, 227, 0.3),
+			transparent
+		);
+	}
 }
 
 .react-devtool-close-button {
-  @apply bg-white/10;
+	@apply bg-white/10;
 
-  &:hover {
-    @apply bg-white/15;
-  }
+	&:hover {
+		@apply bg-white/15;
+	}
 }
 
 /* @keyframes shimmer {
@@ -394,61 +394,61 @@ svg {
 } */
 
 .react-section-header {
-  @apply sticky z-100;
-  @apply flex items-center gap-x-2;
-  /* @apply px-3; */
-  @apply w-full h-7;
-  @apply text-[#888] truncate;
-  @apply bg-[#0a0a0a] border-b-1 border-[#222];
+	@apply sticky z-100;
+	@apply flex items-center gap-x-2;
+	/* @apply px-3; */
+	@apply w-full h-7;
+	@apply text-[#888] truncate;
+	@apply bg-[#0a0a0a] border-b-1 border-[#222];
 }
 
 .react-devtool-section {
-  @apply flex flex-col;
-  @apply px-2;
-  @apply text-[#888];
-  @apply before:content-[attr(data-section)] before:text-gray-500;
-  @apply text-xs;
+	@apply flex flex-col;
+	@apply px-2;
+	@apply text-[#888];
+	@apply before:content-[attr(data-section)] before:text-gray-500;
+	@apply text-xs;
 
-  > .react-devtool-property {
-    @apply -ml-3.5;
-  }
+	> .react-devtool-property {
+		@apply -ml-3.5;
+	}
 }
 
 .react-devtool-property {
-  @apply relative;
-  @apply flex flex-col;
-  @apply pl-8;
-  @apply border-l-1 border-transparent;
-  @apply overflow-hidden;
+	@apply relative;
+	@apply flex flex-col;
+	@apply pl-8;
+	@apply border-l-1 border-transparent;
+	@apply overflow-hidden;
 }
 
 .react-devtool-property-content {
-  @apply flex-1 flex flex-col;
-  @apply min-h-7;
-  @apply max-w-full;
-  @apply overflow-hidden;
+	@apply flex-1 flex flex-col;
+	@apply min-h-7;
+	@apply max-w-full;
+	@apply overflow-hidden;
 }
 
 .react-devtool-string {
-  color: #9ecbff;
+	color: #9ecbff;
 }
 
 .react-devtool-number {
-  color: #79c7ff;
+	color: #79c7ff;
 }
 
 .react-devtool-boolean {
-  color: #56b6c2;
+	color: #56b6c2;
 }
 
 .react-devtool-key {
-  @apply w-fit max-w-60;
-  @apply text-white whitespace-nowrap;
+	@apply w-fit max-w-60;
+	@apply text-white whitespace-nowrap;
 }
 
 .react-devtool-input {
-  @apply text-white;
-  @apply bg-black;
+	@apply text-white;
+	@apply bg-black;
 }
 
 /* @keyframes blink {
@@ -461,392 +461,392 @@ svg {
 } */
 
 .react-devtool-arrow {
-  @apply absolute top-0 left-7;
-  @apply flex items-center justify-center;
-  @apply cursor-pointer;
-  @apply w-6 h-7;
-  @apply -translate-x-full;
-  @apply z-10;
+	@apply absolute top-0 left-7;
+	@apply flex items-center justify-center;
+	@apply cursor-pointer;
+	@apply w-6 h-7;
+	@apply -translate-x-full;
+	@apply z-10;
 
-  > svg {
-    @apply transition-transform;
-  }
+	> svg {
+		@apply transition-transform;
+	}
 }
 
 .react-devtool-expandable {
-  @apply grid grid-rows-[0fr];
-  @apply transition-all duration-75;
+	@apply grid grid-rows-[0fr];
+	@apply transition-all duration-75;
 
-  &.react-devtool-expanded {
-    @apply grid-rows-[1fr];
-    @apply duration-100;
-  }
+	&.react-devtool-expanded {
+		@apply grid-rows-[1fr];
+		@apply duration-100;
+	}
 }
 
 .react-devtool-nested {
-  @apply relative;
-  @apply overflow-hidden;
+	@apply relative;
+	@apply overflow-hidden;
 
-  &:before {
-    content: "";
-    @apply absolute top-0 left-0;
-    @apply w-[1px] h-full;
-    @apply bg-gray-500/30;
-  }
+	&:before {
+		content: "";
+		@apply absolute top-0 left-0;
+		@apply w-[1px] h-full;
+		@apply bg-gray-500/30;
+	}
 }
 
 .react-devtool-settings {
-  @apply absolute inset-0;
-  @apply flex flex-col gap-4;
-  @apply py-2 px-4;
-  @apply text-[#888];
+	@apply absolute inset-0;
+	@apply flex flex-col gap-4;
+	@apply py-2 px-4;
+	@apply text-[#888];
 
-  > div {
-    @apply flex items-center justify-between;
-    @apply transition-colors duration-300;
-  }
+	> div {
+		@apply flex items-center justify-between;
+		@apply transition-colors duration-300;
+	}
 }
 
 .react-devtool-preview-line {
-  @apply relative;
-  @apply flex items-center min-h-7 gap-x-2;
+	@apply relative;
+	@apply flex items-center min-h-7 gap-x-2;
 }
 
 .react-devtool-flash-overlay {
-  @apply absolute inset-0;
-  @apply opacity-0;
-  @apply z-50;
-  @apply pointer-events-none;
-  @apply transition-opacity;
-  @apply mix-blend-multiply;
-  @apply bg-brand-dark text-secondary;
+	@apply absolute inset-0;
+	@apply opacity-0;
+	@apply z-50;
+	@apply pointer-events-none;
+	@apply transition-opacity;
+	@apply mix-blend-multiply;
+	@apply bg-brand-dark text-secondary;
 }
 
 .react-devtool-toggle {
-  @apply relative;
-  @apply inline-flex;
-  @apply w-10 h-6;
+	@apply relative;
+	@apply inline-flex;
+	@apply w-10 h-6;
 
-  input {
-    @apply absolute inset-0;
-    @apply opacity-0 z-20;
-    @apply cursor-pointer;
-    @apply w-full h-full;
-  }
+	input {
+		@apply absolute inset-0;
+		@apply opacity-0 z-20;
+		@apply cursor-pointer;
+		@apply w-full h-full;
+	}
 
-  input:checked {
-    + div {
-      @apply bg-[#5f3f9a];
+	input:checked {
+		+ div {
+			@apply bg-[#5f3f9a];
 
-      &::before {
-        @apply translate-x-full;
-        @apply left-auto;
-        @apply border-[#5f3f9a];
-      }
-    }
-  }
+			&::before {
+				@apply translate-x-full;
+				@apply left-auto;
+				@apply border-[#5f3f9a];
+			}
+		}
+	}
 
-  > div {
-    @apply absolute inset-1;
-    @apply bg-neutral-700;
-    @apply rounded-full;
-    @apply pointer-events-none;
-    @apply transition-colors duration-300;
+	> div {
+		@apply absolute inset-1;
+		@apply bg-neutral-700;
+		@apply rounded-full;
+		@apply pointer-events-none;
+		@apply transition-colors duration-300;
 
-    &:before {
-      --tw-translate-x: 0px;
-      @apply content-[''];
-      @apply absolute top-1/2 left-0;
-      @apply -translate-y-1/2;
-      @apply w-4 h-4;
-      @apply bg-white;
-      @apply border-2 border-neutral-700;
-      @apply rounded-full;
-      @apply shadow-sm;
-      @apply transition-all duration-300;
-    }
-  }
+		&:before {
+			--tw-translate-x: 0px;
+			@apply content-[''];
+			@apply absolute top-1/2 left-0;
+			@apply -translate-y-1/2;
+			@apply w-4 h-4;
+			@apply bg-white;
+			@apply border-2 border-neutral-700;
+			@apply rounded-full;
+			@apply shadow-sm;
+			@apply transition-all duration-300;
+		}
+	}
 }
 
 .react-devtool-flash-active {
-  @apply opacity-40;
-  @apply transition-opacity duration-300;
+	@apply opacity-40;
+	@apply transition-opacity duration-300;
 }
 
 .react-devtool-inspector-overlay {
-  @apply flex flex-col;
-  @apply opacity-0;
-  @apply transition-opacity duration-300;
+	@apply flex flex-col;
+	@apply opacity-0;
+	@apply transition-opacity duration-300;
 
-  &.fade-out {
-    @apply opacity-0;
-  }
+	&.fade-out {
+		@apply opacity-0;
+	}
 
-  &.fade-in {
-    @apply opacity-100;
-  }
+	&.fade-in {
+		@apply opacity-100;
+	}
 }
 
 .react-devtool-what-changed {
-  ul {
-    @apply list-disc;
-    @apply pl-4;
-  }
+	ul {
+		@apply list-disc;
+		@apply pl-4;
+	}
 
-  li {
-    @apply whitespace-nowrap;
-    > div {
-      @apply flex items-center justify-between gap-x-2;
-    }
-  }
+	li {
+		@apply whitespace-nowrap;
+		> div {
+			@apply flex items-center justify-between gap-x-2;
+		}
+	}
 }
 
 .count-badge {
-  @apply flex gap-x-2 items-center;
-  @apply px-1.5 py-0.5;
-  @apply text-[#a855f7] text-xs font-medium tabular-nums rounded-[4px] origin-center;
-  @apply bg-[#a855f7]/10;
-  @apply origin-center;
-  @apply transition-all duration-300 delay-150;
+	@apply flex gap-x-2 items-center;
+	@apply px-1.5 py-0.5;
+	@apply text-[#a855f7] text-xs font-medium tabular-nums rounded-[4px] origin-center;
+	@apply bg-[#a855f7]/10;
+	@apply origin-center;
+	@apply transition-all duration-300 delay-150;
 }
 
 .count-flash {
-  @apply animate-count-flash;
+	@apply animate-count-flash;
 }
 
 .count-flash-white {
-  @apply animate-count-flash-shake !delay-500;
+	@apply animate-count-flash-shake !delay-500;
 }
 
 .change-scope {
-  @apply flex items-center gap-x-1;
-  @apply text-[#666];
-  @apply text-xs;
-  @apply font-mono;
+	@apply flex items-center gap-x-1;
+	@apply text-[#666];
+	@apply text-xs;
+	@apply font-mono;
 
-  > div {
-    @apply px-1.5 py-0.5;
-    @apply text-xs font-medium tabular-nums rounded-[4px] origin-center;
-    @apply origin-center;
-    @apply transition-all duration-300 delay-150;
+	> div {
+		@apply px-1.5 py-0.5;
+		@apply text-xs font-medium tabular-nums rounded-[4px] origin-center;
+		@apply origin-center;
+		@apply transition-all duration-300 delay-150;
 
-    &[data-flash="true"] {
-      /* @apply bg-[#a855f7]/10 text-[#a855f7]; */
-      @apply bg-[#a855f7]/10 text-[#a855f7];
-    }
-  }
+		&[data-flash="true"] {
+			/* @apply bg-[#a855f7]/10 text-[#a855f7]; */
+			@apply bg-[#a855f7]/10 text-[#a855f7];
+		}
+	}
 }
 
 .react-devtool-slider {
-  @apply relative;
-  @apply min-h-6;
+	@apply relative;
+	@apply min-h-6;
 
-  > input {
-    @apply absolute inset-0;
-    @apply opacity-0;
-  }
+	> input {
+		@apply absolute inset-0;
+		@apply opacity-0;
+	}
 
-  &:before {
-    @apply content-[''];
-    @apply absolute inset-x-0 top-1/2 -translate-y-1/2;
-    @apply h-1.5;
-    @apply bg-[#8e61e3]/40;
-    @apply rounded-lg;
-    @apply pointer-events-none;
-  }
+	&:before {
+		@apply content-[''];
+		@apply absolute inset-x-0 top-1/2 -translate-y-1/2;
+		@apply h-1.5;
+		@apply bg-[#8e61e3]/40;
+		@apply rounded-lg;
+		@apply pointer-events-none;
+	}
 
-  &:after {
-    @apply content-[''];
-    @apply absolute inset-x-0 -inset-y-2;
-    @apply -z-10;
-  }
+	&:after {
+		@apply content-[''];
+		@apply absolute inset-x-0 -inset-y-2;
+		@apply -z-10;
+	}
 
-  span {
-    @apply absolute left-0 top-1/2 -translate-y-1/2;
-    @apply w-2.5 h-2.5;
-    @apply rounded-lg;
-    @apply bg-[#8e61e3];
-    @apply pointer-events-none;
-    @apply transition-transform duration-75;
-  }
+	span {
+		@apply absolute left-0 top-1/2 -translate-y-1/2;
+		@apply w-2.5 h-2.5;
+		@apply rounded-lg;
+		@apply bg-[#8e61e3];
+		@apply pointer-events-none;
+		@apply transition-transform duration-75;
+	}
 }
 
 .resize-v-line {
-  @apply flex items-center justify-center;
-  @apply min-w-1 max-w-1;
-  @apply w-full h-full;
-  @apply transition-colors;
+	@apply flex items-center justify-center;
+	@apply min-w-1 max-w-1;
+	@apply w-full h-full;
+	@apply transition-colors;
 
-  &:hover,
-  &:active {
-    > span {
-      @apply bg-[#222];
-    }
+	&:hover,
+	&:active {
+		> span {
+			@apply bg-[#222];
+		}
 
-    svg {
-      @apply opacity-100;
-    }
-  }
+		svg {
+			@apply opacity-100;
+		}
+	}
 
-  &::before {
-    @apply content-[""];
-    @apply absolute inset-0 left-1/2 -translate-x-1/2;
-    @apply w-[1px];
-    @apply bg-[#222];
-    @apply transition-colors;
-  }
+	&::before {
+		@apply content-[""];
+		@apply absolute inset-0 left-1/2 -translate-x-1/2;
+		@apply w-[1px];
+		@apply bg-[#222];
+		@apply transition-colors;
+	}
 
-  > span {
-    @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2;
-    @apply w-1.5 h-4.5;
-    @apply rounded;
-    @apply transition-colors;
-  }
+	> span {
+		@apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2;
+		@apply w-1.5 h-4.5;
+		@apply rounded;
+		@apply transition-colors;
+	}
 
-  svg {
-    @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2;
-    @apply text-neutral-400 rotate-90;
-    @apply opacity-0;
-    @apply transition-opacity;
-    @apply z-50;
-  }
+	svg {
+		@apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2;
+		@apply text-neutral-400 rotate-90;
+		@apply opacity-0;
+		@apply transition-opacity;
+		@apply z-50;
+	}
 }
 
 .tree-node-search-highlight {
-  @apply truncate;
+	@apply truncate;
 
-  span {
-    @apply py-[1px];
-    @apply font-medium bg-yellow-300 text-black rounded-sm;
-  }
+	span {
+		@apply py-[1px];
+		@apply font-medium bg-yellow-300 text-black rounded-sm;
+	}
 
-  .single {
-    @apply px-[2px] mr-[1px];
-  }
+	.single {
+		@apply px-[2px] mr-[1px];
+	}
 
-  .regex {
-    @apply px-[2px];
-  }
+	.regex {
+		@apply px-[2px];
+	}
 
-  .start {
-    @apply rounded-l-sm ml-[1px];
-  }
+	.start {
+		@apply rounded-l-sm ml-[1px];
+	}
 
-  .end {
-    @apply rounded-r-sm mr-[1px];
-  }
+	.end {
+		@apply rounded-r-sm mr-[1px];
+	}
 
-  .middle {
-    @apply rounded-sm mx-[1px];
-  }
+	.middle {
+		@apply rounded-sm mx-[1px];
+	}
 }
 
 .react-devtool-toolbar-notification {
-  @apply absolute inset-x-0;
-  @apply flex items-center gap-x-2;
-  @apply p-1 pl-2 text-[10px];
-  @apply text-neutral-300;
-  @apply bg-black/90;
-  @apply transition-transform;
+	@apply absolute inset-x-0;
+	@apply flex items-center gap-x-2;
+	@apply p-1 pl-2 text-[10px];
+	@apply text-neutral-300;
+	@apply bg-black/90;
+	@apply transition-transform;
 
-  &:before {
-    @apply content-[''];
-    @apply absolute inset-x-0;
-    @apply bg-black;
-    @apply h-2;
-  }
+	&:before {
+		@apply content-[''];
+		@apply absolute inset-x-0;
+		@apply bg-black;
+		@apply h-2;
+	}
 
-  &.position-top {
-    @apply top-full -translate-y-full;
-    @apply rounded-b-lg;
+	&.position-top {
+		@apply top-full -translate-y-full;
+		@apply rounded-b-lg;
 
-    &::before {
-      @apply top-0 -translate-y-full;
-    }
-  }
+		&::before {
+			@apply top-0 -translate-y-full;
+		}
+	}
 
-  &.position-bottom {
-    @apply bottom-full translate-y-full;
-    @apply rounded-t-lg;
+	&.position-bottom {
+		@apply bottom-full translate-y-full;
+		@apply rounded-t-lg;
 
-    &::before {
-      @apply bottom-0 translate-y-full;
-    }
-  }
+		&::before {
+			@apply bottom-0 translate-y-full;
+		}
+	}
 
-  &.is-open {
-    @apply translate-y-0;
-  }
+	&.is-open {
+		@apply translate-y-0;
+	}
 }
 
 .react-devtool-header-item {
-  @apply absolute inset-0 -translate-y-[200%];
-  @apply transition-transform duration-300;
+	@apply absolute inset-0 -translate-y-[200%];
+	@apply transition-transform duration-300;
 
-  &.is-visible {
-    @apply translate-y-0;
-  }
+	&.is-visible {
+		@apply translate-y-0;
+	}
 }
 
 .react-devtool-components-tree:has(.resize-v-line:hover, .resize-v-line:active)
-  .tree {
-  overflow: hidden;
+	.tree {
+	overflow: hidden;
 }
 
 .react-devtool-expandable {
-  display: grid;
-  grid-template-rows: 0fr;
-  @apply overflow-hidden;
-  @apply transition-all duration-75;
-  transition-timing-function: ease-out;
+	display: grid;
+	grid-template-rows: 0fr;
+	@apply overflow-hidden;
+	@apply transition-all duration-75;
+	transition-timing-function: ease-out;
 
-  > * {
-    min-height: 0;
-  }
+	> * {
+		min-height: 0;
+	}
 
-  &.react-devtool-expanded {
-    grid-template-rows: 1fr;
-    transition-duration: 100ms;
-  }
+	&.react-devtool-expanded {
+		grid-template-rows: 1fr;
+		transition-duration: 100ms;
+	}
 }
 
 /* View Transitions for smooth tab switching */
 @view-transition {
-  navigation: auto;
+	navigation: auto;
 }
 
 ::view-transition-old(tab-content),
 ::view-transition-new(tab-content) {
-  animation-duration: 0.2s;
-  animation-timing-function: ease-in-out;
+	animation-duration: 0.2s;
+	animation-timing-function: ease-in-out;
 }
 
 ::view-transition-old(tab-content) {
-  animation-name: slide-out;
+	animation-name: slide-out;
 }
 
 ::view-transition-new(tab-content) {
-  animation-name: slide-in;
+	animation-name: slide-in;
 }
 
 @keyframes slide-out {
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
 }
 
 @keyframes slide-in {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+	from {
+		opacity: 0;
+		transform: translateX(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }

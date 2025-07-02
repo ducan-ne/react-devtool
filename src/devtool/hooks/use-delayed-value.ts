@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState } from "preact/hooks"
 
 /**
  * Delays a boolean value change by a specified duration.
@@ -33,25 +33,25 @@ import { useEffect, useState } from 'preact/hooks';
  * );
  */
 export const useDelayedValue = (
-  value: boolean,
-  onDelay: number,
-  offDelay: number = onDelay,
+	value: boolean,
+	onDelay: number,
+	offDelay: number = onDelay,
 ): boolean => {
-  const [delayedValue, setDelayedValue] = useState(value);
+	const [delayedValue, setDelayedValue] = useState(value)
 
-  /*
-   * biome-ignore lint/correctness/useExhaustiveDependencies:
-   * delayedValue is intentionally omitted to prevent unnecessary timeouts
-   * and used only in the early return check
-   */
-  useEffect(() => {
-    if (value === delayedValue) return;
+	/*
+	 * biome-ignore lint/correctness/useExhaustiveDependencies:
+	 * delayedValue is intentionally omitted to prevent unnecessary timeouts
+	 * and used only in the early return check
+	 */
+	useEffect(() => {
+		if (value === delayedValue) return
 
-    const delay = value ? onDelay : offDelay;
-    const timeout = setTimeout(() => setDelayedValue(value), delay);
+		const delay = value ? onDelay : offDelay
+		const timeout = setTimeout(() => setDelayedValue(value), delay)
 
-    return () => clearTimeout(timeout);
-  }, [value, onDelay, offDelay]);
+		return () => clearTimeout(timeout)
+	}, [value, onDelay, offDelay])
 
-  return delayedValue;
-};
+	return delayedValue
+}

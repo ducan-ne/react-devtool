@@ -1,11 +1,11 @@
-import { type ReactNode, forwardRef } from "preact/compat";
-import { useCallback, useEffect, useRef, useState } from "preact/hooks";
-import { cn } from "~web/utils/helpers";
-import { signalWidgetViews, userChildren } from "~web/state";
-import { Logo } from "~web/components/logo";
-import { Icon } from "~web/components/icon";
-import { onCLS, onINP, onFCP, onLCP, onTTFB } from "web-vitals";
-import { PropertiesView } from "../inspector/properties";
+import { type ReactNode, forwardRef } from "preact/compat"
+import { useCallback, useEffect, useRef, useState } from "preact/hooks"
+import { cn } from "~web/utils/helpers"
+import { signalWidgetViews, userChildren } from "~web/state"
+import { Logo } from "~web/components/logo"
+import { Icon } from "~web/components/icon"
+import { onCLS, onINP, onFCP, onLCP, onTTFB } from "web-vitals"
+import { PropertiesView } from "../inspector/properties"
 
 const MainViewHeader = () => {
 	return (
@@ -32,7 +32,7 @@ const MainViewHeader = () => {
 							onClick={() => {
 								signalWidgetViews.value = {
 									view: "none",
-								};
+								}
 							}}
 							title="Close"
 						>
@@ -42,8 +42,8 @@ const MainViewHeader = () => {
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}
 
 // Mock data for tabs, this will be replaced with plugins and children
 const TABS = [
@@ -52,58 +52,58 @@ const TABS = [
 	{ id: "open-graph", title: "Open Graph" },
 	// { id: "router", title: "Router" },
 	// { id: "feature-flags", title: "Feature Flags" },
-];
+]
 
 const ResizablePanel = ({
 	leftPanel,
 	rightPanel,
 	showLeftPanel,
 }: {
-	leftPanel: ReactNode;
-	rightPanel: ReactNode;
-	showLeftPanel: boolean;
+	leftPanel: ReactNode
+	rightPanel: ReactNode
+	showLeftPanel: boolean
 }) => {
-	const refSidebar = useRef<HTMLDivElement>(null);
-	const refIsResizing = useRef(false);
-	const [sidebarWidth, setSidebarWidth] = useState(150);
+	const refSidebar = useRef<HTMLDivElement>(null)
+	const refIsResizing = useRef(false)
+	const [sidebarWidth, setSidebarWidth] = useState(150)
 
 	const handleResize = useCallback((e: PointerEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
+		e.preventDefault()
+		e.stopPropagation()
 
-		if (!refSidebar.current) return;
+		if (!refSidebar.current) return
 
-		refIsResizing.current = true;
-		refSidebar.current.style.pointerEvents = "none";
-		document.body.style.cursor = "col-resize";
+		refIsResizing.current = true
+		refSidebar.current.style.pointerEvents = "none"
+		document.body.style.cursor = "col-resize"
 
-		const startWidth = refSidebar.current.offsetWidth;
-		const startX = e.clientX;
-		const maxSidebarWidth = window.innerWidth * 0.8; // 80% of window width
+		const startWidth = refSidebar.current.offsetWidth
+		const startX = e.clientX
+		const maxSidebarWidth = window.innerWidth * 0.8 // 80% of window width
 
 		const handlePointerMove = (e: PointerEvent) => {
-			if (!refIsResizing.current) return;
-			const newWidth = startWidth + e.clientX - startX;
+			if (!refIsResizing.current) return
+			const newWidth = startWidth + e.clientX - startX
 			if (newWidth > 150 && newWidth < maxSidebarWidth) {
-				setSidebarWidth(newWidth);
+				setSidebarWidth(newWidth)
 			}
-		};
+		}
 
 		const handlePointerUp = () => {
-			refIsResizing.current = false;
+			refIsResizing.current = false
 			if (refSidebar.current) {
-				refSidebar.current.style.pointerEvents = "auto";
+				refSidebar.current.style.pointerEvents = "auto"
 			}
-			document.body.style.cursor = "auto";
-			document.removeEventListener("pointermove", handlePointerMove);
-			document.removeEventListener("pointerup", handlePointerUp);
-		};
+			document.body.style.cursor = "auto"
+			document.removeEventListener("pointermove", handlePointerMove)
+			document.removeEventListener("pointerup", handlePointerUp)
+		}
 
-		document.addEventListener("pointermove", handlePointerMove);
-		document.addEventListener("pointerup", handlePointerUp);
-	}, []);
+		document.addEventListener("pointermove", handlePointerMove)
+		document.addEventListener("pointerup", handlePointerUp)
+	}, [])
 
-	const rightPanelId = "main-content-panel";
+	const rightPanelId = "main-content-panel"
 
 	return (
 		<div className="flex h-full w-full">
@@ -130,29 +130,29 @@ const ResizablePanel = ({
 				{rightPanel}
 			</div>
 		</div>
-	);
-};
+	)
+}
 
 const ReactContentRenderer = () => {
-	const refContainer = useRef<HTMLDivElement>(null);
+	const refContainer = useRef<HTMLDivElement>(null)
 	// biome-ignore lint/suspicious/noExplicitAny: Root will be dynamically imported
-	const refRoot = useRef<any | null>(null);
+	const refRoot = useRef<any | null>(null)
 
 	useEffect(() => {
-		const container = refContainer.current;
-		if (!container) return;
+		const container = refContainer.current
+		if (!container) return
 
-		let unmounted = false;
+		let unmounted = false
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		let createRootPromise: Promise<any> | null = null;
+		let createRootPromise: Promise<any> | null = null
 
 		const renderReactContent = (children: React.ReactNode) => {
 			if (!children) {
 				if (refRoot.current) {
-					refRoot.current.unmount();
-					refRoot.current = null;
+					refRoot.current.unmount()
+					refRoot.current = null
 				}
-				return;
+				return
 			}
 
 			if (!createRootPromise) {
@@ -160,56 +160,56 @@ const ReactContentRenderer = () => {
 					console.error(
 						"react-devtool: Failed to import 'react-dom/client'. If you are passing React children to <Devtool>, please ensure 'react-dom' is installed.",
 						err,
-					);
+					)
 					if (container && !unmounted) {
-						container.innerHTML = `<div style="color: #f87171; padding: 1rem; font-family: sans-serif;"><strong>Devtool Error</strong><br/>Could not render content because <code>react-dom</code> is not installed.</div>`;
+						container.innerHTML = `<div style="color: #f87171; padding: 1rem; font-family: sans-serif;"><strong>Devtool Error</strong><br/>Could not render content because <code>react-dom</code> is not installed.</div>`
 					}
-					return null;
-				});
+					return null
+				})
 			}
 
 			createRootPromise.then((ReactDOMClient) => {
-				if (unmounted || !ReactDOMClient) return;
+				if (unmounted || !ReactDOMClient) return
 
 				if (!refRoot.current) {
-					refRoot.current = ReactDOMClient.createRoot(container);
+					refRoot.current = ReactDOMClient.createRoot(container)
 				}
-				refRoot.current.render(children);
-			});
-		};
+				refRoot.current.render(children)
+			})
+		}
 
-		const unsubscribe = userChildren.subscribe(renderReactContent);
+		const unsubscribe = userChildren.subscribe(renderReactContent)
 
 		// Initial render
 		if (userChildren.value) {
-			renderReactContent(userChildren.value);
+			renderReactContent(userChildren.value)
 		}
 
 		return () => {
-			unmounted = true;
-			unsubscribe();
+			unmounted = true
+			unsubscribe()
 			if (refRoot.current) {
-				refRoot.current.unmount();
-				refRoot.current = null;
+				refRoot.current.unmount()
+				refRoot.current = null
 			}
-		};
-	}, []);
+		}
+	}, [])
 
-	return <div ref={refContainer} className="h-full w-full" />;
-};
+	return <div ref={refContainer} className="h-full w-full" />
+}
 
 const TabSidebar = ({
 	selectedTab,
 	onSelectTab,
 }: {
-	selectedTab: string;
-	onSelectTab: (tabId: string) => void;
+	selectedTab: string
+	onSelectTab: (tabId: string) => void
 }) => {
 	const handleTabClick = (tabId: string) => {
 		document.startViewTransition(() => {
-			onSelectTab(tabId);
-		});
-	};
+			onSelectTab(tabId)
+		})
+	}
 
 	return (
 		<div className="flex flex-col h-full bg-[#1e1e1e] p-2 gap-1 font-text">
@@ -229,8 +229,8 @@ const TabSidebar = ({
 				</button>
 			))}
 		</div>
-	);
-};
+	)
+}
 
 // Layout Shifts Hook
 const useLayoutShifts = () => {
@@ -240,23 +240,23 @@ const useLayoutShifts = () => {
 		fcp: 0,
 		lcp: 0,
 		ttfb: 0,
-	});
+	})
 	const [shifts, setShifts] = useState<
 		Array<{
-			value: number;
+			value: number
 			entries: Array<{
-				name: string;
-				startTime: number;
-				value: number;
-			}>;
-			timestamp: number;
-			id: string;
+				name: string
+				startTime: number
+				value: number
+			}>
+			timestamp: number
+			id: string
 		}>
-	>([]);
+	>([])
 
 	useEffect(() => {
 		onCLS((metric: any) => {
-			setVitals((prev) => ({ ...prev, cls: metric.value }));
+			setVitals((prev) => ({ ...prev, cls: metric.value }))
 			setShifts((prev) => [
 				...prev,
 				{
@@ -269,83 +269,83 @@ const useLayoutShifts = () => {
 					timestamp: Date.now(),
 					id: metric.id,
 				},
-			]);
-		});
+			])
+		})
 
 		onINP((metric: any) => {
-			setVitals((prev) => ({ ...prev, inp: metric.value }));
-		});
+			setVitals((prev) => ({ ...prev, inp: metric.value }))
+		})
 
 		onFCP((metric: any) => {
-			setVitals((prev) => ({ ...prev, fcp: metric.value }));
-		});
+			setVitals((prev) => ({ ...prev, fcp: metric.value }))
+		})
 
 		onLCP((metric: any) => {
-			setVitals((prev) => ({ ...prev, lcp: metric.value }));
-		});
+			setVitals((prev) => ({ ...prev, lcp: metric.value }))
+		})
 
 		onTTFB((metric: any) => {
-			setVitals((prev) => ({ ...prev, ttfb: metric.value }));
-		});
-	}, []);
+			setVitals((prev) => ({ ...prev, ttfb: metric.value }))
+		})
+	}, [])
 
-	return { vitals, shifts };
-};
+	return { vitals, shifts }
+}
 
 // Open Graph Hook
 const useOpenGraph = () => {
-	const [ogData, setOgData] = useState<Record<string, string>>({});
-	const [twitterData, setTwitterData] = useState<Record<string, string>>({});
+	const [ogData, setOgData] = useState<Record<string, string>>({})
+	const [twitterData, setTwitterData] = useState<Record<string, string>>({})
 
 	useEffect(() => {
 		const extractMetaTags = () => {
-			const metaTags = document.querySelectorAll("meta");
-			const og: Record<string, string> = {};
-			const twitter: Record<string, string> = {};
+			const metaTags = document.querySelectorAll("meta")
+			const og: Record<string, string> = {}
+			const twitter: Record<string, string> = {}
 
 			metaTags.forEach((tag) => {
 				const property =
-					tag.getAttribute("property") || tag.getAttribute("name");
-				const content = tag.getAttribute("content");
+					tag.getAttribute("property") || tag.getAttribute("name")
+				const content = tag.getAttribute("content")
 
 				if (property && content) {
 					if (property.startsWith("og:")) {
-						og[property] = content;
+						og[property] = content
 					} else if (property.startsWith("twitter:")) {
-						twitter[property] = content;
+						twitter[property] = content
 					}
 				}
-			});
+			})
 
 			// Also get title and description from document
-			og["title"] = og["og:title"] || document.title;
+			og["title"] = og["og:title"] || document.title
 			og["description"] =
 				og["og:description"] ||
 				document
 					.querySelector('meta[name="description"]')
 					?.getAttribute("content") ||
-				"";
-			og["url"] = og["og:url"] || window.location.href;
+				""
+			og["url"] = og["og:url"] || window.location.href
 
-			setOgData(og);
-			setTwitterData(twitter);
-		};
+			setOgData(og)
+			setTwitterData(twitter)
+		}
 
-		extractMetaTags();
+		extractMetaTags()
 
 		// Re-extract if the page changes (for SPAs)
-		const observer = new MutationObserver(extractMetaTags);
-		observer.observe(document.head, { childList: true, subtree: true });
+		const observer = new MutationObserver(extractMetaTags)
+		observer.observe(document.head, { childList: true, subtree: true })
 
-		return () => observer.disconnect();
-	}, []);
+		return () => observer.disconnect()
+	}, [])
 
-	return { ogData, twitterData };
-};
+	return { ogData, twitterData }
+}
 
 const TabContent = ({ selectedTab }: { selectedTab: string }) => {
-	const { vitals, shifts } = useLayoutShifts();
-	const { ogData, twitterData } = useOpenGraph();
+	const { vitals, shifts } = useLayoutShifts()
+	const { ogData, twitterData } = useOpenGraph()
 
 	const renderTabContent = () => {
 		switch (selectedTab) {
@@ -510,7 +510,7 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 							)}
 						</div>
 					</div>
-				);
+				)
 
 			case "open-graph":
 				return (
@@ -539,7 +539,7 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 											alt="Preview"
 											className="w-full h-40 object-cover"
 											onError={(e) => {
-												e.currentTarget.style.display = "none";
+												e.currentTarget.style.display = "none"
 											}}
 										/>
 									</div>
@@ -648,7 +648,7 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 							</div>
 						)}
 					</div>
-				);
+				)
 
 			case "router":
 				return (
@@ -663,7 +663,7 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 							</p>
 						</div>
 					</div>
-				);
+				)
 			case "feature-flags":
 				return (
 					<div
@@ -678,7 +678,7 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 							</p>
 						</div>
 					</div>
-				);
+				)
 			default:
 				return (
 					<div
@@ -687,9 +687,9 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 					>
 						<div className="text-gray-400">Select a tab to view content</div>
 					</div>
-				);
+				)
 		}
-	};
+	}
 
 	return (
 		<div className="w-full font-text pb-18">
@@ -709,12 +709,12 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 			{/* Render other tab content only when not showing app */}
 			{selectedTab !== "app" && renderTabContent()}
 		</div>
-	);
-};
+	)
+}
 
 const MainView = () => {
-	const [selectedTab, setSelectedTab] = useState(TABS[0].id);
-	const showTabs = TABS.length > 1;
+	const [selectedTab, setSelectedTab] = useState(TABS[0].id)
+	const showTabs = TABS.length > 1
 
 	return (
 		<div className="flex flex-col h-full w-full">
@@ -727,13 +727,13 @@ const MainView = () => {
 				rightPanel={<TabContent selectedTab={selectedTab} />}
 			/>
 		</div>
-	);
-};
+	)
+}
 
 export const MainViewWrapper = forwardRef<HTMLDivElement>((_, ref) => {
 	return (
 		<div ref={ref} className="h-full w-full bg-black">
 			<MainView />
 		</div>
-	);
-});
+	)
+})

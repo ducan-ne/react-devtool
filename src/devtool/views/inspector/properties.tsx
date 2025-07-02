@@ -1,19 +1,13 @@
-import { signal, Signal } from "@preact/signals";
-import {
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "preact/hooks";
+import { signal, Signal } from "@preact/signals"
+import { useCallback, useEffect, useMemo, useRef, useState } from "preact/hooks"
 
-import { isEqual } from "~core/utils";
-import { CopyToClipboard } from "~web/components/copy-to-clipboard";
-import { Icon } from "~web/components/icon";
-import { useMergedRefs } from "~web/hooks/use-merged-refs";
-import { cn } from "~web/utils/helpers";
-import { globalInspectorState } from ".";
-import { flashManager } from "./flash-overlay";
+import { isEqual } from "~core/utils"
+import { CopyToClipboard } from "~web/components/copy-to-clipboard"
+import { Icon } from "~web/components/icon"
+import { useMergedRefs } from "~web/hooks/use-merged-refs"
+import { cn } from "~web/utils/helpers"
+import { globalInspectorState } from "."
+import { flashManager } from "./flash-overlay"
 import {
 	detectValueType,
 	formatForClipboard,
@@ -24,51 +18,51 @@ import {
 	isPromise,
 	sanitizeString,
 	updateNestedValue,
-} from "./utils";
+} from "./utils"
 
 interface ValueMetadata {
-	type: string;
-	displayValue: string;
-	value?: unknown;
-	size?: number;
-	length?: number;
-	byteLength?: number;
-	entries?: Record<string, ValueMetadata>;
-	items?: Array<ValueMetadata>;
+	type: string
+	displayValue: string
+	value?: unknown
+	size?: number
+	length?: number
+	byteLength?: number
+	entries?: Record<string, ValueMetadata>
+	items?: Array<ValueMetadata>
 }
 interface PropertyElementProps {
-	name: string;
-	value: unknown | ValueMetadata;
-	level: number;
-	parentPath?: string;
-	allowEditing?: boolean;
-	onSave: (path: string[], value: unknown) => void;
+	name: string
+	value: unknown | ValueMetadata
+	level: number
+	parentPath?: string
+	allowEditing?: boolean
+	onSave: (path: string[], value: unknown) => void
 }
 
 interface PropertySectionProps {
 	refSticky?:
 		| ReturnType<typeof useMergedRefs<HTMLElement>>
-		| ((node: HTMLElement | null) => void);
-	isSticky?: boolean;
-	name: string;
-	data: Signal<Record<string, unknown>>;
+		| ((node: HTMLElement | null) => void)
+	isSticky?: boolean
+	name: string
+	data: Signal<Record<string, unknown>>
 }
 
 interface EditableValueProps {
-	value: unknown;
-	onSave: (newValue: unknown) => void;
-	onCancel: () => void;
+	value: unknown
+	onSave: (newValue: unknown) => void
+	onCancel: () => void
 }
 
 const EditableValue = ({ value, onSave, onCancel }: EditableValueProps) => {
-	const refInput = useRef<HTMLInputElement>(null);
-	const [editValue, setEditValue] = useState("");
+	const refInput = useRef<HTMLInputElement>(null)
+	const [editValue, setEditValue] = useState("")
 
 	useEffect(() => {
-		let initialValue = "";
+		let initialValue = ""
 		try {
 			if (value instanceof Date) {
-				initialValue = value.toISOString().slice(0, 16);
+				initialValue = value.toISOString().slice(0, 16)
 			} else if (
 				value instanceof Map ||
 				value instanceof Set ||
@@ -78,60 +72,60 @@ const EditableValue = ({ value, onSave, onCancel }: EditableValueProps) => {
 				ArrayBuffer.isView(value) ||
 				(typeof value === "object" && value !== null)
 			) {
-				initialValue = formatValue(value);
+				initialValue = formatValue(value)
 			} else {
-				initialValue = formatInitialValue(value);
+				initialValue = formatInitialValue(value)
 			}
 		} catch {
-			initialValue = String(value);
+			initialValue = String(value)
 		}
-		const sanitizedValue = sanitizeString(initialValue);
-		setEditValue(sanitizedValue);
+		const sanitizedValue = sanitizeString(initialValue)
+		setEditValue(sanitizedValue)
 
 		requestAnimationFrame(() => {
-			if (!refInput.current) return;
-			refInput.current.focus();
+			if (!refInput.current) return
+			refInput.current.focus()
 			if (typeof value === "string") {
-				refInput.current.setSelectionRange(1, sanitizedValue.length - 1);
+				refInput.current.setSelectionRange(1, sanitizedValue.length - 1)
 			} else {
-				refInput.current.select();
+				refInput.current.select()
 			}
-		});
-	}, [value]);
+		})
+	}, [value])
 
 	const handleChange = useCallback((e: Event) => {
-		const target = e.target as HTMLInputElement;
+		const target = e.target as HTMLInputElement
 		if (target) {
-			setEditValue(target.value);
+			setEditValue(target.value)
 		}
-	}, []);
+	}, [])
 
 	const handleKeyDown = (e: KeyboardEvent) => {
 		if (e.key === "Enter") {
-			e.preventDefault();
+			e.preventDefault()
 			try {
-				let newValue: unknown;
+				let newValue: unknown
 				if (value instanceof Date) {
-					const date = new Date(editValue);
+					const date = new Date(editValue)
 					if (Number.isNaN(date.getTime())) {
-						throw new Error("Invalid date");
+						throw new Error("Invalid date")
 					}
-					newValue = date;
+					newValue = date
 				} else {
-					const detected = detectValueType(editValue);
-					newValue = detected.value;
+					const detected = detectValueType(editValue)
+					newValue = detected.value
 				}
-				onSave(newValue);
+				onSave(newValue)
 			} catch {
-				onCancel();
+				onCancel()
 			}
 		} else if (e.key === "Escape") {
-			e.preventDefault();
-			e.stopPropagation();
-			e.stopImmediatePropagation();
-			onCancel();
+			e.preventDefault()
+			e.stopPropagation()
+			e.stopImmediatePropagation()
+			onCancel()
 		}
-	};
+	}
 
 	return (
 		<input
@@ -144,8 +138,8 @@ const EditableValue = ({ value, onSave, onCancel }: EditableValueProps) => {
 			onBlur={onCancel}
 			step={value instanceof Date ? 1 : undefined}
 		/>
-	);
-};
+	)
+}
 
 const PropertyElement = ({
 	name,
@@ -155,128 +149,128 @@ const PropertyElement = ({
 	allowEditing = true,
 	onSave,
 }: PropertyElementProps) => {
-	const refElement = useRef<HTMLDivElement>(null);
+	const refElement = useRef<HTMLDivElement>(null)
 
-	const currentPath = parentPath ? `${parentPath}.${name}` : name;
+	const currentPath = parentPath ? `${parentPath}.${name}` : name
 	const [isExpanded, setIsExpanded] = useState(
 		globalInspectorState.expandedPaths.has(currentPath),
-	);
-	const [isEditing, setIsEditing] = useState(false);
+	)
+	const [isEditing, setIsEditing] = useState(false)
 
-	const prevValue = globalInspectorState.lastRendered.get(currentPath);
-	const isChanged = !isEqual(prevValue, value);
+	const prevValue = globalInspectorState.lastRendered.get(currentPath)
+	const isChanged = !isEqual(prevValue, value)
 
 	useEffect(() => {
 		if (name === "children") {
-			return;
+			return
 		}
 
-		const isFirstRender = !globalInspectorState.lastRendered.has(currentPath);
-		const shouldFlash = isChanged && refElement.current && !isFirstRender;
+		const isFirstRender = !globalInspectorState.lastRendered.has(currentPath)
+		const shouldFlash = isChanged && refElement.current && !isFirstRender
 
-		globalInspectorState.lastRendered.set(currentPath, value);
+		globalInspectorState.lastRendered.set(currentPath, value)
 
 		if (shouldFlash && refElement.current && level === 0) {
-			flashManager.create(refElement.current);
+			flashManager.create(refElement.current)
 		}
-	}, [value, isChanged, currentPath, level, name]);
+	}, [value, isChanged, currentPath, level, name])
 
 	const handleToggleExpand = useCallback(() => {
 		setIsExpanded((prevState: boolean) => {
-			const newIsExpanded = !prevState;
+			const newIsExpanded = !prevState
 			if (newIsExpanded) {
-				globalInspectorState.expandedPaths.add(currentPath);
+				globalInspectorState.expandedPaths.add(currentPath)
 			} else {
-				globalInspectorState.expandedPaths.delete(currentPath);
+				globalInspectorState.expandedPaths.delete(currentPath)
 			}
-			return newIsExpanded;
-		});
-	}, [currentPath]);
+			return newIsExpanded
+		})
+	}, [currentPath])
 
 	const valuePreview = useMemo(() => {
 		if (typeof value === "object" && value !== null) {
 			if ("displayValue" in value) {
-				return String(value.displayValue);
+				return String(value.displayValue)
 			}
 		}
-		return formatValue(value);
-	}, [value]);
+		return formatValue(value)
+	}, [value])
 
 	const clipboardText = useMemo(() => {
 		if (typeof value === "object" && value !== null) {
 			if ("value" in value) {
-				return String(formatForClipboard(value.value));
+				return String(formatForClipboard(value.value))
 			}
 			if ("displayValue" in value) {
-				return String(value.displayValue);
+				return String(value.displayValue)
 			}
 		}
-		return String(formatForClipboard(value));
-	}, [value]);
+		return String(formatForClipboard(value))
+	}, [value])
 
 	const isExpandableValue = useMemo(() => {
-		if (!value || typeof value !== "object") return false;
+		if (!value || typeof value !== "object") return false
 
 		if ("type" in value) {
-			const metadata = value as ValueMetadata;
+			const metadata = value as ValueMetadata
 			switch (metadata.type) {
 				case "array":
 				case "Map":
 				case "Set":
-					return (metadata.size ?? metadata.length ?? 0) > 0;
+					return (metadata.size ?? metadata.length ?? 0) > 0
 				case "object":
-					return (metadata.size ?? 0) > 0;
+					return (metadata.size ?? 0) > 0
 				case "ArrayBuffer":
 				case "DataView":
-					return (metadata.byteLength ?? 0) > 0;
+					return (metadata.byteLength ?? 0) > 0
 				case "circular":
 				case "promise":
 				case "function":
 				case "error":
-					return false;
+					return false
 				default:
 					if ("entries" in metadata || "items" in metadata) {
-						return true;
+						return true
 					}
-					return false;
+					return false
 			}
 		}
 
-		return isExpandable(value);
-	}, [value]);
+		return isExpandable(value)
+	}, [value])
 
 	const canEdit = useMemo(() => {
-		if (!allowEditing) return false;
-		return true;
-	}, [allowEditing]);
+		if (!allowEditing) return false
+		return true
+	}, [allowEditing])
 
 	const handleEdit = useCallback(() => {
 		if (canEdit) {
-			setIsEditing(true);
+			setIsEditing(true)
 		}
-	}, [canEdit]);
+	}, [canEdit])
 
 	const handleSave = (newValue: unknown) => {
-		const path = currentPath.split(".");
-		onSave(path, newValue);
-		setIsEditing(false);
-	};
+		const path = currentPath.split(".")
+		onSave(path, newValue)
+		setIsEditing(false)
+	}
 
 	const checkCircularInValue = useMemo((): boolean => {
-		if (!value || typeof value !== "object" || isPromise(value)) return false;
+		if (!value || typeof value !== "object" || isPromise(value)) return false
 
-		return "type" in value && value.type === "circular";
-	}, [value]);
+		return "type" in value && value.type === "circular"
+	}, [value])
 
 	const renderNestedProperties = useCallback(
 		(obj: unknown): preact.ComponentChildren => {
-			if (!obj || typeof obj !== "object") return null;
+			if (!obj || typeof obj !== "object") return null
 
 			if ("type" in obj) {
-				const metadata = obj as ValueMetadata;
+				const metadata = obj as ValueMetadata
 				if ("entries" in metadata && metadata.entries) {
-					const entries = Object.entries(metadata.entries);
-					if (entries.length === 0) return null;
+					const entries = Object.entries(metadata.entries)
+					if (entries.length === 0) return null
 
 					return (
 						<div className="react-devtool-nested">
@@ -292,15 +286,15 @@ const PropertyElement = ({
 								/>
 							))}
 						</div>
-					);
+					)
 				}
 
 				if ("items" in metadata && Array.isArray(metadata.items)) {
-					if (metadata.items.length === 0) return null;
+					if (metadata.items.length === 0) return null
 					return (
 						<div className="react-devtool-nested">
 							{metadata.items.map((item, i) => {
-								const itemKey = `${currentPath}-item-${item.type}-${i}`;
+								const itemKey = `${currentPath}-item-${item.type}-${i}`
 								return (
 									<PropertyElement
 										key={itemKey}
@@ -311,51 +305,51 @@ const PropertyElement = ({
 										allowEditing={allowEditing}
 										onSave={onSave}
 									/>
-								);
+								)
 							})}
 						</div>
-					);
+					)
 				}
-				return null;
+				return null
 			}
 
-			let entries: Array<[key: string | number, value: unknown]>;
+			let entries: Array<[key: string | number, value: unknown]>
 
 			if (obj instanceof ArrayBuffer) {
-				const view = new Uint8Array(obj);
-				entries = Array.from(view).map((v, i) => [i, v]);
+				const view = new Uint8Array(obj)
+				entries = Array.from(view).map((v, i) => [i, v])
 			} else if (obj instanceof DataView) {
-				const view = new Uint8Array(obj.buffer, obj.byteOffset, obj.byteLength);
-				entries = Array.from(view).map((v, i) => [i, v]);
+				const view = new Uint8Array(obj.buffer, obj.byteOffset, obj.byteLength)
+				entries = Array.from(view).map((v, i) => [i, v])
 			} else if (ArrayBuffer.isView(obj)) {
 				if (obj instanceof BigInt64Array || obj instanceof BigUint64Array) {
-					entries = Array.from({ length: obj.length }, (_, i) => [i, obj[i]]);
+					entries = Array.from({ length: obj.length }, (_, i) => [i, obj[i]])
 				} else {
-					const typedArray = obj as unknown as ArrayLike<number>;
-					entries = Array.from(typedArray).map((v, i) => [i, v]);
+					const typedArray = obj as unknown as ArrayLike<number>
+					entries = Array.from(typedArray).map((v, i) => [i, v])
 				}
 			} else if (obj instanceof Map) {
-				entries = Array.from(obj.entries()).map(([k, v]) => [String(k), v]);
+				entries = Array.from(obj.entries()).map(([k, v]) => [String(k), v])
 			} else if (obj instanceof Set) {
-				entries = Array.from(obj).map((v, i) => [i, v]);
+				entries = Array.from(obj).map((v, i) => [i, v])
 			} else if (Array.isArray(obj)) {
-				entries = obj.map((value, index) => [`${index}`, value]);
+				entries = obj.map((value, index) => [`${index}`, value])
 			} else {
-				entries = Object.entries(obj);
+				entries = Object.entries(obj)
 			}
 
-			if (entries.length === 0) return null;
+			if (entries.length === 0) return null
 
 			const canEditChildren = !(
 				obj instanceof DataView ||
 				obj instanceof ArrayBuffer ||
 				ArrayBuffer.isView(obj)
-			);
+			)
 
 			return (
 				<div className="react-devtool-nested">
 					{entries.map(([key, val]) => {
-						const itemKey = `${currentPath}-${typeof key === "number" ? `item-${key}` : key}`;
+						const itemKey = `${currentPath}-${typeof key === "number" ? `item-${key}` : key}`
 						return (
 							<PropertyElement
 								key={itemKey}
@@ -366,13 +360,13 @@ const PropertyElement = ({
 								allowEditing={canEditChildren}
 								onSave={onSave}
 							/>
-						);
+						)
 					})}
 				</div>
-			);
+			)
 		},
 		[level, currentPath, allowEditing, onSave],
-	);
+	)
 
 	if (checkCircularInValue) {
 		return (
@@ -384,7 +378,7 @@ const PropertyElement = ({
 					</div>
 				</div>
 			</div>
-		);
+		)
 	}
 
 	return (
@@ -455,8 +449,8 @@ const PropertyElement = ({
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}
 
 export const PropertySection = ({
 	refSticky,
@@ -464,31 +458,31 @@ export const PropertySection = ({
 	name,
 	data,
 }: PropertySectionProps) => {
-	const refStickyElement = useRef<HTMLElement | null>(null);
-	const [isExpanded, setIsExpanded] = useState(true);
+	const refStickyElement = useRef<HTMLElement | null>(null)
+	const [isExpanded, setIsExpanded] = useState(true)
 
-	const refs = useMergedRefs(refStickyElement, refSticky);
+	const refs = useMergedRefs(refStickyElement, refSticky)
 
-	const currentData = data.value;
+	const currentData = data.value
 
 	const handleSave = useCallback(
 		(path: string[], value: unknown) => {
-			const newData = updateNestedValue(data.value, path, value);
+			const newData = updateNestedValue(data.value, path, value)
 			if (typeof newData === "object" && newData !== null) {
-				data.value = { ...(newData as object) };
+				data.value = { ...(newData as object) }
 			}
 		},
 		[data],
-	);
+	)
 
 	const toggleExpanded = useCallback(() => {
 		setIsExpanded((state) => {
 			if (isSticky && isExpanded) {
-				return state;
+				return state
 			}
-			return !state;
-		});
-	}, [isExpanded, isSticky]);
+			return !state
+		})
+	}, [isExpanded, isSticky])
 
 	if (
 		!currentData ||
@@ -496,12 +490,12 @@ export const PropertySection = ({
 			? currentData.length === 0
 			: Object.keys(currentData).length === 0)
 	) {
-		return null;
+		return null
 	}
 
 	const propertyCount = Array.isArray(currentData)
 		? currentData.length
-		: Object.keys(currentData).length;
+		: Object.keys(currentData).length
 
 	return (
 		<>
@@ -557,8 +551,8 @@ export const PropertySection = ({
 				</div>
 			</div>
 		</>
-	);
-};
+	)
+}
 
 // React-compatible API for rendering PropertySection
 export function createPropertyRenderer() {
@@ -566,24 +560,24 @@ export function createPropertyRenderer() {
 		renderToDOM: (
 			container: HTMLElement,
 			props: {
-				name: string;
-				data: Signal<Record<string, unknown>>;
+				name: string
+				data: Signal<Record<string, unknown>>
 				refSticky?:
 					| ReturnType<typeof useMergedRefs<HTMLElement>>
-					| ((node: HTMLElement | null) => void);
-				isSticky?: boolean;
+					| ((node: HTMLElement | null) => void)
+				isSticky?: boolean
 			},
 		) => {
 			import("preact").then(({ render, h }) => {
-				render(h(PropertySection, props), container);
-			});
+				render(h(PropertySection, props), container)
+			})
 		},
 		unmount: (container: HTMLElement) => {
 			import("preact").then(({ render }) => {
-				render(null, container);
-			});
+				render(null, container)
+			})
 		},
-	};
+	}
 }
 
 // Example of how to use it with a mock signal
@@ -624,24 +618,24 @@ export const PropertiesView = () => {
 				},
 			}),
 		[],
-	);
+	)
 
-	const propsData = useMemo(() => signal(mockSignal.value.props), [mockSignal]);
+	const propsData = useMemo(() => signal(mockSignal.value.props), [mockSignal])
 
-	const stateData = useMemo(() => signal(mockSignal.value.state), [mockSignal]);
+	const stateData = useMemo(() => signal(mockSignal.value.state), [mockSignal])
 
 	const contextData = useMemo(
 		() => signal(mockSignal.value.context),
 		[mockSignal],
-	);
+	)
 
 	useEffect(() => {
 		mockSignal.subscribe((value) => {
-			propsData.value = value.props;
-			stateData.value = value.state;
-			contextData.value = value.context;
-		});
-	}, [mockSignal, propsData, stateData, contextData]);
+			propsData.value = value.props
+			stateData.value = value.state
+			contextData.value = value.context
+		})
+	}, [mockSignal, propsData, stateData, contextData])
 
 	return (
 		<div className="react-devtool-properties">
@@ -649,5 +643,5 @@ export const PropertiesView = () => {
 			<PropertySection name="State" data={stateData} />
 			<PropertySection name="Context" data={contextData} />
 		</div>
-	);
-};
+	)
+}

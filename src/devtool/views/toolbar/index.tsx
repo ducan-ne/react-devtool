@@ -1,11 +1,11 @@
-import { useSignalEffect } from "@preact/signals";
-import { useCallback } from "preact/hooks";
-import { ReactDevtoolInternals, Store } from "~core/index";
-import { Icon } from "~web/components/icon";
-import { Logo } from "~web/components/logo";
-import { signalWidgetViews } from "~web/state";
-import { constant } from "~web/utils/preact/constant";
-import { FPSMeter } from "~web/widget/fps-meter";
+import { useSignalEffect } from "@preact/signals"
+import { useCallback } from "preact/hooks"
+import { ReactDevtoolInternals, Store } from "~core/index"
+import { Icon } from "~web/components/icon"
+import { Logo } from "~web/components/logo"
+import { signalWidgetViews } from "~web/state"
+import { constant } from "~web/utils/preact/constant"
+import { FPSMeter } from "~web/widget/fps-meter"
 
 // if (import.meta.env.DEV) {
 // 	setTimeout(() => {
@@ -16,50 +16,50 @@ import { FPSMeter } from "~web/widget/fps-meter";
 // }
 
 export const Toolbar = constant(() => {
-	const inspectState = Store.inspectState;
-	const isInspectActive = inspectState.value.kind === "inspecting";
-	const isInspectFocused = inspectState.value.kind === "focused";
+	const inspectState = Store.inspectState
+	const isInspectActive = inspectState.value.kind === "inspecting"
+	const isInspectFocused = inspectState.value.kind === "focused"
 
 	const onToggleInspect = useCallback(() => {
-		const currentState = Store.inspectState.value;
+		const currentState = Store.inspectState.value
 
 		switch (currentState.kind) {
 			case "inspecting": {
 				signalWidgetViews.value = {
 					view: "none",
-				};
+				}
 				Store.inspectState.value = {
 					kind: "inspect-off",
-				};
-				return;
+				}
+				return
 			}
 
 			case "focused": {
 				signalWidgetViews.value = {
 					view: "inspector",
-				};
+				}
 				Store.inspectState.value = {
 					kind: "inspecting",
 					hoveredDomElement: null,
-				};
-				return;
+				}
+				return
 			}
 			// todo: auto select the root fibers first stateNode, and tell the user to select the element
 			case "inspect-off": {
 				signalWidgetViews.value = {
 					view: "none",
-				};
+				}
 				Store.inspectState.value = {
 					kind: "inspecting",
 					hoveredDomElement: null,
-				};
-				return;
+				}
+				return
 			}
 			case "uninitialized": {
-				return;
+				return
 			}
 		}
-	}, []);
+	}, [])
 
 	/* const onToggleActive = useCallback((e: Event) => {
 		e.preventDefault();
@@ -80,26 +80,26 @@ export const Toolbar = constant(() => {
 	}, []); */
 
 	useSignalEffect(() => {
-		const state = Store.inspectState.value;
+		const state = Store.inspectState.value
 		if (state.kind === "uninitialized") {
 			Store.inspectState.value = {
 				kind: "inspect-off",
-			};
+			}
 		}
-	});
+	})
 
-	let inspectIcon = null;
-	let inspectColor = "#999";
+	let inspectIcon = null
+	let inspectColor = "#999"
 
 	if (isInspectActive) {
-		inspectIcon = <Icon name="icon-inspect" />;
-		inspectColor = "#8e61e3";
+		inspectIcon = <Icon name="icon-inspect" />
+		inspectColor = "#8e61e3"
 	} else if (isInspectFocused) {
-		inspectIcon = <Icon name="icon-focus" />;
-		inspectColor = "#8e61e3";
+		inspectIcon = <Icon name="icon-focus" />
+		inspectColor = "#8e61e3"
 	} else {
-		inspectIcon = <Icon name="icon-inspect" />;
-		inspectColor = "#999";
+		inspectIcon = <Icon name="icon-inspect" />
+		inspectColor = "#999"
 	}
 	return (
 		<div className="flex max-h-9 min-h-9 flex-1 items-stretch overflow-hidden">
@@ -120,14 +120,14 @@ export const Toolbar = constant(() => {
 					if (Store.inspectState.value.kind !== "inspect-off") {
 						Store.inspectState.value = {
 							kind: "inspect-off",
-						};
+						}
 					}
 					switch (signalWidgetViews.value.view) {
 						case "none": {
 							signalWidgetViews.value = {
 								view: "notifications",
-							};
-							return;
+							}
+							return
 						}
 					}
 				}}
@@ -147,5 +147,5 @@ export const Toolbar = constant(() => {
 			{/* todo add back showFPS*/}
 			{ReactDevtoolInternals.options.value.showFPS && <FPSMeter />}
 		</div>
-	);
-});
+	)
+})

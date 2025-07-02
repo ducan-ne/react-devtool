@@ -1,70 +1,70 @@
-import { type ReactNode, memo } from "preact/compat";
+import { type ReactNode, memo } from "preact/compat"
 import {
 	type Dispatch,
 	type StateUpdater,
 	useEffect,
 	useRef,
 	useState,
-} from "preact/hooks";
-import { CopyToClipboard } from "~web/components/copy-to-clipboard";
-import { Icon } from "~web/components/icon";
-import { cn, throttle } from "~web/utils/helpers";
-import { DiffValueView } from "./diff-value";
-import { timelineState } from "./states";
+} from "preact/hooks"
+import { CopyToClipboard } from "~web/components/copy-to-clipboard"
+import { Icon } from "~web/components/icon"
+import { cn, throttle } from "~web/utils/helpers"
+import { DiffValueView } from "./diff-value"
+import { timelineState } from "./states"
 import {
 	type AggregatedChanges,
 	formatFunctionPreview,
 	formatPath,
 	getObjectDiff,
 	isPromise,
-} from "./utils";
+} from "./utils"
 import {
 	calculateTotalChanges,
 	useInspectedFiberChangeStore,
-} from "./whats-changed/use-change-store";
-import { getDisplayName, getType } from "bippy";
-import { Store } from "~core/index";
+} from "./whats-changed/use-change-store"
+import { getDisplayName, getType } from "bippy"
+import { Store } from "~core/index"
 
-type Setter<T> = Dispatch<StateUpdater<T>>;
+type Setter<T> = Dispatch<StateUpdater<T>>
 
 const safeGetValue = (value: unknown): { value: unknown; error?: string } => {
-	if (value === null || value === undefined) return { value };
-	if (typeof value === "function") return { value };
-	if (typeof value !== "object") return { value };
+	if (value === null || value === undefined) return { value }
+	if (typeof value === "function") return { value }
+	if (typeof value !== "object") return { value }
 
 	if (isPromise(value)) {
-		return { value: "Promise" };
+		return { value: "Promise" }
 	}
 
 	try {
-		const proto = Object.getPrototypeOf(value);
+		const proto = Object.getPrototypeOf(value)
 		if (proto === Promise.prototype || proto?.constructor?.name === "Promise") {
-			return { value: "Promise" };
+			return { value: "Promise" }
 		}
 
-		return { value };
+		return { value }
 	} catch {
-		return { value: null, error: "Error accessing value" };
+		return { value: null, error: "Error accessing value" }
 	}
-};
+}
 
 export const WhatChanged = /* @__PURE__ */ memo(() => {
-	const [isExpanded, setIsExpanded] = useState(true);
-	const aggregatedChanges = useInspectedFiberChangeStore();
+	const [isExpanded, setIsExpanded] = useState(true)
+	const aggregatedChanges = useInspectedFiberChangeStore()
 
-	const [hasInitialized, setHasInitialized] = useState(false);
-	const hasAnyChanges = calculateTotalChanges(aggregatedChanges) > 0;
+	const [hasInitialized, setHasInitialized] = useState(false)
+	const hasAnyChanges = calculateTotalChanges(aggregatedChanges) > 0
 	useEffect(() => {
 		if (!hasInitialized && hasAnyChanges) {
 			const timer = setTimeout(() => {
-				setHasInitialized(true);
+				setHasInitialized(true)
 				requestAnimationFrame(() => {
-					setIsExpanded(true);
-				});
-			}, 0);
-			return () => clearTimeout(timer);
+					setIsExpanded(true)
+				})
+			}, 0)
+			return () => clearTimeout(timer)
 		}
-	}, [hasInitialized, hasAnyChanges]);
+	}, [hasInitialized, hasAnyChanges])
 
 	const initializedContextChanges = new Map(
 		Array.from(aggregatedChanges.contextChanges.entries())
@@ -74,16 +74,16 @@ export const WhatChanged = /* @__PURE__ */ memo(() => {
 				// biome-ignore lint/style/noNonNullAssertion: <explanation>
 				value.kind === "partially-initialized" ? null! : value.changes,
 			]),
-	);
+	)
 
 	const fiber =
 		Store.inspectState.value.kind === "focused"
 			? Store.inspectState.value.fiber
-			: null;
+			: null
 
 	if (!fiber) {
 		// invariant
-		return;
+		return
 	}
 	return (
 		<>
@@ -135,32 +135,32 @@ export const WhatChanged = /* @__PURE__ */ memo(() => {
 				</div>
 			</div>
 		</>
-	);
-});
+	)
+})
 
 const renderStateName = (key: string, componentName: string) => {
 	if (Number.isNaN(Number(key))) {
-		return key;
+		return key
 	}
 
-	const n = Number.parseInt(key);
+	const n = Number.parseInt(key)
 	const getOrdinalSuffix = (num: number) => {
-		const lastDigit = num % 10;
-		const lastTwoDigits = num % 100;
+		const lastDigit = num % 10
+		const lastTwoDigits = num % 100
 		if (lastTwoDigits >= 11 && lastTwoDigits <= 13) {
-			return "th";
+			return "th"
 		}
 		switch (lastDigit) {
 			case 1:
-				return "st";
+				return "st"
 			case 2:
-				return "nd";
+				return "nd"
 			case 3:
-				return "rd";
+				return "rd"
 			default:
-				return "th";
+				return "th"
 		}
-	};
+	}
 
 	return (
 		<span className="truncate">
@@ -172,80 +172,80 @@ const renderStateName = (key: string, componentName: string) => {
 				called in <i className="text-[#A855F7] truncate">{componentName}</i>
 			</span>
 		</span>
-	);
-};
+	)
+}
 
 const WhatsChangedHeader = memo(() => {
-	const refProps = useRef<HTMLDivElement>(null);
-	const refState = useRef<HTMLDivElement>(null);
-	const refContext = useRef<HTMLDivElement>(null);
+	const refProps = useRef<HTMLDivElement>(null)
+	const refState = useRef<HTMLDivElement>(null)
+	const refContext = useRef<HTMLDivElement>(null)
 
 	const refStats = useRef<{
-		isPropsChanged: boolean;
-		isStateChanged: boolean;
-		isContextChanged: boolean;
+		isPropsChanged: boolean
+		isStateChanged: boolean
+		isContextChanged: boolean
 	}>({
 		isPropsChanged: false,
 		isStateChanged: false,
 		isContextChanged: false,
-	});
+	})
 
 	useEffect(() => {
 		const flash = throttle(() => {
-			const flashElements = [];
+			const flashElements = []
 			if (refProps.current?.dataset.flash === "true") {
-				flashElements.push(refProps.current);
+				flashElements.push(refProps.current)
 			}
 			if (refState.current?.dataset.flash === "true") {
-				flashElements.push(refState.current);
+				flashElements.push(refState.current)
 			}
 			if (refContext.current?.dataset.flash === "true") {
-				flashElements.push(refContext.current);
+				flashElements.push(refContext.current)
 			}
 
 			for (const element of flashElements) {
-				element.classList.remove("count-flash-white");
-				void element.offsetWidth;
-				element.classList.add("count-flash-white");
+				element.classList.remove("count-flash-white")
+				void element.offsetWidth
+				element.classList.add("count-flash-white")
 			}
-		}, 400);
+		}, 400)
 
 		const unsubscribe = timelineState.subscribe((state) => {
 			if (!refProps.current || !refState.current || !refContext.current) {
-				return;
+				return
 			}
 
-			const { currentIndex, updates } = state;
-			const currentUpdate = updates[currentIndex];
+			const { currentIndex, updates } = state
+			const currentUpdate = updates[currentIndex]
 
 			if (!currentUpdate || currentIndex === 0) {
-				return;
+				return
 			}
 
-			flash();
+			flash()
 
 			refStats.current = {
 				isPropsChanged: (currentUpdate.props?.changes?.size ?? 0) > 0,
 				isStateChanged: (currentUpdate.state?.changes?.size ?? 0) > 0,
 				isContextChanged: (currentUpdate.context?.changes?.size ?? 0) > 0,
-			};
+			}
 
 			if (refProps.current.dataset.flash !== "true") {
 				refProps.current.dataset.flash =
-					refStats.current.isPropsChanged.toString();
+					refStats.current.isPropsChanged.toString()
 			}
 			if (refState.current.dataset.flash !== "true") {
 				refState.current.dataset.flash =
-					refStats.current.isStateChanged.toString();
+					refStats.current.isStateChanged.toString()
 			}
 			if (refContext.current.dataset.flash !== "true") {
 				refContext.current.dataset.flash =
-					refStats.current.isContextChanged.toString();
+					refStats.current.isContextChanged.toString()
 			}
-		});
+		})
 
-		return unsubscribe;
-	}, []);
+		return unsubscribe
+	}, [])
 
 	return (
 		<button
@@ -277,55 +277,55 @@ const WhatsChangedHeader = memo(() => {
 				</div>
 			</div>
 		</button>
-	);
-});
+	)
+})
 
 interface SectionProps {
-	title: string;
-	isExpanded: boolean;
+	title: string
+	isExpanded: boolean
 	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-	changes: Map<any, AggregatedChanges>;
-	renderName?: (name: string) => ReactNode;
+	changes: Map<any, AggregatedChanges>
+	renderName?: (name: string) => ReactNode
 }
-const identity = <T,>(x: T) => x;
+const identity = <T,>(x: T) => x
 const Section = /* @__PURE__ */ memo(
 	({ title, changes, renderName = identity }: SectionProps) => {
-		const [expandedFns, setExpandedFns] = useState(new Set<string>());
-		const [expandedEntries, setExpandedEntries] = useState(new Set<string>());
+		const [expandedFns, setExpandedFns] = useState(new Set<string>())
+		const [expandedEntries, setExpandedEntries] = useState(new Set<string>())
 
-		const entries = Array.from(changes.entries());
+		const entries = Array.from(changes.entries())
 
 		if (changes.size === 0) {
-			return null;
+			return null
 		}
 		return (
 			<div>
 				<div className="text-xs text-[#888] mb-1.5">{title}</div>
 				<div className="flex flex-col gap-2">
 					{entries.map(([entryKey, change]) => {
-						const isEntryExpanded = expandedEntries.has(String(entryKey));
+						const isEntryExpanded = expandedEntries.has(String(entryKey))
 						const { value: prevValue, error: prevError } = safeGetValue(
 							change.previousValue,
-						);
+						)
 						const { value: currValue, error: currError } = safeGetValue(
 							change.currentValue,
-						);
+						)
 
-						const diff = getObjectDiff(prevValue, currValue);
+						const diff = getObjectDiff(prevValue, currValue)
 
 						return (
 							<div key={entryKey}>
 								<button
 									onClick={() => {
 										setExpandedEntries((prev) => {
-											const next = new Set(prev);
+											const next = new Set(prev)
 											if (next.has(String(entryKey))) {
-												next.delete(String(entryKey));
+												next.delete(String(entryKey))
 											} else {
-												next.add(String(entryKey));
+												next.add(String(entryKey))
 											}
-											return next;
-										});
+											return next
+										})
 									}}
 									className="flex items-center gap-2 w-full bg-transparent border-none p-0 cursor-pointer text-white text-xs"
 								>
@@ -388,20 +388,20 @@ const Section = /* @__PURE__ */ memo(
 									</div>
 								</div>
 							</div>
-						);
+						)
 					})}
 				</div>
 			</div>
-		);
+		)
 	},
-);
+)
 
 const AccessError = ({
 	prevError,
 	currError,
 }: {
-	prevError?: string;
-	currError?: string;
+	prevError?: string
+	currError?: string
 }) => {
 	return (
 		<>
@@ -416,8 +416,8 @@ const AccessError = ({
 				</div>
 			)}
 		</>
-	);
-};
+	)
+}
 
 const DiffChange = ({
 	diff,
@@ -429,43 +429,42 @@ const DiffChange = ({
 }: {
 	diff: {
 		changes: {
-			path: string[];
-			prevValue: unknown;
-			currentValue: unknown;
-		}[];
-	};
-	title: string;
-	renderName: (name: string) => ReactNode;
-	change: { name: string };
-	expandedFns: Set<string>;
-	setExpandedFns: (updater: (prev: Set<string>) => Set<string>) => void;
+			path: string[]
+			prevValue: unknown
+			currentValue: unknown
+		}[]
+	}
+	title: string
+	renderName: (name: string) => ReactNode
+	change: { name: string }
+	expandedFns: Set<string>
+	setExpandedFns: (updater: (prev: Set<string>) => Set<string>) => void
 }) => {
 	return diff.changes.map((diffChange, i) => {
 		const { value: prevDiffValue, error: prevDiffError } = safeGetValue(
 			diffChange.prevValue,
-		);
+		)
 		const { value: currDiffValue, error: currDiffError } = safeGetValue(
 			diffChange.currentValue,
-		);
+		)
 
 		const isFunction =
-			typeof prevDiffValue === "function" ||
-			typeof currDiffValue === "function";
+			typeof prevDiffValue === "function" || typeof currDiffValue === "function"
 
-		let path: string | undefined;
+		let path: string | undefined
 
 		if (title === "Props") {
 			path =
 				diffChange.path.length > 0
 					? `${renderName(String(change.name))}.${formatPath(diffChange.path)}`
-					: undefined;
+					: undefined
 		}
 		if (title === "State" && diffChange.path.length > 0) {
-			path = `state.${formatPath(diffChange.path)}`;
+			path = `state.${formatPath(diffChange.path)}`
 		}
 
 		if (!path) {
-			path = formatPath(diffChange.path);
+			path = formatPath(diffChange.path)
 		}
 
 		return (
@@ -491,16 +490,16 @@ const DiffChange = ({
 					onClick={
 						isFunction
 							? () => {
-									const fnKey = `${formatPath(diffChange.path)}-prev`;
+									const fnKey = `${formatPath(diffChange.path)}-prev`
 									setExpandedFns((prev) => {
-										const next = new Set(prev);
+										const next = new Set(prev)
 										if (next.has(fnKey)) {
-											next.delete(fnKey);
+											next.delete(fnKey)
 										} else {
-											next.add(fnKey);
+											next.add(fnKey)
 										}
-										return next;
-									});
+										return next
+									})
 								}
 							: undefined
 					}
@@ -542,16 +541,16 @@ const DiffChange = ({
 									`${formatPath(diffChange.path)}-prev`,
 								)}
 								onToggle={() => {
-									const key = `${formatPath(diffChange.path)}-prev`;
+									const key = `${formatPath(diffChange.path)}-prev`
 									setExpandedFns((prev) => {
-										const next = new Set(prev);
+										const next = new Set(prev)
 										if (next.has(key)) {
-											next.delete(key);
+											next.delete(key)
 										} else {
-											next.add(key);
+											next.add(key)
 										}
-										return next;
-									});
+										return next
+									})
 								}}
 								isNegative={true}
 							/>
@@ -572,16 +571,16 @@ const DiffChange = ({
 					onClick={
 						isFunction
 							? () => {
-									const fnKey = `${formatPath(diffChange.path)}-current`;
+									const fnKey = `${formatPath(diffChange.path)}-current`
 									setExpandedFns((prev) => {
-										const next = new Set(prev);
+										const next = new Set(prev)
 										if (next.has(fnKey)) {
-											next.delete(fnKey);
+											next.delete(fnKey)
 										} else {
-											next.add(fnKey);
+											next.add(fnKey)
 										}
-										return next;
-									});
+										return next
+									})
 								}
 							: undefined
 					}
@@ -623,16 +622,16 @@ const DiffChange = ({
 									`${formatPath(diffChange.path)}-current`,
 								)}
 								onToggle={() => {
-									const key = `${formatPath(diffChange.path)}-current`;
+									const key = `${formatPath(diffChange.path)}-current`
 									setExpandedFns((prev) => {
-										const next = new Set(prev);
+										const next = new Set(prev)
 										if (next.has(key)) {
-											next.delete(key);
+											next.delete(key)
 										} else {
-											next.add(key);
+											next.add(key)
 										}
-										return next;
-									});
+										return next
+									})
 								}}
 								isNegative={false}
 							/>
@@ -640,9 +639,9 @@ const DiffChange = ({
 					</span>
 				</button>
 			</div>
-		);
-	});
-};
+		)
+	})
+}
 
 const ReferenceOnlyChange = ({
 	prevValue,
@@ -651,11 +650,11 @@ const ReferenceOnlyChange = ({
 	expandedFns,
 	setExpandedFns,
 }: {
-	prevValue: unknown;
-	currValue: unknown;
-	entryKey: string | number;
-	expandedFns: Set<string>;
-	setExpandedFns: (updater: (prev: Set<string>) => Set<string>) => void;
+	prevValue: unknown
+	currValue: unknown
+	entryKey: string | number
+	expandedFns: Set<string>
+	setExpandedFns: (updater: (prev: Set<string>) => Set<string>) => void
 }) => {
 	return (
 		<>
@@ -668,16 +667,16 @@ const ReferenceOnlyChange = ({
 						value={prevValue}
 						expanded={expandedFns.has(`${String(entryKey)}-prev`)}
 						onToggle={() => {
-							const key = `${String(entryKey)}-prev`;
+							const key = `${String(entryKey)}-prev`
 							setExpandedFns((prev) => {
-								const next = new Set(prev);
+								const next = new Set(prev)
 								if (next.has(key)) {
-									next.delete(key);
+									next.delete(key)
 								} else {
-									next.add(key);
+									next.add(key)
 								}
-								return next;
-							});
+								return next
+							})
 						}}
 						isNegative={true}
 					/>
@@ -692,16 +691,16 @@ const ReferenceOnlyChange = ({
 						value={currValue}
 						expanded={expandedFns.has(`${String(entryKey)}-current`)}
 						onToggle={() => {
-							const key = `${String(entryKey)}-current`;
+							const key = `${String(entryKey)}-current`
 							setExpandedFns((prev) => {
-								const next = new Set(prev);
+								const next = new Set(prev)
 								if (next.has(key)) {
-									next.delete(key);
+									next.delete(key)
 								} else {
-									next.add(key);
+									next.add(key)
 								}
-								return next;
-							});
+								return next
+							})
 						}}
 						isNegative={false}
 					/>
@@ -718,8 +717,8 @@ const ReferenceOnlyChange = ({
 				</div>
 			)}
 		</>
-	);
-};
+	)
+}
 
 const CountBadge = ({
 	count,
@@ -727,46 +726,46 @@ const CountBadge = ({
 	isFunction,
 	showWarning,
 }: {
-	count: number;
-	forceFlash: boolean;
-	isFunction: boolean;
-	showWarning: boolean;
+	count: number
+	forceFlash: boolean
+	isFunction: boolean
+	showWarning: boolean
 }) => {
-	const refIsFirstRender = useRef(true);
-	const refBadge = useRef<HTMLDivElement>(null);
-	const refPrevCount = useRef(count);
+	const refIsFirstRender = useRef(true)
+	const refBadge = useRef<HTMLDivElement>(null)
+	const refPrevCount = useRef(count)
 
 	useEffect(() => {
-		const element = refBadge.current;
+		const element = refBadge.current
 		if (!element || refPrevCount.current === count) {
-			return;
+			return
 		}
 
-		element.classList.remove("count-flash");
-		void element.offsetWidth;
-		element.classList.add("count-flash");
+		element.classList.remove("count-flash")
+		void element.offsetWidth
+		element.classList.add("count-flash")
 
-		refPrevCount.current = count;
-	}, [count]);
+		refPrevCount.current = count
+	}, [count])
 
 	useEffect(() => {
 		if (refIsFirstRender.current) {
-			refIsFirstRender.current = false;
-			return;
+			refIsFirstRender.current = false
+			return
 		}
 
 		if (forceFlash) {
 			let timer = setTimeout(() => {
-				refBadge.current?.classList.add("count-flash-white");
+				refBadge.current?.classList.add("count-flash-white")
 				timer = setTimeout(() => {
-					refBadge.current?.classList.remove("count-flash-white");
-				}, 300);
-			}, 500);
+					refBadge.current?.classList.remove("count-flash-white")
+				}, 300)
+			}, 500)
 			return () => {
-				clearTimeout(timer);
-			};
+				clearTimeout(timer)
+			}
 		}
-	}, [forceFlash]);
+	}, [forceFlash])
 
 	return (
 		<div ref={refBadge} className="count-badge">
@@ -782,5 +781,5 @@ const CountBadge = ({
 			)}
 			x{count}
 		</div>
-	);
-};
+	)
+}

@@ -1,20 +1,20 @@
-import { signal } from "@preact/signals";
+import { signal } from "@preact/signals"
 import {
 	LOCALSTORAGE_KEY,
 	MIN_CONTAINER_WIDTH,
 	MIN_SIZE,
 	SAFE_AREA,
 	LOCALSTORAGE_COLLAPSED_KEY,
-} from "./constants";
-import { IS_CLIENT } from "./utils/constants";
-import { readLocalStorage, saveLocalStorage } from "./utils/helpers";
-import type { Corner, WidgetConfig, WidgetSettings } from "./widget/types";
-import type { CollapsedPosition } from "./widget/types";
+} from "./constants"
+import { IS_CLIENT } from "./utils/constants"
+import { readLocalStorage, saveLocalStorage } from "./utils/helpers"
+import type { Corner, WidgetConfig, WidgetSettings } from "./widget/types"
+import type { CollapsedPosition } from "./widget/types"
 
-export const signalIsSettingsOpen = /* @__PURE__ */ signal(false);
+export const signalIsSettingsOpen = /* @__PURE__ */ signal(false)
 export const signalRefWidget = /* @__PURE__ */ signal<HTMLDivElement | null>(
 	null,
-);
+)
 
 export const defaultWidgetConfig = {
 	corner: "bottom-right" as Corner,
@@ -35,19 +35,19 @@ export const defaultWidgetConfig = {
 	componentsTree: {
 		width: MIN_CONTAINER_WIDTH,
 	},
-} as WidgetConfig;
+} as WidgetConfig
 
 const getInitialWidgetConfig = (): WidgetConfig => {
-	const stored = readLocalStorage<WidgetSettings>(LOCALSTORAGE_KEY);
+	const stored = readLocalStorage<WidgetSettings>(LOCALSTORAGE_KEY)
 	if (!stored) {
 		saveLocalStorage(LOCALSTORAGE_KEY, {
 			corner: defaultWidgetConfig.corner,
 			dimensions: defaultWidgetConfig.dimensions,
 			lastDimensions: defaultWidgetConfig.lastDimensions,
 			componentsTree: defaultWidgetConfig.componentsTree,
-		});
+		})
 
-		return defaultWidgetConfig;
+		return defaultWidgetConfig
 	}
 
 	return {
@@ -59,16 +59,16 @@ const getInitialWidgetConfig = (): WidgetConfig => {
 			stored.dimensions ??
 			defaultWidgetConfig.lastDimensions,
 		componentsTree: stored.componentsTree ?? defaultWidgetConfig.componentsTree,
-	};
-};
+	}
+}
 
-export const signalWidget = signal<WidgetConfig>(getInitialWidgetConfig());
+export const signalWidget = signal<WidgetConfig>(getInitialWidgetConfig())
 
 export const updateDimensions = (): void => {
-	if (!IS_CLIENT) return;
+	if (!IS_CLIENT) return
 
-	const { dimensions } = signalWidget.value;
-	const { width, height, position } = dimensions;
+	const { dimensions } = signalWidget.value
+	const { width, height, position } = dimensions
 
 	signalWidget.value = {
 		...signalWidget.value,
@@ -79,22 +79,21 @@ export const updateDimensions = (): void => {
 			height,
 			position,
 		},
-	};
-};
-
-
-export interface WidgetStates {
-	view: "inspector" | "settings" | "notifications" | "none";
-	data?: unknown;
+	}
 }
 
-export const signalWidgetViews = signal<WidgetStates>({ view: "none" });
+export interface WidgetStates {
+	view: "inspector" | "settings" | "notifications" | "none"
+	data?: unknown
+}
+
+export const signalWidgetViews = signal<WidgetStates>({ view: "none" })
 
 const storedCollapsed = readLocalStorage<CollapsedPosition | null>(
 	LOCALSTORAGE_COLLAPSED_KEY,
-);
+)
 export const signalWidgetCollapsed =
-	/* @__PURE__ */ signal<CollapsedPosition | null>(storedCollapsed ?? null);
+	/* @__PURE__ */ signal<CollapsedPosition | null>(storedCollapsed ?? null)
 
 // biome-ignore lint/suspicious/noExplicitAny: This will hold React elements
-export const userChildren = signal<any>(null);
+export const userChildren = signal<any>(null)

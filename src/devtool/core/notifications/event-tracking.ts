@@ -1,6 +1,6 @@
-import { useSyncExternalStore } from "preact/compat";
-import { not_globally_unique_generateId } from "~core/monitor/utils";
-import { MAX_INTERACTION_BATCH, interactionStore } from "./interaction-store";
+import { useSyncExternalStore } from "preact/compat"
+import { not_globally_unique_generateId } from "~core/monitor/utils"
+import { MAX_INTERACTION_BATCH, interactionStore } from "./interaction-store"
 import {
 	type FiberRenders,
 	type PerformanceEntryChannelEvent,
@@ -9,33 +9,30 @@ import {
 	listenForRenders,
 	setupDetailedPointerTimingListener,
 	setupPerformancePublisher,
-} from "./performance";
-import {
-	MAX_CHANNEL_SIZE,
-	performanceEntryChannels,
-} from "./performance-store";
-import { BoundedArray } from "./performance-utils";
-import { createStore } from "~web/utils/create-store";
+} from "./performance"
+import { MAX_CHANNEL_SIZE, performanceEntryChannels } from "./performance-store"
+import { BoundedArray } from "./performance-utils"
+import { createStore } from "~web/utils/create-store"
 
-let profileListeners: Array<(interaction: FinalInteraction) => void> = [];
+let profileListeners: Array<(interaction: FinalInteraction) => void> = []
 
 type FinalInteraction = {
-	detailedTiming: TimeoutStage;
-	latency: number;
-	completedAt: number;
-};
+	detailedTiming: TimeoutStage
+	latency: number
+	completedAt: number
+}
 
 const listenForProfile = (
 	listener: (interaction: FinalInteraction) => void,
 ) => {
-	profileListeners.push(listener);
+	profileListeners.push(listener)
 
 	return () => {
 		profileListeners = profileListeners.filter(
 			(existingListener) => existingListener !== listener,
-		);
-	};
-};
+		)
+	}
+}
 
 type NewInteractionStoreState = {
 	/**
@@ -44,78 +41,78 @@ type NewInteractionStoreState = {
 	 * i guess what we said before, we just have one active bounds and that's all that matters chat
 	 */
 
-	startAt: number;
-	endAt: number;
-};
+	startAt: number
+	endAt: number
+}
 
 const interactionStatusStore: {
-	state: NewInteractionStoreState | null;
-	listeners: Array<(state: NewInteractionStoreState) => void>;
-	addListener: (cb: (state: NewInteractionStoreState) => void) => () => void;
+	state: NewInteractionStoreState | null
+	listeners: Array<(state: NewInteractionStoreState) => void>
+	addListener: (cb: (state: NewInteractionStoreState) => void) => () => void
 } = {
 	state: null,
 	addListener: (cb) => {
-		interactionStatusStore.listeners.push(cb);
+		interactionStatusStore.listeners.push(cb)
 		return () => {
 			interactionStatusStore.listeners =
-				interactionStatusStore.listeners.filter((l) => l !== cb);
-		};
+				interactionStatusStore.listeners.filter((l) => l !== cb)
+		}
 	},
 	listeners: [],
-};
+}
 
-let accumulatedFiberRendersOverTask: null | FiberRenders = null;
+let accumulatedFiberRendersOverTask: null | FiberRenders = null
 type InteractionEvent = {
-	kind: "interaction";
+	kind: "interaction"
 	data: {
-		startAt: number;
-		endAt: number;
+		startAt: number
+		endAt: number
 		meta: {
-			detailedTiming: TimeoutStage;
-			latency: number;
-			kind: PerformanceEntryChannelEvent["kind"];
-		};
-	};
-};
+			detailedTiming: TimeoutStage
+			latency: number
+			kind: PerformanceEntryChannelEvent["kind"]
+		}
+	}
+}
 
 type LongRenderPipeline = {
-	kind: "long-render";
+	kind: "long-render"
 	data: {
-		startAt: number;
-		endAt: number;
+		startAt: number
+		endAt: number
 		meta: {
-			latency: number;
-			fiberRenders: FiberRenders;
-			fps: number;
-		};
-	};
-};
+			latency: number
+			fiberRenders: FiberRenders
+			fps: number
+		}
+	}
+}
 
 type SlowdownEvent = (InteractionEvent | LongRenderPipeline) & {
-	id: string;
-};
+	id: string
+}
 
 type ToolbarEventStoreState = {
 	state: {
-		events: BoundedArray<SlowdownEvent>;
-	};
+		events: BoundedArray<SlowdownEvent>
+	}
 	actions: {
-		addEvent: (event: SlowdownEvent) => void;
-		addListener: (listener: (event: SlowdownEvent) => void) => () => void;
-		clear: () => void;
-	};
-};
+		addEvent: (event: SlowdownEvent) => void
+		addListener: (listener: (event: SlowdownEvent) => void) => () => void
+		clear: () => void
+	}
+}
 
 type DebugEvent = {
-	kind: string;
-	at: number;
-	meta?: unknown;
-};
+	kind: string
+	at: number
+	meta?: unknown
+}
 
-const EVENT_STORE_CAPACITY = 200;
+const EVENT_STORE_CAPACITY = 200
 
 const toolbarEventStore = createStore<ToolbarEventStoreState>()((set, get) => {
-	const listeners = new Set<(event: SlowdownEvent) => void>();
+	const listeners = new Set<(event: SlowdownEvent) => void>()
 
 	return {
 		state: {
@@ -124,20 +121,20 @@ const toolbarEventStore = createStore<ToolbarEventStoreState>()((set, get) => {
 
 		actions: {
 			addEvent: (event: SlowdownEvent) => {
-				listeners.forEach((listener) => listener(event));
+				listeners.forEach((listener) => listener(event))
 
-				const events = [...get().state.events, event];
+				const events = [...get().state.events, event]
 				const applyOverlapCheckToLongRenderEvent = (
 					longRenderEvent: LongRenderPipeline & { id: string },
 					onOverlap: (overlapsWith: InteractionEvent & { id: string }) => void,
 				) => {
 					const overlapsWith = events.find((event) => {
 						if (event.kind === "long-render") {
-							return;
+							return
 						}
 
 						if (event.id === longRenderEvent.id) {
-							return;
+							return
 						}
 
 						/**
@@ -150,7 +147,7 @@ const toolbarEventStore = createStore<ToolbarEventStoreState>()((set, get) => {
 							longRenderEvent.data.endAt <= event.data.endAt &&
 							longRenderEvent.data.endAt >= event.data.startAt
 						) {
-							return true;
+							return true
 						}
 
 						/**
@@ -164,7 +161,7 @@ const toolbarEventStore = createStore<ToolbarEventStoreState>()((set, get) => {
 							event.data.startAt <= longRenderEvent.data.startAt &&
 							event.data.endAt >= longRenderEvent.data.startAt
 						) {
-							return true;
+							return true
 						}
 
 						/**
@@ -178,27 +175,27 @@ const toolbarEventStore = createStore<ToolbarEventStoreState>()((set, get) => {
 							longRenderEvent.data.startAt <= event.data.startAt &&
 							longRenderEvent.data.endAt >= event.data.endAt
 						) {
-							return true;
+							return true
 						}
-					}) as undefined | (InteractionEvent & { id: string }); // invariant: because we early check the typechecker does not know it must be the case that when it finds something, it will be an interaction it overlaps with
+					}) as undefined | (InteractionEvent & { id: string }) // invariant: because we early check the typechecker does not know it must be the case that when it finds something, it will be an interaction it overlaps with
 
 					if (overlapsWith) {
-						onOverlap(overlapsWith);
+						onOverlap(overlapsWith)
 					}
-				};
+				}
 
-				const toRemove = new Set<string>();
+				const toRemove = new Set<string>()
 
 				events.forEach((event) => {
-					if (event.kind === "interaction") return;
+					if (event.kind === "interaction") return
 					applyOverlapCheckToLongRenderEvent(event, () => {
-						toRemove.add(event.id);
-					});
-				});
+						toRemove.add(event.id)
+					})
+				})
 
 				const withRemovedEvents = events.filter(
 					(event) => !toRemove.has(event.id),
-				);
+				)
 
 				set(() => ({
 					state: {
@@ -207,14 +204,14 @@ const toolbarEventStore = createStore<ToolbarEventStoreState>()((set, get) => {
 							EVENT_STORE_CAPACITY,
 						),
 					},
-				}));
+				}))
 			},
 
 			addListener: (listener: (event: SlowdownEvent) => void) => {
-				listeners.add(listener);
+				listeners.add(listener)
 				return () => {
-					listeners.delete(listener);
-				};
+					listeners.delete(listener)
+				}
 			},
 
 			clear: () => {
@@ -222,27 +219,27 @@ const toolbarEventStore = createStore<ToolbarEventStoreState>()((set, get) => {
 					state: {
 						events: new BoundedArray(EVENT_STORE_CAPACITY),
 					},
-				});
+				})
 			},
 		},
-	};
-});
+	}
+})
 
 const useToolbarEventLog = () => {
 	return useSyncExternalStore(
 		toolbarEventStore.subscribe,
 		toolbarEventStore.getState,
-	);
-};
+	)
+}
 
-let taskDirtyAt: null | number = null;
-let taskDirtyOrigin: null | number = null;
+let taskDirtyAt: null | number = null
+let taskDirtyOrigin: null | number = null
 
 let previousTrackCurrentMouseOverElementCallback:
 	| ((e: MouseEvent) => void)
-	| null = null;
+	| null = null
 
-let overToolbar: boolean | null;
+let overToolbar: boolean | null
 
 const trackCurrentMouseOverToolbar = () => {
 	const callback = (e: MouseEvent) => {
@@ -250,72 +247,72 @@ const trackCurrentMouseOverToolbar = () => {
 			.composedPath()
 			.map((path) => (path as Element).id)
 			.filter(Boolean)
-			.includes("react-devtool-toolbar");
-	};
+			.includes("react-devtool-toolbar")
+	}
 
-	document.addEventListener("mouseover", callback);
-	previousTrackCurrentMouseOverElementCallback = callback;
+	document.addEventListener("mouseover", callback)
+	previousTrackCurrentMouseOverElementCallback = callback
 
 	return () => {
 		if (previousTrackCurrentMouseOverElementCallback) {
 			document.removeEventListener(
 				"mouseover",
 				previousTrackCurrentMouseOverElementCallback,
-			);
+			)
 		}
-	};
-};
+	}
+}
 
 // stops long tasks b/c backgrounded from being reported
 const startDirtyTaskTracking = () => {
 	const onVisibilityChange = () => {
-		taskDirtyAt = performance.now();
-		taskDirtyOrigin = performance.timeOrigin;
-	};
+		taskDirtyAt = performance.now()
+		taskDirtyOrigin = performance.timeOrigin
+	}
 
-	document.addEventListener("visibilitychange", onVisibilityChange);
+	document.addEventListener("visibilitychange", onVisibilityChange)
 
 	return () => {
-		document.removeEventListener("visibilitychange", onVisibilityChange);
-	};
-};
+		document.removeEventListener("visibilitychange", onVisibilityChange)
+	}
+}
 
-const HIGH_SEVERITY_FPS_DROP_TIME = 150;
+const HIGH_SEVERITY_FPS_DROP_TIME = 150
 
-let framesDrawnInTheLastSecond: Array<number> = [];
+let framesDrawnInTheLastSecond: Array<number> = []
 
 function startLongPipelineTracking() {
-	let rafHandle: number;
-	let timeoutHandle: ReturnType<typeof setTimeout>;
+	let rafHandle: number
+	let timeoutHandle: ReturnType<typeof setTimeout>
 
 	function measure() {
-		let unSub: (() => void) | null = null;
-		accumulatedFiberRendersOverTask = null;
-		accumulatedFiberRendersOverTask = {};
-		unSub = listenForRenders(accumulatedFiberRendersOverTask);
-		const startOrigin = performance.timeOrigin;
-		const startTime = performance.now();
+		let unSub: (() => void) | null = null
+		accumulatedFiberRendersOverTask = null
+		accumulatedFiberRendersOverTask = {}
+		unSub = listenForRenders(accumulatedFiberRendersOverTask)
+		const startOrigin = performance.timeOrigin
+		const startTime = performance.now()
 		rafHandle = requestAnimationFrame(() => {
 			// very low overhead, on the order of dozens of microseconds to run
 			timeoutHandle = setTimeout(() => {
-				const endNow = performance.now();
-				const duration = endNow - startTime;
-				const endOrigin = performance.timeOrigin;
-				framesDrawnInTheLastSecond.push(endNow + endOrigin);
+				const endNow = performance.now()
+				const duration = endNow - startTime
+				const endOrigin = performance.timeOrigin
+				framesDrawnInTheLastSecond.push(endNow + endOrigin)
 
 				const framesInTheLastSecond = framesDrawnInTheLastSecond.filter(
 					(frameAt) => endNow + endOrigin - frameAt <= 1000,
-				);
+				)
 
-				const fps = framesInTheLastSecond.length;
-				framesDrawnInTheLastSecond = framesInTheLastSecond;
+				const fps = framesInTheLastSecond.length
+				framesDrawnInTheLastSecond = framesInTheLastSecond
 
 				const taskConsideredDirty =
 					taskDirtyAt !== null && taskDirtyOrigin !== null
 						? endNow + endOrigin - (taskDirtyOrigin + taskDirtyAt) < 100
-						: null;
+						: null
 				// not useful to report slowdowns caused by things like outlines (can get expensive not fully optimized)
-				const wasTaskInfluencedByToolbar = overToolbar !== null && overToolbar;
+				const wasTaskInfluencedByToolbar = overToolbar !== null && overToolbar
 
 				if (
 					duration > HIGH_SEVERITY_FPS_DROP_TIME &&
@@ -323,8 +320,8 @@ function startLongPipelineTracking() {
 					document.visibilityState === "visible" &&
 					!wasTaskInfluencedByToolbar
 				) {
-					const endAt = endOrigin + endNow;
-					const startAt = startTime + startOrigin;
+					const endAt = endOrigin + endNow
+					const startAt = startTime + startOrigin
 
 					toolbarEventStore.getState().actions.addEvent({
 						kind: "long-render",
@@ -339,32 +336,32 @@ function startLongPipelineTracking() {
 								fps,
 							},
 						},
-					});
+					})
 				}
 
-				taskDirtyAt = null;
-				taskDirtyOrigin = null;
+				taskDirtyAt = null
+				taskDirtyOrigin = null
 
-				unSub?.();
-				measure();
-			}, 0);
-		});
-		return unSub;
+				unSub?.()
+				measure()
+			}, 0)
+		})
+		return unSub
 	}
 
-	const measureUnSub = measure();
+	const measureUnSub = measure()
 
 	return () => {
-		measureUnSub();
-		cancelAnimationFrame(rafHandle);
-		clearTimeout(timeoutHandle);
-	};
+		measureUnSub()
+		cancelAnimationFrame(rafHandle)
+		clearTimeout(timeoutHandle)
+	}
 }
 export const startTimingTracking = () => {
-	const unSubPerformance = setupPerformancePublisher();
-	const unSubMouseOver = trackCurrentMouseOverToolbar();
-	const unSubDirtyTaskTracking = startDirtyTaskTracking();
-	const unSubLongPipelineTracking = startLongPipelineTracking();
+	const unSubPerformance = setupPerformancePublisher()
+	const unSubMouseOver = trackCurrentMouseOverToolbar()
+	const unSubDirtyTaskTracking = startDirtyTaskTracking()
+	const unSubLongPipelineTracking = startLongPipelineTracking()
 
 	const onComplete = async (
 		_: string,
@@ -379,12 +376,12 @@ export const startTimingTracking = () => {
 				endAt: performance.now() + performance.timeOrigin,
 				meta: { ...finalInteraction, kind: event.kind }, // TODO, will need interaction specific metadata here
 			},
-		});
+		})
 
 		const existingCompletedInteractions =
-			performanceEntryChannels.getChannelState("recording");
+			performanceEntryChannels.getChannelState("recording")
 
-		finalInteraction.detailedTiming.stopListeningForRenders();
+		finalInteraction.detailedTiming.stopListeningForRenders()
 
 		if (existingCompletedInteractions.length) {
 			// then performance entry and our detailed timing handlers are out of sync, we disregard that entry
@@ -393,21 +390,21 @@ export const startTimingTracking = () => {
 			performanceEntryChannels.updateChannelState(
 				"recording",
 				() => new BoundedArray(MAX_CHANNEL_SIZE),
-			);
+			)
 		}
-	};
+	}
 	const unSubDetailedPointerTiming = setupDetailedPointerTimingListener(
 		"pointer",
 		{
 			onComplete,
 		},
-	);
+	)
 	const unSubDetailedKeyboardTiming = setupDetailedPointerTimingListener(
 		"keyboard",
 		{
 			onComplete,
 		},
-	);
+	)
 
 	const unSubInteractions = listenForPerformanceEntryInteractions(
 		(completedInteraction) => {
@@ -416,17 +413,17 @@ export const startTimingTracking = () => {
 					interactionStore.getCurrentState().concat(completedInteraction),
 					MAX_INTERACTION_BATCH,
 				),
-			);
+			)
 		},
-	);
+	)
 
 	return () => {
-		unSubMouseOver();
-		unSubDirtyTaskTracking();
-		unSubLongPipelineTracking();
-		unSubPerformance();
-		unSubDetailedPointerTiming();
-		unSubInteractions();
-		unSubDetailedKeyboardTiming();
-	};
-};
+		unSubMouseOver()
+		unSubDirtyTaskTracking()
+		unSubLongPipelineTracking()
+		unSubPerformance()
+		unSubDetailedPointerTiming()
+		unSubInteractions()
+		unSubDetailedKeyboardTiming()
+	}
+}

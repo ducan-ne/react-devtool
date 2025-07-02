@@ -1,11 +1,11 @@
-import { useEffect, useState } from "preact/hooks";
-import { Store } from "~core/index";
-import { Icon } from "~web/components/icon";
-import { useDelayedValue } from "~web/hooks/use-delayed-value";
-import { signalWidgetViews } from "~web/state";
-import { cn } from "~web/utils/helpers";
-import { HeaderInspect } from "~web/views/inspector/header";
-import { getOverrideMethods } from "~web/views/inspector/utils";
+import { useEffect, useState } from "preact/hooks"
+import { Store } from "~core/index"
+import { Icon } from "~web/components/icon"
+import { useDelayedValue } from "~web/hooks/use-delayed-value"
+import { signalWidgetViews } from "~web/state"
+import { cn } from "~web/utils/helpers"
+import { HeaderInspect } from "~web/views/inspector/header"
+import { getOverrideMethods } from "~web/views/inspector/utils"
 
 // const REPLAY_DELAY_MS = 300;
 
@@ -18,16 +18,16 @@ const BtnReplay = () => {
 	//   },
 	// });
 
-	const [canEdit, setCanEdit] = useState(false);
+	const [canEdit, setCanEdit] = useState(false)
 
 	useEffect(() => {
-		const { overrideProps } = getOverrideMethods();
-		const canEdit = !!overrideProps;
+		const { overrideProps } = getOverrideMethods()
+		const canEdit = !!overrideProps
 
 		requestAnimationFrame(() => {
-			setCanEdit(canEdit);
-		});
-	}, []);
+			setCanEdit(canEdit)
+		})
+	}, [])
 
 	// const handleReplay = (e: MouseEvent) => {
 	//   e.stopPropagation();
@@ -62,7 +62,7 @@ const BtnReplay = () => {
 	//     });
 	// };
 
-	if (!canEdit) return null;
+	if (!canEdit) return null
 
 	return (
 		<button
@@ -73,8 +73,8 @@ const BtnReplay = () => {
 		>
 			<Icon name="icon-replay" />
 		</button>
-	);
-};
+	)
+}
 
 // const useSubscribeFocusedFiber = (onUpdate: () => void) => {
 //   // biome-ignore lint/correctness/useExhaustiveDependencies: no deps
@@ -100,21 +100,21 @@ export const Header = () => {
 		Store.inspectState.value.kind === "focused",
 		150,
 		0,
-	);
+	)
 	const handleClose = () => {
 		signalWidgetViews.value = {
 			view: "none",
-		};
+		}
 		Store.inspectState.value = {
 			kind: "inspect-off",
-		};
-	};
+		}
+	}
 
 	const isHeaderIsNotifications =
-		signalWidgetViews.value.view === "notifications";
+		signalWidgetViews.value.view === "notifications"
 
 	if (isHeaderIsNotifications) {
-		return;
+		return
 	}
 
 	return (
@@ -140,5 +140,5 @@ export const Header = () => {
 				<Icon name="icon-close" />
 			</button>
 		</div>
-	);
-};
+	)
+}
