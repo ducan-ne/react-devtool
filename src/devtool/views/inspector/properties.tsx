@@ -1,5 +1,6 @@
 import { signal, Signal } from "@preact/signals"
 import { useCallback, useEffect, useMemo, useRef, useState } from "preact/hooks"
+import { render, h } from "preact"
 
 import { isEqual } from "~core/utils"
 import { CopyToClipboard } from "~web/components/copy-to-clipboard"
@@ -568,14 +569,10 @@ export function createPropertyRenderer() {
 				isSticky?: boolean
 			},
 		) => {
-			import("preact").then(({ render, h }) => {
-				render(h(PropertySection, props), container)
-			})
+			render(h(PropertySection, props), container)
 		},
 		unmount: (container: HTMLElement) => {
-			import("preact").then(({ render }) => {
-				render(null, container)
-			})
+			render(null, container)
 		},
 	}
 }

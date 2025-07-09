@@ -1,10 +1,10 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import { Devtool } from "react-devtool";
+import { useState } from "react"
+import reactLogo from "./assets/react.svg"
+import viteLogo from "/vite.svg"
+import { Devtool } from "react-devtool"
 
 function App() {
-	const [count, setCount] = useState(0);
+	const [count, setCount] = useState(0)
 
 	return (
 		<>
@@ -30,9 +30,10 @@ function App() {
 			</p>
 			<Devtool>
 				<div data-testid="hello-world">Hello world</div>
+				<div data-testid="count">{count}</div>
 			</Devtool>
 		</>
-	);
+	)
 }
 
-export default App;
+export default App

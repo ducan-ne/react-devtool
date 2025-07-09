@@ -1,13 +1,13 @@
 import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
+import preact from "@preact/preset-vite"
 
 // https://vite.dev/config/
 export default defineConfig({
-	plugins: [react()],
+	plugins: [preact()],
 	build: {
 		minify: false,
 		rollupOptions: {
-			external: ["react", "react-dom/client", "react/jsx-runtime"],
+			external: ["preact", "preact/hooks", "preact/jsx-runtime"],
 		},
 	},
 })

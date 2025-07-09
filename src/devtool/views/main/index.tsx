@@ -4,7 +4,18 @@ import { cn } from "~web/utils/helpers"
 import { signalWidgetViews, userChildren } from "~web/state"
 import { Logo } from "~web/components/logo"
 import { Icon } from "~web/components/icon"
-import { onCLS, onINP, onFCP, onLCP, onTTFB } from "web-vitals"
+import {
+	onCLS,
+	onINP,
+	onFCP,
+	onLCP,
+	onTTFB,
+	type CLSMetric,
+	type INPMetric,
+	type FCPMetric,
+	type LCPMetric,
+	type TTFBMetric,
+} from "web-vitals"
 import { PropertiesView } from "../inspector/properties"
 
 const MainViewHeader = () => {
@@ -137,6 +148,8 @@ const ReactContentRenderer = () => {
 	const refContainer = useRef<HTMLDivElement>(null)
 	// biome-ignore lint/suspicious/noExplicitAny: Root will be dynamically imported
 	const refRoot = useRef<any | null>(null)
+	// Add a reference for the current state of userChildren
+	const [, forceUpdate] = useState({})
 
 	useEffect(() => {
 		const container = refContainer.current
@@ -147,14 +160,6 @@ const ReactContentRenderer = () => {
 		let createRootPromise: Promise<any> | null = null
 
 		const renderReactContent = (children: React.ReactNode) => {
-			if (!children) {
-				if (refRoot.current) {
-					refRoot.current.unmount()
-					refRoot.current = null
-				}
-				return
-			}
-
 			if (!createRootPromise) {
 				createRootPromise = import("react-dom/client").catch((err) => {
 					console.error(
@@ -174,7 +179,7 @@ const ReactContentRenderer = () => {
 				if (!refRoot.current) {
 					refRoot.current = ReactDOMClient.createRoot(container)
 				}
-				refRoot.current.render(children)
+				refRoot.current.render(children || null)
 			})
 		}
 
@@ -255,7 +260,7 @@ const useLayoutShifts = () => {
 	>([])
 
 	useEffect(() => {
-		onCLS((metric: any) => {
+		onCLS((metric) => {
 			setVitals((prev) => ({ ...prev, cls: metric.value }))
 			setShifts((prev) => [
 				...prev,
@@ -272,19 +277,19 @@ const useLayoutShifts = () => {
 			])
 		})
 
-		onINP((metric: any) => {
+		onINP((metric) => {
 			setVitals((prev) => ({ ...prev, inp: metric.value }))
 		})
 
-		onFCP((metric: any) => {
+		onFCP((metric) => {
 			setVitals((prev) => ({ ...prev, fcp: metric.value }))
 		})
 
-		onLCP((metric: any) => {
+		onLCP((metric) => {
 			setVitals((prev) => ({ ...prev, lcp: metric.value }))
 		})
 
-		onTTFB((metric: any) => {
+		onTTFB((metric) => {
 			setVitals((prev) => ({ ...prev, ttfb: metric.value }))
 		})
 	}, [])
@@ -355,7 +360,6 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 						className="h-full w-full p-4 text-white space-y-8"
 						style={{ viewTransitionName: "tab-content" }}
 					>
-						<PropertiesView />
 						<div className="space-y-6">
 							<div className="flex items-center gap-3">
 								<div className="w-1 h-6 bg-brand-dark rounded-full"></div>

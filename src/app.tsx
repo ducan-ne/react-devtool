@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react"
 import { setOptions } from "./devtool/core/index"
 import { Inspector } from "react-inspector"
-import { Devtool } from "./devtool"
+import { Devtool, values } from "./devtool"
 import { FormExample } from "./form"
 import { Button } from "./ui"
+import { FeatureFlags } from "./ui"
 
 export function Timer({ onCallback }: { onCallback: () => void }) {
 	const [seconds, setSeconds] = useState(0)
@@ -39,17 +40,17 @@ export function Timer({ onCallback }: { onCallback: () => void }) {
 	)
 }
 
+const flags = values({
+	showTimer: true,
+})
+
 export function App() {
 	return (
 		<>
 			<FormExample />2
 			<Devtool>
 				<div className="flex flex-col gap-2">
-					Hello world
-					<div className="react-devtool-toggle">
-						<input type="checkbox" />
-						<div />
-					</div>
+					<FeatureFlags name="Feature Flags" values={flags} />
 					<Timer
 						onCallback={() => {
 							console.log("callback reset")

@@ -1,8 +1,9 @@
-import tailwindcss from "@tailwindcss/vite";
-import { codeInspectorPlugin } from "code-inspector-plugin";
-import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
-import dts from "vite-plugin-dts";
+import tailwindcss from "@tailwindcss/vite"
+import { codeInspectorPlugin } from "code-inspector-plugin"
+import { defineConfig } from "vite"
+import tsconfigPaths from "vite-tsconfig-paths"
+import dts from "vite-plugin-dts"
+import treeShakeable from "rollup-plugin-tree-shakeable"
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -16,6 +17,7 @@ export default defineConfig({
 			insertTypesEntry: true,
 			tsconfigPath: "./tsconfig.app.json",
 		}),
+		treeShakeable(),
 		// preact({
 		// 	include: [__dirname + "/src/devtool"],
 		// 	exclude: [__dirname + "/src/*.tsx"],
@@ -43,7 +45,15 @@ export default defineConfig({
 				chunkFileNames: "[name].js",
 				assetFileNames: "[name].[ext]",
 			},
-			external: ["react", "react/jsx-runtime", "react-dom/client"],
+			external: [
+				"react",
+				"react/jsx-runtime",
+				"react-dom/client",
+				"@preact/signals",
+				"preact",
+				"preact/hooks",
+				"preact/jsx-runtime",
+			],
 			onwarn(warning, warn) {
 				if (
 					warning.code === "MODULE_LEVEL_DIRECTIVE" ||
@@ -53,11 +63,11 @@ export default defineConfig({
 					warning.code === "INVALID_ANNOTATION" ||
 					warning.code === "CIRCULAR_DEPENDENCY"
 				) {
-					return;
+					return
 				}
-				warn(warning);
+				warn(warning)
 			},
 		},
 	},
 	// experimental: { enableNativePlugin: true },
-});
+})

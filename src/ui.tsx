@@ -1,3 +1,4 @@
+"use client"
 import { cn } from "@devtool/utils/helpers"
 import type { Signal } from "@preact/signals"
 import {
@@ -73,11 +74,7 @@ function Properties({
 	return <div ref={containerRef} />
 }
 
-export function FeatureFlags({
-	name = "Flags",
-	values,
-	onChange,
-}: FeatureFlagsProps) {
+export function FeatureFlags({ name = "Flags", values }: FeatureFlagsProps) {
 	return (
 		<div className="react-devtool-properties">
 			<Properties name={name} data={values} />
@@ -85,6 +82,7 @@ export function FeatureFlags({
 	)
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: react-inspector types are not typed
 const inspectorTheme: any = {
 	BASE_FONT_FAMILY: "SFMono-Regular, 'SF Mono', Menlo, monospace",
 	BASE_FONT_SIZE: "12px",
@@ -155,16 +153,6 @@ export function Inspector({
 				table={table}
 			/>
 		</div>
-	)
-}
-
-export function useFlag<T>(flags: Subscribable<T>, key: keyof T) {
-	return useSyncExternalStore(
-		(cb) => flags.subscribe(cb),
-		() => {
-			return flags.value[key]
-		},
-		() => null,
 	)
 }
 

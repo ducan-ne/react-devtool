@@ -103,8 +103,9 @@ export const Toolbar = constant(() => {
 	}
 	return (
 		<div className="flex max-h-9 min-h-9 flex-1 items-stretch overflow-hidden">
-			<div className="h-full flex items-center min-w-fit">
-				<button
+			<div className="h-full flex items-center min-w-fit w-2">
+				<span />
+				{/* <button
 					type="button"
 					id="react-devtool-inspect-element"
 					title="Inspect element"
@@ -113,7 +114,7 @@ export const Toolbar = constant(() => {
 					style={{ color: inspectColor }}
 				>
 					{inspectIcon}
-				</button>
+				</button> */}
 			</div>
 			<button
 				onClick={() => {

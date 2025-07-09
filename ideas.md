@@ -26,11 +26,10 @@ const { flags, setFlag } = useFlags(defaultFlags)
   // internally it will create a new store with the default values
 ```
 
+## components usage
 
+```tsx
+<Devtool.Button>
 
-
-
-
-
-
+</Devtool.Button>
 ```
