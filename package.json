@@ -1,6 +1,6 @@
 {
 	"name": "react-devtool",
-	"version": "0.0.2",
+	"version": "0.1.0",
 	"description": "Easy solution to have your own internal devtool, unleash the DX of React",
 	"repository": {
 		"type": "git",
