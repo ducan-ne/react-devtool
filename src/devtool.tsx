@@ -1,7 +1,6 @@
 "use client"
 import { useEffect, useSyncExternalStore, type ReactNode } from "react"
-import { scan } from "@devtool/core/index"
-import { userChildren } from "@devtool/state"
+import { scan, userChildren } from "@devtool"
 import { signal, type Signal } from "@preact/signals"
 import type { Subscribable } from "./ui"
 

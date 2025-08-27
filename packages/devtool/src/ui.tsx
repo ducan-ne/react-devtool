@@ -1,5 +1,5 @@
 "use client"
-import { cn } from "@devtool"
+import { cn } from "./utils/helpers"
 import type { Signal } from "@preact/signals"
 import {
 	type ComponentProps,
@@ -11,7 +11,7 @@ import {
 	useRef,
 } from "react"
 import { Inspector as ReactInspector } from "react-inspector"
-import { createPropertyRenderer } from "@devtool"
+import { createPropertyRenderer } from "./views/inspector/properties"
 
 export type Subscribable<T> = Signal<T> & {
 	subscribe: (fn: (value: T) => void) => () => void

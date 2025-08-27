@@ -10,22 +10,15 @@
       "DOM.Iterable"
     ],
     "skipLibCheck": true,
-    "paths": {
-      "@devtool/*": [
-        "./src/devtool/*"
-      ]
-    },
+    "baseUrl": ".",
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "composite": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "outDir": "./dist",
-    "rootDir": "./src",
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
@@ -36,13 +29,5 @@
   },
   "include": [
     "src"
-  ],
-  "exclude": [
-    "src/devtool"
-  ],
-  "references": [
-    {
-      "path": "./src/devtool/tsconfig.json"
-    }
   ]
 }

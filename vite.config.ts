@@ -53,6 +53,7 @@ export default defineConfig({
 				"preact",
 				"preact/hooks",
 				"preact/jsx-runtime",
+				"@devtool",
 			],
 			onwarn(warning, warn) {
 				if (

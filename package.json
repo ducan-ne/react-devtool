@@ -38,7 +38,7 @@
 	"scripts": {
 		"dev": "vite --port 1234",
 		"build": "vite build",
-		"typecheck": "tsc -b",
+		"typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p packages/devtool/tsconfig.json",
 		"preview": "vite preview",
 		"rl-next": "bunx bumpp && bun run build && npm publish --tag next",
 		"rl-latest": "bunx bumpp && bun run build && npm publish",
@@ -54,7 +54,8 @@
 		"react-dom": "^19.1.0"
 	},
 	"dependencies": {
-		"@preact/signals": "^2.2.1"
+		"@preact/signals": "^2.2.1",
+		"@devtool": "workspace:*"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.0.6",
