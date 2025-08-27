@@ -2,7 +2,6 @@
 import { cn } from "@devtool/utils/helpers"
 import type { Signal } from "@preact/signals"
 import {
-	useSyncExternalStore,
 	type ComponentProps,
 	type ReactNode,
 	useState,
@@ -544,7 +543,7 @@ export function Tabs({
 				aria-orientation="horizontal"
 			>
 				{Array.isArray(children)
-					? children.map((child, index) => {
+					? children.map((child) => {
 							if (
 								child &&
 								typeof child === "object" &&
@@ -581,7 +580,7 @@ export function Tabs({
 
 			{/* Tab panels */}
 			{Array.isArray(children)
-				? children.map((child, index) => {
+				? children.map((child) => {
 						if (child && typeof child === "object" && "props" in child) {
 							const tabValue = child.props.value || child.props.label
 							const isSelected = value === tabValue

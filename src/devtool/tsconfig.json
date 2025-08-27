@@ -4,13 +4,26 @@
 		"target": "esnext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
-		"lib": ["esnext", "DOM", "DOM.Iterable"],
+		"composite": true,
+		"lib": [
+			"esnext",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"skipLibCheck": true,
 		"paths": {
-			"react": ["./node_modules/preact/compat/"],
-			"react-dom": ["./node_modules/preact/compat/"],
-			"~web/*": [".//*"],
-			"~core/*": ["./core/*"]
+			"react": [
+				"./node_modules/preact/compat/"
+			],
+			"react-dom": [
+				"./node_modules/preact/compat/"
+			],
+			"~web/*": [
+				".//*"
+			],
+			"~core/*": [
+				"./core/*"
+			]
 		},
 		/* Bundler mode */
 		"moduleResolution": "bundler",
@@ -19,7 +32,9 @@
 		"moduleDetection": "force",
 		"noEmit": true,
 		"jsx": "react-jsx",
-		"types": ["vite/client"],
+		"types": [
+			"vite/client"
+		],
 		"jsxImportSource": "preact",
 		/* Linting */
 		"strict": true,
@@ -28,5 +43,7 @@
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedSideEffectImports": true
 	},
-	"include": ["**/*"]
+	"include": [
+		"**/*"
+	]
 }

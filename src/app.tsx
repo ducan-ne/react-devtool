@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react"
-import { setOptions } from "./devtool/core/index"
-import { Inspector } from "react-inspector"
 import { Devtool, values } from "./devtool"
 import { FormExample } from "./form"
 import { Button } from "./ui"

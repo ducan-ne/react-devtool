@@ -13,7 +13,6 @@ import { ChangeReason } from "~core/instrumentation"
 import { isEqual } from "~core/utils"
 import { batchGetBoundingRects } from "~web/utils/outline"
 import { globalInspectorState } from "."
-import type { ExtendedReactRenderer } from "../../../types"
 import { TIMELINE_MAX_UPDATES } from "./states"
 import type { MinimalFiberInfo } from "./states"
 import {} from "./timeline/utils"
@@ -323,7 +322,7 @@ export const getOverrideMethods = (): OverrideMethods => {
 
 		for (const [, renderer] of Array.from(hook.renderers)) {
 			try {
-				const devToolsRenderer = renderer as ExtendedReactRenderer
+				const devToolsRenderer = renderer as any
 
 				if (overrideHookState) {
 					const prevOverrideHookState = overrideHookState
