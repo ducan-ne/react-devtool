@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react"
+import { useEffect, useRef, type ReactNode } from "react"
 import { scan } from "@devtool/core/index"
 import { userChildren } from "@devtool/state"
 import { signal, type Signal } from "@preact/signals"
@@ -17,12 +17,15 @@ export function abc() {
  * @public
  */
 export const Devtool = ({ children }: DevtoolProps) => {
+	const cleanupTokenRef = useRef(0)
+
 	// Initialize scanner lifecycle once.
 	useEffect(() => {
 		scan({
 			enabled: true,
 			showToolbar: true,
 			showFPS: false,
+			dangerouslyForceRunInProduction: true,
 		})
 
 		return () => {
@@ -32,11 +35,12 @@ export const Devtool = ({ children }: DevtoolProps) => {
 
 	// Keep the currently rendered devtool children in sync without teardown churn.
 	useEffect(() => {
+		const cleanupToken = ++cleanupTokenRef.current
 		userChildren.value = children
 		return () => {
 			// Avoid synchronously unmounting the devtool root during React's render/commit.
 			queueMicrotask(() => {
-				if (userChildren.value === children) {
+				if (cleanupTokenRef.current === cleanupToken) {
 					userChildren.value = null
 				}
 			})
