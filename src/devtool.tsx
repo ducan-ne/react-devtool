@@ -3,6 +3,7 @@ import { scan } from "@devtool/core/index"
 import { userChildren } from "@devtool/state"
 import { signal, type Signal } from "@preact/signals"
 import type { Subscribable } from "./ui"
+export { useFlag } from "./ui"
 
 type DevtoolProps = {
 	children: ReactNode
@@ -16,6 +17,7 @@ export function abc() {
  * @public
  */
 export const Devtool = ({ children }: DevtoolProps) => {
+	// Initialize scanner lifecycle once.
 	useEffect(() => {
 		scan({
 			enabled: true,
@@ -23,10 +25,21 @@ export const Devtool = ({ children }: DevtoolProps) => {
 			showFPS: false,
 		})
 
-		userChildren.value = children
-
 		return () => {
-			userChildren.value = null
+			scan({ enabled: false })
+		}
+	}, [])
+
+	// Keep the currently rendered devtool children in sync without teardown churn.
+	useEffect(() => {
+		userChildren.value = children
+		return () => {
+			// Avoid synchronously unmounting the devtool root during React's render/commit.
+			queueMicrotask(() => {
+				if (userChildren.value === children) {
+					userChildren.value = null
+				}
+			})
 		}
 	}, [children])
 
@@ -37,11 +50,35 @@ export const Devtool = ({ children }: DevtoolProps) => {
 type Values<T> = Signal<T> & Subscribable<T>
 
 export function values<T>(values: T): Values<T> {
-	return signal(values) as Values<T>
+	const state = signal(values) as Values<T>
+	const originalSubscribe = state.subscribe.bind(state)
+	state.subscribe = (fn: (value: T) => void) => {
+		let isFirst = true
+		return originalSubscribe((value) => {
+			if (isFirst) {
+				isFirst = false
+				return
+			}
+			fn(value)
+		})
+	}
+	return state
 }
 
 type Flags<T> = Signal<T> & Subscribable<T>
 
 export function flags<T>(values: T): Flags<T> {
-	return signal(values) as Flags<T>
+	const state = signal(values) as Flags<T>
+	const originalSubscribe = state.subscribe.bind(state)
+	state.subscribe = (fn: (value: T) => void) => {
+		let isFirst = true
+		return originalSubscribe((value) => {
+			if (isFirst) {
+				isFirst = false
+				return
+			}
+			fn(value)
+		})
+	}
+	return state
 }

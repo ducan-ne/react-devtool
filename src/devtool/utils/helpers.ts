@@ -30,7 +30,7 @@ export const throttle = <E>(
 	callback: (e?: E) => void,
 	delay: number,
 ): ((e?: E) => void) => {
-	let lastCall = 0
+	let lastCall = -delay
 	return (e?: E) => {
 		const now = Date.now()
 		if (now - lastCall >= delay) {

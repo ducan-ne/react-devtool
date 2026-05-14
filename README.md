@@ -33,7 +33,7 @@ npm install react-devtool
 # or
 yarn add react-devtool
 # or
-pnpm add react-devtool
+bun add react-devtool
 ```
 
 ## 🚀 Quick Start
