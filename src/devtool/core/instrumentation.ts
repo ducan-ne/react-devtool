@@ -315,7 +315,7 @@ interface InstrumentationConfig {
 	onPostCommitFiberRoot: () => void
 	// monitoring does not need to track changes, and it adds overhead to leave it on
 	trackChanges: boolean
-	// allows monitoring to continue tracking renders even if react scan dev mode is disabled
+	// allows monitoring to continue tracking renders even if react devtool dev mode is disabled
 	forceAlwaysTrackRenders?: boolean
 }
 

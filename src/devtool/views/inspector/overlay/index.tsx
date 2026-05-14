@@ -41,7 +41,7 @@ const ANIMATION_CONFIG = {
 
 const OVERLAY_DPR = IS_CLIENT ? /* @__PURE__ */ window.devicePixelRatio || 1 : 1
 
-export const ScanOverlay = () => {
+export const DevtoolOverlay = () => {
 	const refCanvas = useRef<HTMLCanvasElement>(null)
 	const refEventCatcher = useRef<HTMLDivElement>(null)
 	const refCurrentRect = useRef<Rect | null>(null)

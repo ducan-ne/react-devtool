@@ -194,7 +194,7 @@ The package builds `src/devtool.tsx` and `src/ui.tsx` as library entry points.
 
 ## Acknowledgments
 
-React Devtool builds on ideas and implementation patterns from [React Scan](https://github.com/aidenybai/react-scan). Thanks to the React Scan team for their work on React debugging tools.
+React Devtool builds on ideas and implementation patterns from earlier React render debugging tools. Thanks to the open-source React debugging community for their work.
 
 ## Contributing
 
