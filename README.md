@@ -1,9 +1,6 @@
 # React Devtool
 
-<div align="center">
-  <h3>Easy solution to have your own internal devtool, unleash the DX of React</h3>
-  <p>A powerful, extensible devtool for React applications with built-in UI components and plugin system</p>
-</div>
+A lightweight embeddable devtool for React apps. Drop a `<Devtool>` component into your app to get an in-page toolbar, component render inspection, performance signals, and a small set of dark developer UI primitives you can compose into your own internal tooling.
 
 <div align="center">
 
@@ -14,91 +11,73 @@
 
 </div>
 
----
+## What it gives you
 
-## ✨ Features
+- **Embeddable devtool shell** - mount one React component and render custom tools inside the devtool panel.
+- **Component inspection** - inspect rendered React components and their props/state-like data from the in-page toolbar.
+- **Render/performance monitoring** - highlight component activity and inspect render-related performance information while developing.
+- **Data inspection** - render object trees with the bundled `Inspector` component.
+- **Feature flag helpers** - create subscribable flag containers and read them with `useFlag`.
+- **Developer UI kit** - use small primitives such as buttons, inputs, toggles, sections, tabs, radio groups, and code blocks.
 
-- 🎨 **Rich UI Components** - Pre-built components for common devtool needs
-- 📊 **Performance Monitoring** - Built-in performance tracking and visualization
-- 🔍 **Component Inspector** - Inspect and debug React components
-- 🎛️ **Feature Flags** - Toggle features on/off during development
-- 🎯 **Framework Agnostic** - Works with React, Preact, and more (coming soon)
-- 📦 **Zero Config** - Works out of the box with sensible defaults
-- 🌙 **Dark Mode** - Beautiful dark theme optimized for developer experience
-
-## 📦 Installation
+## Installation
 
 ```bash
 npm install react-devtool
+# or
+pnpm add react-devtool
 # or
 yarn add react-devtool
 # or
 bun add react-devtool
 ```
 
-## 🚀 Quick Start
+React Devtool is published as an ES module package and expects React and React DOM from your application.
+
+## Quick start
+
+Render `Devtool` once near the root of your app. The component initializes the devtool and renders nothing directly into your app tree.
 
 ```tsx
-import { Devtool } from 'react-devtool';
+import { Devtool } from "react-devtool";
 
-function App() {
-  return (
-    <div>
-      {/* Your app content */}
-      <YourApp />
-      
-      {/* Add Devtool at the root of your app */}
-      <Devtool />
-    </div>
-  );
-}
-```
-
-## 📖 Usage
-
-### Basic Setup
-
-The simplest way to get started is to add the `Devtool` component to your app:
-
-```tsx
-import { Devtool } from 'react-devtool';
-
-function App() {
+export function App() {
   return (
     <>
       <YourApp />
-      <Devtool />
+      <Devtool>
+        <div>Internal tools go here</div>
+      </Devtool>
     </>
   );
 }
 ```
 
+## Add custom tools
 
-
-### Custom UI
-
-Add custom UI elements to your devtool:
+Import UI primitives from `react-devtool/ui` and pass them as children to `Devtool`.
 
 ```tsx
-import { Devtool } from 'react-devtool';
-import { Button, Input, Tabs, Tab } from 'react-devtool/ui';
+import { Devtool } from "react-devtool";
+import { Button, CodeBlock, Input, Section, Tab, Tabs } from "react-devtool/ui";
 
-function App() {
+export function App() {
   return (
     <>
       <YourApp />
+
       <Devtool>
-        <Input type="text" placeholder="Search..." />
-        <Button onClick={() => console.log('Clicked!')}>
-          Save Changes
-        </Button>
-        
-        <Tabs defaultValue="tab1">
-          <Tab label="Feature A" value="tab1">
-            Content for Feature A
+        <Section title="Debug actions">
+          <Input label="User id" placeholder="user_123" />
+          <Button onClick={() => console.log("refresh cache")}>Refresh cache</Button>
+        </Section>
+
+        <Tabs defaultValue="request">
+          <Tab label="Request" value="request">
+            <CodeBlock language="json">{JSON.stringify({ page: "home" }, null, 2)}</CodeBlock>
           </Tab>
-          <Tab label="Feature B" value="tab2">
-            Content for Feature B
+          <Tab label="Response" value="response">
+            <CodeBlock language="json">{JSON.stringify({ ok: true }, null, 2)}</CodeBlock>
           </Tab>
         </Tabs>
       </Devtool>
@@ -107,206 +86,125 @@ function App() {
 }
 ```
 
-### Feature Flags
+## Feature flags
 
-Manage feature flags with reactive updates:
+Use `flags` to create a subscribable flag object. Read individual values with `useFlag`, then render the flag object in the devtool panel with `FeatureFlags`.
 
 ```tsx
-import { Devtool, flags } from 'react-devtool';
-import { FeatureFlags, useFlag } from 'react-devtool/ui';
+import { Devtool, flags, useFlag } from "react-devtool";
+import { FeatureFlags } from "react-devtool/ui";
 
-// Define your feature flags
 const featureFlags = flags({
-  newUI: false,
-  experimentalFeature: true,
-  debugMode: false
+  newCheckout: false,
+  verboseLogs: true,
 });
 
-function MyComponent() {
-  // Use flags in your components
-  const isNewUIEnabled = useFlag(featureFlags, 'newUI');
-  
-  return (
-    <div>
-      {isNewUIEnabled ? <NewUI /> : <OldUI />}
-    </div>
-  );
+function Checkout() {
+  const newCheckout = useFlag(featureFlags, "newCheckout");
+
+  return newCheckout ? <NewCheckout /> : <LegacyCheckout />;
 }
 
-function App() {
+export function App() {
   return (
     <>
-      <MyComponent />
+      <Checkout />
       <Devtool>
-        <FeatureFlags 
-          name="App Features"
-          values={featureFlags}
-          onChange={(key, value) => {
-            console.log(`Feature ${key} changed to ${value}`);
-          }}
-        />
+        <FeatureFlags name="Features" values={featureFlags} />
       </Devtool>
     </>
   );
 }
 ```
 
-### Data Inspection
+## Inspect data
 
-Use the Inspector component to debug complex data:
+Use `values` for subscribable data and `Inspector` for object-tree rendering.
 
 ```tsx
-import { Devtool, values } from 'react-devtool';
-import { Inspector } from 'react-devtool/ui';
+import { Devtool, values } from "react-devtool";
+import { Inspector } from "react-devtool/ui";
 
-const appState = values({
-  user: { id: 1, name: 'John Doe' },
-  settings: { theme: 'dark', notifications: true }
+const session = values({
+  user: { id: "u_123", role: "admin" },
+  settings: { theme: "dark" },
 });
 
-function App() {
+export function App() {
   return (
     <>
       <YourApp />
       <Devtool>
-        <Inspector 
-          data={appState.value}
-          expandLevel={2}
-        />
+        <Inspector data={session.value} expandLevel={2} />
       </Devtool>
     </>
   );
 }
 ```
 
-## 🔌 API Reference
+## API
 
-### Components
+### `react-devtool`
 
-#### `<Devtool>`
+| Export | Description |
+| --- | --- |
+| `Devtool` | Initializes the in-page devtool and syncs its children into the devtool UI. |
+| `values(initialValue)` | Creates a subscribable signal-like value container. |
+| `flags(initialFlags)` | Creates a subscribable signal-like flag container. |
+| `useFlag(flags, key)` | React hook that subscribes to one flag value. |
 
-The main devtool component that provides the devtool interface.
+### `react-devtool/ui`
 
-```tsx
-interface DevtoolProps {
-  children?: ReactNode;
-}
+| Export | Description |
+| --- | --- |
+| `FeatureFlags` | Displays a subscribable boolean map in the devtool UI. |
+| `Inspector` | Object and DOM-like value inspector powered by `react-inspector`. |
+| `Button` | Button primitive with `default`, `outline`, `ghost`, and `destructive` variants. |
+| `Toggle` | Accessible switch primitive. |
+| `Input` | Text input with optional label, help text, and error text. |
+| `Select` | Select input with optional label, placeholder, help text, and error text. |
+| `Radio`, `RadioGroup` | Radio input primitives. |
+| `ButtonGroup` | Horizontal or vertical button grouping. |
+| `Section` | Titled section with optional collapse behavior. |
+| `Tabs`, `Tab` | Controlled or uncontrolled tabs. |
+| `CodeBlock` | Small code block display component. |
+
+## Local development
+
+This repository uses Bun for the lockfile, but the npm scripts are standard package scripts.
+
+```bash
+bun install
+bun run dev        # start the Vite playground on http://localhost:1234
+bun run build      # build the library into dist/
+bun run typecheck  # run TypeScript project checks
+bun run knip       # check for unused files/dependencies
 ```
 
-#### `<FeatureFlags>`
+There is no package-level `test` script yet. Unit tests live under `tests/unit`, component tests live under `tests/ct`, and the repository includes Vitest and Playwright component-test configuration.
 
-Component for managing feature flags with a UI.
+## Package exports
 
-```tsx
-interface FeatureFlagsProps {
-  name?: string;
-  values: Subscribable<Record<string, boolean>>;
-  onChange?: (key: string, value: boolean) => void;
-}
+```ts
+import { Devtool, flags, useFlag, values } from "react-devtool";
+import { Button, FeatureFlags, Inspector, Tabs } from "react-devtool/ui";
 ```
 
-#### `<Inspector>`
+The package builds `src/devtool.tsx` and `src/ui.tsx` as library entry points.
 
-Data inspector component for debugging complex objects.
+## Acknowledgments
 
-```tsx
-interface InspectorProps {
-  data: any;
-  theme?: any;
-  expandLevel?: number;
-  table?: boolean;
-  className?: string;
-}
-```
+React Devtool builds on ideas and implementation patterns from [React Scan](https://github.com/aidenybai/react-scan). Thanks to the React Scan team for their work on React debugging tools.
 
-### UI Components
+## Contributing
 
-React Devtool includes a comprehensive set of UI components:
+Contributions are welcome. A typical local loop is:
 
-- **`Button`** - Customizable button with variants
-- **`Toggle`** - Switch/toggle component
-- **`Input`** - Text input with label and validation
-- **`Select`** - Dropdown select component
-- **`Radio`** & **`RadioGroup`** - Radio button components
-- **`ButtonGroup`** - Group buttons together
-- **`Section`** - Collapsible content sections
-- **`Tabs`** & **`Tab`** - Tabbed interface
-- **`CodeBlock`** - Syntax highlighted code display
+1. Create a feature branch.
+2. Make the smallest focused change.
+3. Run `bun run typecheck` and `bun run build`.
+4. Open a pull request with a short description and verification notes.
 
-### Functions
-
-#### `values(initialValue)`
-
-Create a subscribable value container.
-
-```tsx
-const state = values({ count: 0 });
-
-// Subscribe to changes
-state.subscribe((newValue) => {
-  console.log('State changed:', newValue);
-});
-```
-
-#### `flags(initialFlags)`
-
-Create a subscribable feature flags container.
-
-```tsx
-const featureFlags = flags({
-  feature1: true,
-  feature2: false
-});
-```
-
-### Hooks
-
-#### `useFlag(flags, key)`
-
-React hook to use a specific feature flag.
-
-```tsx
-const isEnabled = useFlag(featureFlags, 'feature1');
-```
-
-## 🎨 Styling
-
-React Devtool uses Tailwind CSS for styling and provides CSS variables for theming:
-
-```css
-:root {
-  --color-wash: #ffffff;
-  --color-gray-40: #666666;
-  --color-gray-80: #cccccc;
-  --color-gray-90: #e6e6e6;
-  --color-gray-95: #f2f2f2;
-  --color-yellow-30: #ffd700;
-  --color-blue-30: #4169e1;
-  --color-red-30: #dc143c;
-}
-```
-
-
-## 🙏 Acknowledgments
-
-This project was built upon the amazing work of [React Scan](https://github.com/aidenybai/react-scan). We've adapted and extended their excellent UI components and devtool architecture to create React Devtool. Special thanks to the React Scan team for their innovative approach to React debugging tools.
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
+## License
 
 MIT © [React Devtool](https://github.com/ducan-ne/react-devtool)
-
----
-
-<div align="center">
-  Made with ❤️ by the React Devtool team
-</div>
