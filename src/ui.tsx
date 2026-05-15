@@ -58,6 +58,8 @@ function Properties({
 			rendererRef.current = renderer
 		}
 
+		if (!renderer) return
+
 		renderer.renderToDOM(container, {
 			name,
 			data,
