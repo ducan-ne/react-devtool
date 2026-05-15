@@ -1,7 +1,5 @@
-import { cn } from "@devtool/utils/helpers"
-import type { Signal } from "@preact/signals"
+import { type ClassValue, clsx } from "clsx"
 import {
-	useSyncExternalStore,
 	type ComponentProps,
 	type ReactNode,
 	useState,
@@ -11,16 +9,25 @@ import {
 	useRef,
 } from "react"
 import { Inspector as ReactInspector } from "react-inspector"
-import { createPropertyRenderer } from "@devtool/views/inspector/properties"
+import { twMerge } from "tailwind-merge"
+import type { Subscribable } from "./flags"
 
-export type Subscribable<T> = Signal<T> & {
-	subscribe: (fn: (value: T) => void) => () => void
+export { useFlag } from "./flags"
+export type { Subscribable } from "./flags"
+
+const cn = (...inputs: Array<ClassValue>): string => {
+	return twMerge(clsx(inputs))
 }
 
 type FeatureFlagsProps = {
 	name?: string
 	values: Subscribable<Record<string, boolean>>
 	onChange?: (key: string, value: boolean) => void
+}
+
+type PropertyRenderer = {
+	renderToDOM: (container: HTMLElement, props: unknown) => void
+	unmount: (container: HTMLElement) => void
 }
 
 function Properties({
@@ -35,21 +42,34 @@ function Properties({
 	isSticky?: boolean
 }) {
 	const containerRef = useRef<HTMLDivElement>(null)
-	const rendererRef = useRef(createPropertyRenderer())
+	const rendererRef = useRef<PropertyRenderer | null>(null)
+
+	const renderProperties = async () => {
+		const container = containerRef.current
+		if (!container) return
+
+		if (!rendererRef.current) {
+			const { createPropertyRenderer } = await import(
+				"@devtool/views/inspector/properties"
+			)
+			if (!containerRef.current) return
+			rendererRef.current = createPropertyRenderer()
+		}
+
+		rendererRef.current.renderToDOM(container, {
+			name,
+			data,
+			refSticky: refSticky?.current ? () => refSticky.current : undefined,
+			isSticky,
+		})
+	}
 
 	useEffect(() => {
-		if (containerRef.current) {
-			rendererRef.current.renderToDOM(containerRef.current, {
-				name,
-				data,
-				refSticky: refSticky?.current ? () => refSticky.current : undefined,
-				isSticky,
-			})
-		}
+		void renderProperties()
 
 		return () => {
 			if (containerRef.current) {
-				rendererRef.current.unmount(containerRef.current)
+				rendererRef.current?.unmount(containerRef.current)
 			}
 		}
 	}, [name, data, refSticky, isSticky])
@@ -57,14 +77,7 @@ function Properties({
 	// Re-render when data changes
 	useEffect(() => {
 		const unsubscribe = data.subscribe(() => {
-			if (containerRef.current) {
-				rendererRef.current.renderToDOM(containerRef.current, {
-					name,
-					data,
-					refSticky: refSticky?.current ? () => refSticky.current : undefined,
-					isSticky,
-				})
-			}
+			void renderProperties()
 		})
 
 		return unsubscribe
@@ -155,16 +168,6 @@ export function Inspector({
 				table={table}
 			/>
 		</div>
-	)
-}
-
-export function useFlag<T>(flags: Subscribable<T>, key: keyof T) {
-	return useSyncExternalStore(
-		(cb) => flags.subscribe(cb),
-		() => {
-			return flags.value[key]
-		},
-		() => null,
 	)
 }
 

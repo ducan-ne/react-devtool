@@ -54,6 +54,60 @@ const flattenTree = (
 	}, [])
 }
 
+const getVisibleNodes = (
+	nodes: FlattenedNode[],
+	collapsedNodes: Set<string>,
+): FlattenedNode[] => {
+	const visible: FlattenedNode[] = []
+	const nodeMap = new Map(nodes.map((node) => [node.nodeId, node]))
+
+	for (const node of nodes) {
+		let isVisible = true
+		let currentNode = node
+
+		while (currentNode.parentId) {
+			const parent = nodeMap.get(currentNode.parentId)
+			if (!parent) break
+
+			if (collapsedNodes.has(parent.nodeId)) {
+				isVisible = false
+				break
+			}
+			currentNode = parent
+		}
+
+		if (isVisible) {
+			visible.push(node)
+		}
+	}
+
+	return visible
+}
+
+const getCollapsedNodesWithoutAncestors = (
+	collapsedNodes: Set<string>,
+	nodes: FlattenedNode[],
+	targetNodes: FlattenedNode[],
+): Set<string> => {
+	if (!targetNodes.length || !collapsedNodes.size) return collapsedNodes
+
+	const nodeMap = new Map(nodes.map((node) => [node.nodeId, node]))
+	const next = new Set(collapsedNodes)
+	let changed = false
+
+	for (const targetNode of targetNodes) {
+		let parentId = targetNode.parentId
+		while (parentId) {
+			if (next.delete(parentId)) {
+				changed = true
+			}
+			parentId = nodeMap.get(parentId)?.parentId ?? null
+		}
+	}
+
+	return changed ? next : collapsedNodes
+}
+
 const getMaxDepth = (nodes: FlattenedNode[]): number => {
 	return nodes.reduce((max, node) => Math.max(max, node.depth), 0)
 }
@@ -385,37 +439,14 @@ export const ComponentsTree = () => {
 
 	const [flattenedNodes, setFlattenedNodes] = useState<FlattenedNode[]>([])
 	const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set())
+	const refCollapsedNodes = useRef(collapsedNodes)
 	const [selectedIndex, setSelectedIndex] = useState<number | undefined>(
 		undefined,
 	)
 	const [searchValue, setSearchValue] = useState(searchState.value)
 
 	const visibleNodes = useMemo(() => {
-		const visible: FlattenedNode[] = []
-		const nodes = flattenedNodes
-		const nodeMap = new Map(nodes.map((node) => [node.nodeId, node]))
-
-		for (const node of nodes) {
-			let isVisible = true
-
-			let currentNode = node
-			while (currentNode.parentId) {
-				const parent = nodeMap.get(currentNode.parentId)
-				if (!parent) break
-
-				if (collapsedNodes.has(parent.nodeId)) {
-					isVisible = false
-					break
-				}
-				currentNode = parent
-			}
-
-			if (isVisible) {
-				visible.push(node)
-			}
-		}
-
-		return visible
+		return getVisibleNodes(flattenedNodes, collapsedNodes)
 	}, [collapsedNodes, flattenedNodes])
 
 	const ITEM_HEIGHT = 28
@@ -426,6 +457,36 @@ export const ComponentsTree = () => {
 		estimateSize: () => ITEM_HEIGHT,
 		overscan: 5,
 	})
+
+	useEffect(() => {
+		refCollapsedNodes.current = collapsedNodes
+	}, [collapsedNodes])
+
+	const scrollNodeIntoView = useCallback(
+		(nodes: FlattenedNode[], nodeId: string) => {
+			const nodeIndex = nodes.findIndex((node) => node.nodeId === nodeId)
+			if (nodeIndex === -1) return
+
+			setSelectedIndex(nodeIndex)
+			const container = refContainer.current
+			if (!container) return
+
+			const itemTop = nodeIndex * ITEM_HEIGHT
+			const containerHeight = container.clientHeight
+			const scrollTop = container.scrollTop
+
+			if (
+				itemTop < scrollTop ||
+				itemTop + ITEM_HEIGHT > scrollTop + containerHeight
+			) {
+				container.scrollTo({
+					top: Math.max(0, itemTop - containerHeight / 2),
+					behavior: "instant",
+				})
+			}
+		},
+		[],
+	)
 
 	const handleElementClick = useCallback(
 		(element: HTMLElement) => {
@@ -446,26 +507,10 @@ export const ComponentsTree = () => {
 				(node) => node.element === element,
 			)
 			if (nodeIndex !== -1) {
-				setSelectedIndex(nodeIndex)
-				const itemTop = nodeIndex * ITEM_HEIGHT
-				const container = refContainer.current
-				if (container) {
-					const containerHeight = container.clientHeight
-					const scrollTop = container.scrollTop
-
-					if (
-						itemTop < scrollTop ||
-						itemTop + ITEM_HEIGHT > scrollTop + containerHeight
-					) {
-						container.scrollTo({
-							top: Math.max(0, itemTop - containerHeight / 2),
-							behavior: "instant",
-						})
-					}
-				}
+				scrollNodeIntoView(visibleNodes, visibleNodes[nodeIndex].nodeId)
 			}
 		},
-		[visibleNodes],
+		[visibleNodes, scrollNodeIntoView],
 	)
 
 	const handleTreeNodeClick = useCallback(
@@ -488,6 +533,7 @@ export const ComponentsTree = () => {
 			} else {
 				next.add(nodeId)
 			}
+			refCollapsedNodes.current = next
 			return next
 		})
 	}, [])
@@ -495,7 +541,7 @@ export const ComponentsTree = () => {
 	const handleTreeNodeToggle = useCallback(
 		(e: Event) => {
 			e.stopPropagation()
-			const target = e.target as HTMLElement
+			const target = e.currentTarget as HTMLElement
 			const index = Number(target.dataset.index)
 			if (Number.isNaN(index)) return
 			const nodeId = visibleNodes[index].nodeId
@@ -584,23 +630,22 @@ export const ComponentsTree = () => {
 
 			if (matches.length > 0) {
 				const firstMatch = matches[0]
-				const nodeIndex = visibleNodes.findIndex(
-					(node) => node.nodeId === firstMatch.nodeId,
+				const nextCollapsedNodes = getCollapsedNodesWithoutAncestors(
+					collapsedNodes,
+					flattenedNodes,
+					matches,
 				)
-				if (nodeIndex !== -1) {
-					const itemTop = nodeIndex * ITEM_HEIGHT
-					const container = refContainer.current
-					if (container) {
-						const containerHeight = container.clientHeight
-						container.scrollTo({
-							top: Math.max(0, itemTop - containerHeight / 2),
-							behavior: "instant",
-						})
-					}
+				if (nextCollapsedNodes !== collapsedNodes) {
+					refCollapsedNodes.current = nextCollapsedNodes
+					setCollapsedNodes(nextCollapsedNodes)
 				}
+				scrollNodeIntoView(
+					getVisibleNodes(flattenedNodes, nextCollapsedNodes),
+					firstMatch.nodeId,
+				)
 			}
 		},
-		[flattenedNodes, visibleNodes],
+		[collapsedNodes, flattenedNodes, scrollNodeIntoView],
 	)
 
 	const handleInputChange = useCallback(
@@ -628,23 +673,21 @@ export const ComponentsTree = () => {
 			}
 
 			const currentMatch = matches[newIndex]
-			const nodeIndex = visibleNodes.findIndex(
-				(node) => node.nodeId === currentMatch.nodeId,
+			const nextCollapsedNodes = getCollapsedNodesWithoutAncestors(
+				collapsedNodes,
+				flattenedNodes,
+				[currentMatch],
 			)
-			if (nodeIndex !== -1) {
-				setSelectedIndex(nodeIndex)
-				const itemTop = nodeIndex * ITEM_HEIGHT
-				const container = refContainer.current
-				if (container) {
-					const containerHeight = container.clientHeight
-					container.scrollTo({
-						top: Math.max(0, itemTop - containerHeight / 2),
-						behavior: "instant",
-					})
-				}
+			if (nextCollapsedNodes !== collapsedNodes) {
+				refCollapsedNodes.current = nextCollapsedNodes
+				setCollapsedNodes(nextCollapsedNodes)
 			}
+			scrollNodeIntoView(
+				getVisibleNodes(flattenedNodes, nextCollapsedNodes),
+				currentMatch.nodeId,
+			)
 		},
-		[visibleNodes],
+		[collapsedNodes, flattenedNodes, scrollNodeIntoView],
 	)
 
 	const updateContainerWidths = useCallback((width: number) => {
@@ -820,20 +863,23 @@ export const ComponentsTree = () => {
 
 				if (isInitialTreeBuild) {
 					isInitialTreeBuild = false
-					const focusedIndex = flattened.findIndex(
+					const focusedNode = flattened.find(
 						(node) => node.element === element,
 					)
-					if (focusedIndex !== -1) {
-						const itemTop = focusedIndex * ITEM_HEIGHT
-						const container = refContainer.current
-						if (container) {
-							setTimeout(() => {
-								container.scrollTo({
-									top: itemTop,
-									behavior: "instant",
-								})
-							}, 96)
+					if (focusedNode) {
+						const nextCollapsedNodes = getCollapsedNodesWithoutAncestors(
+							refCollapsedNodes.current,
+							flattened,
+							[focusedNode],
+						)
+						if (nextCollapsedNodes !== refCollapsedNodes.current) {
+							refCollapsedNodes.current = nextCollapsedNodes
+							setCollapsedNodes(nextCollapsedNodes)
 						}
+						const nextVisibleNodes = getVisibleNodes(flattened, nextCollapsedNodes)
+						setTimeout(() => {
+							scrollNodeIntoView(nextVisibleNodes, focusedNode.nodeId)
+						}, 96)
 					}
 				}
 			}
@@ -880,7 +926,7 @@ export const ComponentsTree = () => {
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (!refIsHovering.current) return
 
-			if (!selectedIndex) return
+			if (selectedIndex === undefined) return
 
 			switch (e.key) {
 				case "ArrowUp": {
@@ -1110,52 +1156,65 @@ export const ComponentsTree = () => {
 						<div
 							className="relative w-full"
 							style={{
-								height: totalSize,
+								height: flattenedNodes.length === 0 ? "100%" : totalSize,
 							}}
 						>
-							{virtualItems.map((virtualItem) => {
-								const node = visibleNodes[virtualItem.index]
-								if (!node) return null
+							{flattenedNodes.length === 0 ? (
+								<div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 text-center text-neutral-500">
+									<Icon name="icon-inspect" size={18} />
+									<div className="text-sm text-neutral-300">
+										Select a component to build the tree
+									</div>
+									<div className="max-w-52 text-xs leading-5">
+										Use the pointer button, click a rendered component, then
+										search by name, regex, or wrapper type.
+									</div>
+								</div>
+							) : (
+								virtualItems.map((virtualItem) => {
+									const node = visibleNodes[virtualItem.index]
+									if (!node) return null
 
-								const isSelected =
-									Store.inspectState.value.kind === "focused" &&
-									node.element === Store.inspectState.value.focusedDomElement
-								const isKeyboardSelected = virtualItem.index === selectedIndex
+									const isSelected =
+										Store.inspectState.value.kind === "focused" &&
+										node.element === Store.inspectState.value.focusedDomElement
+									const isKeyboardSelected = virtualItem.index === selectedIndex
 
-								return (
-									<div
-										key={node.nodeId}
-										className={cn(
-											"absolute left-0 w-full overflow-hidden",
-											"text-neutral-400 hover:text-neutral-300",
-											"bg-transparent hover:bg-[#5f3f9a]/20",
-											(isSelected || isKeyboardSelected) &&
-												"text-neutral-300 bg-[#5f3f9a]/40 hover:bg-[#5f3f9a]/40",
-										)}
-										style={{
-											top: virtualItem.start,
-											height: ITEM_HEIGHT,
-										}}
-									>
+									return (
 										<div
-											className="w-full h-full"
+											key={node.nodeId}
+											className={cn(
+												"absolute left-0 w-full overflow-hidden",
+												"text-neutral-400 hover:text-neutral-300",
+												"bg-transparent hover:bg-[#5f3f9a]/20",
+												(isSelected || isKeyboardSelected) &&
+													"text-neutral-300 bg-[#5f3f9a]/40 hover:bg-[#5f3f9a]/40",
+											)}
 											style={{
-												paddingLeft: `calc(${node.depth} * var(--indentation-size))`,
+												top: virtualItem.start,
+												height: ITEM_HEIGHT,
 											}}
 										>
-											<TreeNodeItem
-												node={node}
-												nodeIndex={virtualItem.index}
-												hasChildren={!!node.children?.length}
-												isCollapsed={collapsedNodes.has(node.nodeId)}
-												handleTreeNodeClick={handleTreeNodeClick}
-												handleTreeNodeToggle={handleTreeNodeToggle}
-												searchValue={searchValue}
-											/>
+											<div
+												className="w-full h-full"
+												style={{
+													paddingLeft: `calc(${node.depth} * var(--indentation-size))`,
+												}}
+											>
+												<TreeNodeItem
+													node={node}
+													nodeIndex={virtualItem.index}
+													hasChildren={!!node.children?.length}
+													isCollapsed={collapsedNodes.has(node.nodeId)}
+													handleTreeNodeClick={handleTreeNodeClick}
+													handleTreeNodeToggle={handleTreeNodeToggle}
+													searchValue={searchValue}
+												/>
+											</div>
 										</div>
-									</div>
-								)
-							})}
+									)
+								})
+							)}
 						</div>
 					</div>
 				</div>

@@ -6,7 +6,7 @@ import { CopyToClipboard } from "~web/components/copy-to-clipboard"
 import { Icon } from "~web/components/icon"
 import { useMergedRefs } from "~web/hooks/use-merged-refs"
 import { cn } from "~web/utils/helpers"
-import { globalInspectorState } from "."
+import { globalInspectorState } from "./global-state"
 import { flashManager } from "./flash-overlay"
 import {
   detectValueType,

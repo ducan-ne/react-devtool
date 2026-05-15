@@ -2,26 +2,13 @@ import { Component } from "preact"
 import {} from "preact/hooks"
 
 import { Icon } from "~web/components/icon"
-
-import { flashManager } from "./flash-overlay"
-import { timelineActions } from "./states"
-import { resetTracking } from "./timeline/utils"
 import {} from "./utils"
+import { globalInspectorState } from "./global-state"
 
-export const globalInspectorState = {
-	lastRendered: new Map<string, unknown>(),
-	expandedPaths: new Set<string>(),
-	cleanup: () => {
-		globalInspectorState.lastRendered.clear()
-		globalInspectorState.expandedPaths.clear()
-		flashManager.cleanupAll()
-		resetTracking()
-		timelineActions.reset()
-	},
-}
+export { globalInspectorState }
 
 // todo: add reset button and error message
-class InspectorErrorBoundary extends Component {
+export class InspectorErrorBoundary extends Component {
 	state: { error: Error | null; hasError: boolean } = {
 		hasError: false,
 		error: null,

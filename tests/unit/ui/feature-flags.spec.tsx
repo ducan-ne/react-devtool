@@ -1,6 +1,6 @@
 import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
-import { render } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { values } from '../../../src/devtool'
 
 const renderToDOM = vi.fn()
@@ -16,7 +16,7 @@ describe('FeatureFlags', () => {
     const flags = values({ a: true, b: false })
     const { unmount: doUnmount } = render(<FeatureFlags name="My Flags" values={flags} />)
 
-    expect(renderToDOM).toHaveBeenCalled()
+    await waitFor(() => expect(renderToDOM).toHaveBeenCalled())
     doUnmount()
   })
 
@@ -25,8 +25,9 @@ describe('FeatureFlags', () => {
     const flags = values({ a: true })
     render(<FeatureFlags name="Flags" values={flags} />)
 
+    await waitFor(() => expect(renderToDOM).toHaveBeenCalled())
     const calls = renderToDOM.mock.calls.length
     flags.value = { a: false, c: true }
-    expect(renderToDOM.mock.calls.length).toBeGreaterThan(calls)
+    await waitFor(() => expect(renderToDOM.mock.calls.length).toBeGreaterThan(calls))
   })
 })

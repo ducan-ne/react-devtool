@@ -1,10 +1,15 @@
 import { type ReactNode, forwardRef } from "preact/compat"
-import { useCallback, useEffect, useRef, useState } from "preact/hooks"
-import { cn } from "~web/utils/helpers"
+import { useSignalEffect } from "@preact/signals"
+import { useCallback, useEffect, useMemo, useRef, useState } from "preact/hooks"
+import { Store } from "~core/index"
+import { cn, getExtendedDisplayName } from "~web/utils/helpers"
 import { signalWidgetViews, userChildren } from "~web/state"
 import { Logo } from "~web/components/logo"
 import { Icon } from "~web/components/icon"
 import { onCLS, onINP, onFCP, onLCP, onTTFB } from "web-vitals"
+import { ComponentsTree } from "~web/views/inspector/components-tree"
+import { WhatChanged } from "~web/views/inspector/what-changed"
+import { collectInspectorDataWithoutCounts } from "~web/views/inspector/timeline/utils"
 
 const MainViewHeader = () => {
   return (
@@ -25,6 +30,9 @@ const MainViewHeader = () => {
               onClick={() => {
                 signalWidgetViews.value = {
                   view: "none",
+                }
+                Store.inspectState.value = {
+                  kind: "inspect-off",
                 }
               }}
               title="Close"
@@ -185,6 +193,187 @@ const ReactContentRenderer = () => {
   }, [])
 
   return <div ref={refContainer} className="h-full w-full" />
+}
+
+const formatPreview = (value: unknown): string => {
+  if (value === null) return "null"
+  if (value === undefined) return "undefined"
+
+  if (typeof value === "string") {
+    return JSON.stringify(value.length > 42 ? `${value.slice(0, 42)}...` : value)
+  }
+  if (typeof value === "number" || typeof value === "boolean" || typeof value === "bigint") {
+    return String(value)
+  }
+  if (typeof value === "function") {
+    return `fn ${(value as { name?: string }).name || "anonymous"}`
+  }
+  if (Array.isArray(value)) return `Array(${value.length})`
+  if (typeof Element !== "undefined" && value instanceof Element) {
+    return `<${value.tagName.toLowerCase()}>`
+  }
+
+  try {
+    const constructorName = Object.getPrototypeOf(value)?.constructor?.name
+    return constructorName && constructorName !== "Object" ? constructorName : "Object"
+  } catch {
+    return "Object"
+  }
+}
+
+type SnapshotSectionData = ReturnType<typeof collectInspectorDataWithoutCounts>["fiberProps"]
+
+const SnapshotSection = ({
+  title,
+  data,
+}: {
+  title: string
+  data: SnapshotSectionData
+}) => {
+  const rows = data.current.slice(0, 6)
+
+  return (
+    <div className="rounded-lg border border-[#26262a] bg-[#151518]">
+      <div className="flex items-center justify-between border-b border-[#26262a] px-3 py-2">
+        <span className="text-xs font-medium uppercase tracking-wide text-neutral-400">{title}</span>
+        <span className="rounded bg-[#232329] px-1.5 py-0.5 text-[10px] text-neutral-500">
+          {data.current.length}
+        </span>
+      </div>
+      {rows.length ? (
+        <div className="divide-y divide-[#202024]">
+          {rows.map((row) => (
+            <div key={String(row.name)} className="grid grid-cols-[minmax(0,0.45fr)_minmax(0,0.55fr)] gap-3 px-3 py-2 text-xs">
+              <span className="truncate text-neutral-300">{String(row.name)}</span>
+              <span className="truncate font-mono text-neutral-500">{formatPreview(row.value)}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="px-3 py-5 text-center text-xs text-neutral-600">No values</div>
+      )}
+    </div>
+  )
+}
+
+const InspectorEmptyState = () => {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#2d2d33] bg-[#17171b] text-brand-dark">
+        <Icon name="icon-inspect" size={22} />
+      </div>
+      <div className="space-y-2">
+        <h2 className="text-lg font-display font-semibold text-white">Pick a component</h2>
+        <p className="max-w-sm text-sm leading-6 text-neutral-400">
+          Start the selector, click any rendered element, then use the tree to jump between nearby
+          React components.
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={() => {
+          signalWidgetViews.value = { view: "none" }
+          Store.inspectState.value = {
+            kind: "inspecting",
+            hoveredDomElement: null,
+          }
+        }}
+        className="rounded-md bg-brand-dark px-3 py-2 text-sm font-medium text-black hover:bg-brand-dark/90"
+      >
+        Start selecting
+      </button>
+    </div>
+  )
+}
+
+const FocusedComponentDetails = () => {
+  const [inspectState, setInspectState] = useState(Store.inspectState.value)
+  const [reportVersion, setReportVersion] = useState(0)
+
+  useSignalEffect(() => {
+    setInspectState(Store.inspectState.value)
+  })
+
+  useSignalEffect(() => {
+    Store.lastReportTime.value
+    setReportVersion((version) => version + 1)
+  })
+
+  const snapshot = useMemo(() => {
+    if (inspectState.kind !== "focused") return null
+
+    const data = collectInspectorDataWithoutCounts(inspectState.fiber)
+    const { name, wrappers } = getExtendedDisplayName(inspectState.fiber)
+    const displayName = name ?? "Unknown"
+    const title = wrappers.length
+      ? `${wrappers.join("(")}(${displayName})${")".repeat(wrappers.length)}`
+      : displayName
+
+    return {
+      data,
+      displayName,
+      title,
+      tagName: inspectState.focusedDomElement.tagName.toLowerCase(),
+    }
+  }, [inspectState, reportVersion])
+
+  if (!snapshot) return <InspectorEmptyState />
+
+  const { data } = snapshot
+
+  return (
+    <div className="flex min-h-full flex-col gap-4 p-4 text-white">
+      <div className="rounded-xl border border-[#26262a] bg-[#121216] p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="mb-1 flex items-center gap-2 text-xs text-neutral-500">
+              <span className="rounded bg-[#1f1f24] px-1.5 py-0.5 font-mono">
+                {snapshot.tagName}
+              </span>
+              <span>selected component</span>
+            </div>
+            <h2 title={snapshot.title} className="truncate text-xl font-display font-semibold">
+              {snapshot.displayName}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              signalWidgetViews.value = { view: "none" }
+              Store.inspectState.value = {
+                kind: "inspecting",
+                hoveredDomElement: null,
+              }
+            }}
+            className="rounded-md border border-[#303036] px-3 py-2 text-xs text-neutral-300 hover:bg-[#202026]"
+          >
+            Pick another
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+        <SnapshotSection title="Props" data={data.fiberProps} />
+        <SnapshotSection title="State" data={data.fiberState} />
+        <SnapshotSection title="Context" data={data.fiberContext} />
+      </div>
+
+      <div className="min-h-0 flex-1 rounded-xl border border-[#26262a] bg-[#121216] py-3">
+        <WhatChanged />
+      </div>
+    </div>
+  )
+}
+
+const InspectorContent = () => {
+  return (
+    <div className="flex h-full w-full bg-[#0b0b0d]">
+      <div className="min-w-0 flex-1 overflow-y-auto">
+        <FocusedComponentDetails />
+      </div>
+      <ComponentsTree />
+    </div>
+  )
 }
 
 const TabSidebar = ({
@@ -664,15 +853,21 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
 const MainView = () => {
   const [selectedTab, setSelectedTab] = useState(TABS[0].id)
   const showTabs = TABS.length > 1
+  const isInspectorView =
+    signalWidgetViews.value.view === "inspector" || Store.inspectState.value.kind === "focused"
 
   return (
     <div className="flex flex-col h-full w-full">
       <MainViewHeader />
-      <ResizablePanel
-        showLeftPanel={showTabs}
-        leftPanel={<TabSidebar selectedTab={selectedTab} onSelectTab={setSelectedTab} />}
-        rightPanel={<TabContent selectedTab={selectedTab} />}
-      />
+      {isInspectorView ? (
+        <InspectorContent />
+      ) : (
+        <ResizablePanel
+          showLeftPanel={showTabs}
+          leftPanel={<TabSidebar selectedTab={selectedTab} onSelectTab={setSelectedTab} />}
+          rightPanel={<TabContent selectedTab={selectedTab} />}
+        />
+      )}
     </div>
   )
 }

@@ -29,7 +29,7 @@ export default defineConfig({
 		minify: false,
 		sourcemap: true,
 		lib: {
-			entry: ["./src/devtool.tsx", "./src/ui.tsx"],
+			entry: ["./src/devtool.tsx", "./src/ui.tsx", "./src/flags.ts"],
 			formats: ["es"],
 			fileName: () => `[name].js`,
 		},

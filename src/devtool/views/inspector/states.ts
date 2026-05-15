@@ -1,8 +1,7 @@
 import { signal } from "@preact/signals"
 import type { Fiber } from "bippy"
 import type { ComponentType } from "preact"
-import { flashManager } from "./flash-overlay"
-import { type SectionData, resetTracking } from "./timeline/utils"
+import type { SectionData } from "./timeline/utils"
 
 export interface MinimalFiberInfo {
 	id?: string | number
@@ -163,18 +162,6 @@ export const timelineActions = {
 			batchTimeout = null
 		}
 		pendingUpdates = []
-		timelineState.value = timelineStateDefault
-	},
-}
-
-const globalInspectorState = {
-	lastRendered: new Map<string, unknown>(),
-	expandedPaths: new Set<string>(),
-	cleanup: () => {
-		globalInspectorState.lastRendered.clear()
-		globalInspectorState.expandedPaths.clear()
-		flashManager.cleanupAll()
-		resetTracking()
 		timelineState.value = timelineStateDefault
 	},
 }

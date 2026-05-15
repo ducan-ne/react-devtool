@@ -24,8 +24,8 @@ const headerClassName = computed(() =>
 	),
 )
 
-const isNotificationsViewOpen = computed(
-	() => signalWidgetViews.value.view === "notifications",
+const isContentViewOpen = computed(
+	() => signalWidgetViews.value.view !== "none",
 )
 
 const contentClassName = computed(() => {
@@ -59,7 +59,7 @@ export const Content = () => {
 						"border-b border-[#222]",
 					)}
 				>
-					<ContentView isOpen={isNotificationsViewOpen}>
+					<ContentView isOpen={isContentViewOpen}>
 						<MainViewWrapper />
 					</ContentView>
 				</div>
