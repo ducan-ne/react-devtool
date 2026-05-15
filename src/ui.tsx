@@ -48,15 +48,17 @@ function Properties({
 		const container = containerRef.current
 		if (!container) return
 
-		if (!rendererRef.current) {
+		let renderer = rendererRef.current
+		if (!renderer) {
 			const { createPropertyRenderer } = await import(
 				"@devtool/views/inspector/properties"
 			)
 			if (!containerRef.current) return
-			rendererRef.current = createPropertyRenderer()
+			renderer = createPropertyRenderer()
+			rendererRef.current = renderer
 		}
 
-		rendererRef.current.renderToDOM(container, {
+		renderer.renderToDOM(container, {
 			name,
 			data,
 			refSticky: refSticky?.current ? () => refSticky.current : undefined,
