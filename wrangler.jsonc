@@ -1,0 +1,14 @@
+{
+	"name": "react-devtool-playground",
+	"compatibility_date": "2026-05-16",
+	"assets": {
+		"directory": "./playground-dist",
+		"not_found_handling": "single-page-application"
+	},
+	"routes": [
+		{
+			"pattern": "react-devtool.com/*",
+			"zone_name": "react-devtool.com"
+		}
+	]
+}

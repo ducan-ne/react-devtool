@@ -11,6 +11,8 @@ A lightweight embeddable devtool for React apps. Drop a `<Devtool>` component in
 
 </div>
 
+Try the hosted playground at [react-devtool.com](https://react-devtool.com).
+
 ## What it gives you
 
 - **Embeddable devtool shell** - mount one React component and render custom tools inside the devtool panel.
@@ -177,6 +179,7 @@ This repository uses Bun for the lockfile, but the npm scripts are standard pack
 bun install
 bun run dev        # start the Vite playground on http://localhost:1234
 bun run build      # build the library into dist/
+bun run build:playground # build the hosted playground into playground-dist/
 bun run typecheck  # run TypeScript project checks
 bun run knip       # check for unused files/dependencies
 ```
