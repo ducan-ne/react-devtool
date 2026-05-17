@@ -1,7 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 import { codeInspectorPlugin } from "code-inspector-plugin";
 import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 import dts from "vite-plugin-dts";
 
 // https://vite.dev/config/
@@ -10,7 +9,6 @@ export default defineConfig({
 		codeInspectorPlugin({
 			bundler: "vite",
 		}),
-		tsconfigPaths(),
 		tailwindcss(),
 		dts({
 			insertTypesEntry: true,
@@ -23,6 +21,9 @@ export default defineConfig({
 		// 	jsxImportSource: "react",
 		// }),
 	],
+	resolve: {
+		tsconfigPaths: true,
+	},
 	build: {
 		// enableBuildReport: true,
 		target: "esnext",

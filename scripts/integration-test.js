@@ -1,5 +1,5 @@
 // @ts-check
-// copied from https://github.com/rolldown/rolldown-vite-eco-ci/blob/main/packages/build-tester/index.mjs
+// Adapted from an upstream Vite ecosystem build tester.
 import { spawn } from "node:child_process";
 import * as path from "node:path";
 import * as fs from "node:fs";
