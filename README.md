@@ -119,6 +119,46 @@ export function App() {
 }
 ```
 
+## Agent-friendly feature flag development
+
+Feature flags are a practical guardrail for agent-built changes. Keep PRs and CI for code quality, then use flags to control runtime exposure while the new path is still being tested.
+
+Recommended loop:
+
+1. Ask the agent to build the new behavior behind a default-off flag.
+2. Merge the change only after review, type checks, and tests pass.
+3. Use React Devtool to toggle the flag locally, in QA, or during demos.
+4. Expose the flag to a small group first, then widen the rollout as bugs are fixed.
+5. Delete the flag and the old path once the feature is fully shipped.
+
+```tsx
+import { Devtool, flags, useFlag } from "react-devtool";
+import { FeatureFlags } from "react-devtool/ui";
+
+const rolloutFlags = flags({
+  agentSearch: false,
+});
+
+function SearchPage() {
+  const agentSearch = useFlag(rolloutFlags, "agentSearch");
+
+  return agentSearch ? <AgentSearch /> : <ClassicSearch />;
+}
+
+export function App() {
+  return (
+    <>
+      <SearchPage />
+      <Devtool>
+        <FeatureFlags name="Agent rollouts" values={rolloutFlags} />
+      </Devtool>
+    </>
+  );
+}
+```
+
+Flag hygiene matters: keep defaults safe, test both paths, avoid nesting too many flags, and remove temporary flags after rollout so agent work does not leave permanent branches in the codebase.
+
 ## Inspect data
 
 Use `values` for subscribable data and `Inspector` for object-tree rendering.

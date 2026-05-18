@@ -111,6 +111,22 @@ function Checkout() {
   return enabled ? <NewCheckout /> : <LegacyCheckout />;
 }`
 
+const agentFlagCode = `import { Devtool, flags, useFlag } from "react-devtool";
+import { FeatureFlags } from "react-devtool/ui";
+
+const rolloutFlags = flags({
+  agentSearch: false,
+});
+
+function SearchPage() {
+  const agentSearch = useFlag(rolloutFlags, "agentSearch");
+  return agentSearch ? <AgentSearch /> : <ClassicSearch />;
+}
+
+<Devtool>
+  <FeatureFlags name="Agent rollouts" values={rolloutFlags} />
+</Devtool>;`
+
 const uiCode = `import { Button, CodeBlock, Inspector, Section } from "react-devtool/ui";
 
 <Devtool>
@@ -123,8 +139,31 @@ const uiCode = `import { Button, CodeBlock, Inspector, Section } from "react-dev
 const features = [
 	"Requires one component near your app root",
 	"Shows your own debug UI through an in-page toolbar",
-	"Includes small primitives for flags, data, controls, and code blocks",
+	"Pairs agent-built changes with feature flags, data, controls, and code blocks",
 ]
+
+const agentWorkflow = [
+	[
+		"1",
+		"Land disabled",
+		"Ask the agent to keep the new path behind a default-off flag.",
+	],
+	[
+		"2",
+		"Review normally",
+		"Use PR review and CI for code quality; use flags for runtime exposure.",
+	],
+	[
+		"3",
+		"Toggle in-app",
+		"Flip the flag locally, in QA, or during demos from the devtool panel.",
+	],
+	[
+		"4",
+		"Roll out gradually",
+		"Enable a small group first, fix bugs, then widen until the flag can go away.",
+	],
+] as const
 
 const apiRows = [
 	["Devtool", "Mounts the floating toolbar and renders your custom panel."],
@@ -228,6 +267,7 @@ function Header() {
 			</a>
 			<nav>
 				<a href="#install">Install</a>
+				<a href="#agents">Agents</a>
 				<a href="#api">API</a>
 				<a
 					href="https://github.com/ducan-ne/react-devtool"
@@ -360,6 +400,30 @@ function Docs() {
 				<div className="docs-grid">
 					<CodeExample title="Feature flags">{flagCode}</CodeExample>
 					<CodeExample title="Custom UI">{uiCode}</CodeExample>
+				</div>
+			</section>
+
+			<section className="page-section agent-section" id="agents">
+				<p className="kicker">Agent workflows</p>
+				<h2>Ship agent-built features behind runtime flags.</h2>
+				<p>
+					React Devtool makes feature flag work visible while you review, QA,
+					dogfood, and gradually expose agent-generated changes. PRs still guard
+					code quality; flags control who sees the new behavior.
+				</p>
+				<div className="agent-grid">
+					<div className="agent-flow" aria-label="Agent feature flag workflow">
+						{agentWorkflow.map(([number, title, description]) => (
+							<article className="agent-step" key={title}>
+								<span>{number}</span>
+								<div>
+									<h3>{title}</h3>
+									<p>{description}</p>
+								</div>
+							</article>
+						))}
+					</div>
+					<CodeExample title="Agent-safe rollout">{agentFlagCode}</CodeExample>
 				</div>
 			</section>
 
