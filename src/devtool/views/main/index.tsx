@@ -13,7 +13,11 @@ import { collectInspectorDataWithoutCounts } from "~web/views/inspector/timeline
 
 const MainViewHeader = () => {
   return (
-    <div className={cn(["w-full flex border-b border-[#27272A] min-h-[48px]"])}>
+    <div
+      className={cn([
+        "w-full flex min-h-[48px] border-b border-[#16313d] bg-[#071016]/80",
+      ])}
+    >
       <div
         className={cn([
           "min-w-fit w-full justify-start flex items-center pl-5 pr-2 text-sm gap-x-4",
@@ -24,7 +28,7 @@ const MainViewHeader = () => {
           <span className="font-medium font-display text-white">React Devtool</span>
         </div>
         <div className={cn(["flex items-center gap-x-2 justify-end ml-auto"])}>
-          <div className={cn(["p-2 flex justify-center items-center border-[#27272A]"])}>
+          <div className={cn(["p-2 flex justify-center items-center border-[#16313d]"])}>
             <button
               type="button"
               onClick={() => {
@@ -278,7 +282,7 @@ const InspectorEmptyState = () => {
             hoveredDomElement: null,
           }
         }}
-        className="rounded-md bg-brand-dark px-3 py-2 text-sm font-medium text-black hover:bg-brand-dark/90"
+            className="rounded-md bg-brand-dark px-3 py-2 text-sm font-medium text-[#06181d] hover:bg-[#8fe8f7]"
       >
         Start selecting
       </button>
@@ -367,7 +371,7 @@ const FocusedComponentDetails = () => {
 
 const InspectorContent = () => {
   return (
-    <div className="flex h-full w-full bg-[#0b0b0d]">
+    <div className="flex h-full w-full bg-[#070b10]">
       <div className="min-w-0 flex-1 overflow-y-auto">
         <FocusedComponentDetails />
       </div>
@@ -390,7 +394,7 @@ const TabSidebar = ({
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#1e1e1e] p-2 gap-1 font-text">
+    <div className="flex flex-col h-full bg-[#0e171d] p-2 gap-1 font-text">
       {TABS.map((tab) => (
         <button
           key={tab.id}
@@ -399,8 +403,8 @@ const TabSidebar = ({
           className={cn(
             "p-2 rounded text-left text-sm transition-colors w-full truncate",
             selectedTab === tab.id
-              ? "bg-brand-dark text-white"
-              : "text-gray-300 hover:bg-gray-700 hover:text-white",
+              ? "bg-brand-dark text-[#06181d]"
+              : "text-[#b7c7cc] hover:bg-[#132731] hover:text-white",
           )}
         >
           {tab.title}
@@ -569,12 +573,12 @@ const TabContent = ({ selectedTab }: { selectedTab: string }) => {
                   </div>
                 </div>
 
-                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-purple-400/30 transition-colors">
+                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700/50 hover:border-[#58c4dc]/30 transition-colors">
                   <div className="flex items-center justify-center gap-2 mb-3">
-                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-[#58c4dc] rounded-full"></div>
                     <span className="text-xs font-medium text-gray-300">LCP</span>
                   </div>
-                  <div className="text-md font-mono font-bold text-purple-400">
+                  <div className="text-md font-mono font-bold text-[#58c4dc]">
                     {vitals.lcp.toFixed(0)}
                     <span className="text-xs text-gray-400 ml-1">ms</span>
                   </div>

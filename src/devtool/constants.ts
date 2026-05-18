@@ -10,3 +10,4 @@ export const MIN_CONTAINER_WIDTH = 240
 export const LOCALSTORAGE_KEY = "react-devtool-widget-settings-v2"
 export const LOCALSTORAGE_COLLAPSED_KEY = "react-devtool-widget-collapsed-v1"
 export const LOCALSTORAGE_LAST_VIEW_KEY = "react-devtool-widget-last-view-v1"
+export const SESSIONSTORAGE_SIZE_KEY = "react-devtool-widget-size-v1"

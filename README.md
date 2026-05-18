@@ -20,7 +20,7 @@ Try the hosted playground at [react-devtool.com](https://react-devtool.com).
 - **Render/performance monitoring** - highlight component activity and inspect render-related performance information while developing.
 - **Data inspection** - render object trees with the bundled `Inspector` component.
 - **Feature flag helpers** - create subscribable flag containers and read them with `useFlag`.
-- **Developer UI kit** - use small primitives such as buttons, inputs, toggles, sections, tabs, radio groups, and code blocks.
+- **Developer UI kit** - use small primitives such as buttons, inputs, toggles, groups, dividers, sections, tabs, radio groups, and code blocks.
 
 ## Installation
 
@@ -61,7 +61,7 @@ Import UI primitives from `react-devtool/ui` and pass them as children to `Devto
 
 ```tsx
 import { Devtool } from "react-devtool";
-import { Button, CodeBlock, Input, Section, Tab, Tabs } from "react-devtool/ui";
+import { Button, CodeBlock, Divider, Group, Input, Tab, Tabs } from "react-devtool/ui";
 
 export function App() {
   return (
@@ -69,10 +69,11 @@ export function App() {
       <YourApp />
 
       <Devtool>
-        <Section title="Debug actions">
+        <Group title="Debug actions" description="Controls for the current debug session.">
           <Input label="User id" placeholder="user_123" />
+          <Divider />
           <Button onClick={() => console.log("refresh cache")}>Refresh cache</Button>
-        </Section>
+        </Group>
 
         <Tabs defaultValue="request">
           <Tab label="Request" value="request">
@@ -207,6 +208,8 @@ export function App() {
 | `Select` | Select input with optional label, placeholder, help text, and error text. |
 | `Radio`, `RadioGroup` | Radio input primitives. |
 | `ButtonGroup` | Horizontal or vertical button grouping. |
+| `Divider` | Horizontal or vertical separator with an optional label. |
+| `Group` | Card-like feature section for grouping related devtool controls. |
 | `Section` | Titled section with optional collapse behavior. |
 | `Tabs`, `Tab` | Controlled or uncontrolled tabs. |
 | `CodeBlock` | Small code block display component. |
@@ -230,7 +233,7 @@ There is no package-level `test` script yet. Unit tests live under `tests/unit`,
 
 ```ts
 import { Devtool, flags, useFlag, values } from "react-devtool";
-import { Button, FeatureFlags, Inspector, Tabs } from "react-devtool/ui";
+import { Button, FeatureFlags, Group, Inspector, Tabs } from "react-devtool/ui";
 ```
 
 The package builds `src/devtool.tsx` and `src/ui.tsx` as library entry points.

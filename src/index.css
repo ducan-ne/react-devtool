@@ -703,6 +703,31 @@ svg {
 	font-size: 0.95rem;
 }
 
+.toolbar-hint {
+	position: fixed;
+	right: 3rem;
+	bottom: 3.15rem;
+	z-index: 2147483000;
+	width: min(12rem, 28vw);
+	height: auto;
+	color: #dc2626;
+	filter: drop-shadow(0 10px 18px rgba(127, 29, 29, 0.24));
+	pointer-events: none;
+}
+
+.toolbar-hint-path,
+.toolbar-hint-head {
+	fill: none;
+	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-width: 8;
+}
+
+.toolbar-hint-path {
+	stroke-dasharray: 12 13;
+}
+
 @media (max-width: 760px) {
 	.site-header {
 		align-items: flex-start;
@@ -738,6 +763,12 @@ svg {
 	.api-row {
 		grid-template-columns: 1fr;
 	}
+
+	.toolbar-hint {
+		right: 1.65rem;
+		bottom: 2.75rem;
+		width: 8.5rem;
+	}
 }
 
 /*
@@ -772,14 +803,19 @@ svg {
 	@apply flex flex-col;
 	@apply shadow-lg;
 	@apply font-mono text-[13px] text-white;
-	@apply bg-wash-dark;
 	@apply select-none;
 	@apply cursor-move;
 	@apply opacity-0;
 	@apply z-[2147483678];
 	@apply animate-fade-in animation-duration-300 animation-delay-300;
-	@apply shadow-[0_4px_12px_rgba(0,0,0,0.2)];
 	@apply place-self-start;
+	background:
+		radial-gradient(circle at 18% 0%, rgba(88, 196, 220, 0.18), transparent 18rem),
+		linear-gradient(145deg, #12151c 0%, #0b1117 52%, #061923 100%);
+	box-shadow:
+		0 22px 70px rgba(3, 8, 14, 0.46),
+		0 0 0 1px rgba(88, 196, 220, 0.16),
+		inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
 	/* [CURSOR GENERATED] Anti-blur fixes:
    * We removed will-change-transform and replaced it with these properties
@@ -796,11 +832,11 @@ svg {
 
 .button {
 	&:hover {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(88, 196, 220, 0.11);
 	}
 
 	&:active {
-		background: rgba(255, 255, 255, 0.15);
+		background: rgba(88, 196, 220, 0.18);
 	}
 }
 
@@ -812,8 +848,9 @@ svg {
 .resize-line {
 	@apply absolute inset-0;
 	@apply overflow-hidden;
-	@apply bg-black;
 	@apply transition-all;
+	background: #071016;
+	box-shadow: inset 0 0 0 1px rgba(88, 196, 220, 0.18);
 
 	svg {
 		@apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
@@ -910,8 +947,9 @@ svg {
 	@apply flex items-center gap-x-2;
 	@apply pl-3 pr-2;
 	@apply min-h-9;
-	@apply border-b-1 border-[#222];
 	@apply whitespace-nowrap overflow-hidden;
+	border-bottom: 1px solid rgba(88, 196, 220, 0.16);
+	background: rgba(7, 16, 22, 0.72);
 }
 
 .react-devtool-replay-button,
@@ -926,10 +964,10 @@ svg {
 .react-devtool-replay-button {
 	@apply relative;
 	@apply overflow-hidden;
-	@apply !bg-purple-500/50;
+	@apply !bg-[#58c4dc]/30;
 
 	&:hover {
-		@apply bg-purple-500/25;
+		@apply bg-[#58c4dc]/20;
 	}
 
 	&.disabled {
@@ -946,17 +984,17 @@ svg {
 		background: linear-gradient(
 			to right,
 			transparent,
-			rgba(142, 97, 227, 0.3),
+			rgba(88, 196, 220, 0.32),
 			transparent
 		);
 	}
 }
 
 .react-devtool-close-button {
-	@apply bg-white/10;
+	@apply bg-[#58c4dc]/10;
 
 	&:hover {
-		@apply bg-white/15;
+		@apply bg-[#58c4dc]/20;
 	}
 }
 
@@ -972,7 +1010,7 @@ svg {
 	/* @apply px-3; */
 	@apply w-full h-7;
 	@apply text-[#888] truncate;
-	@apply bg-[#0a0a0a] border-b-1 border-[#222];
+	@apply bg-[#071016] border-b-1 border-[#16313d];
 }
 
 .react-devtool-section {
@@ -1109,12 +1147,12 @@ svg {
 
 	input:checked {
 		+ div {
-			@apply bg-[#5f3f9a];
+			@apply bg-[#58c4dc];
 
 			&::before {
 				@apply translate-x-full;
 				@apply left-auto;
-				@apply border-[#5f3f9a];
+				@apply border-[#58c4dc];
 			}
 		}
 	}
@@ -1177,8 +1215,8 @@ svg {
 .count-badge {
 	@apply flex gap-x-2 items-center;
 	@apply px-1.5 py-0.5;
-	@apply text-[#a855f7] text-xs font-medium tabular-nums rounded-[4px] origin-center;
-	@apply bg-[#a855f7]/10;
+	@apply text-[#58c4dc] text-xs font-medium tabular-nums rounded-[4px] origin-center;
+	@apply bg-[#58c4dc]/10;
 	@apply origin-center;
 	@apply transition-all duration-300 delay-150;
 }
@@ -1204,8 +1242,7 @@ svg {
 		@apply transition-all duration-300 delay-150;
 
 		&[data-flash="true"] {
-			/* @apply bg-[#a855f7]/10 text-[#a855f7]; */
-			@apply bg-[#a855f7]/10 text-[#a855f7];
+			@apply bg-[#58c4dc]/10 text-[#58c4dc];
 		}
 	}
 }
@@ -1223,7 +1260,7 @@ svg {
 		@apply content-[''];
 		@apply absolute inset-x-0 top-1/2 -translate-y-1/2;
 		@apply h-1.5;
-		@apply bg-[#8e61e3]/40;
+		@apply bg-[#58c4dc]/35;
 		@apply rounded-lg;
 		@apply pointer-events-none;
 	}
@@ -1238,7 +1275,7 @@ svg {
 		@apply absolute left-0 top-1/2 -translate-y-1/2;
 		@apply w-2.5 h-2.5;
 		@apply rounded-lg;
-		@apply bg-[#8e61e3];
+		@apply bg-[#58c4dc];
 		@apply pointer-events-none;
 		@apply transition-transform duration-75;
 	}
@@ -1253,7 +1290,7 @@ svg {
 	&:hover,
 	&:active {
 		> span {
-			@apply bg-[#222];
+			@apply bg-[#16313d];
 		}
 
 		svg {
@@ -1265,7 +1302,7 @@ svg {
 		@apply content-[""];
 		@apply absolute inset-0 left-1/2 -translate-x-1/2;
 		@apply w-[1px];
-		@apply bg-[#222];
+		@apply bg-[#16313d];
 		@apply transition-colors;
 	}
 

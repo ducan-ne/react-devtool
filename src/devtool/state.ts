@@ -5,9 +5,15 @@ import {
   MIN_SIZE,
   SAFE_AREA,
   LOCALSTORAGE_COLLAPSED_KEY,
+  SESSIONSTORAGE_SIZE_KEY,
 } from "./constants"
 import { IS_CLIENT } from "./utils/constants"
-import { readLocalStorage, saveLocalStorage } from "./utils/helpers"
+import {
+  readLocalStorage,
+  readSessionStorage,
+  saveLocalStorage,
+  saveSessionStorage,
+} from "./utils/helpers"
 import type { Corner, WidgetConfig, WidgetSettings } from "./widget/types"
 import type { CollapsedPosition } from "./widget/types"
 
@@ -35,8 +41,15 @@ export const defaultWidgetConfig = {
   },
 } as WidgetConfig
 
+type WidgetSizeSession = Pick<
+  WidgetSettings,
+  "dimensions" | "lastDimensions" | "componentsTree"
+>
+
 const getInitialWidgetConfig = (): WidgetConfig => {
   const stored = readLocalStorage<WidgetSettings>(LOCALSTORAGE_KEY)
+  const storedSize = readSessionStorage<WidgetSizeSession>(SESSIONSTORAGE_SIZE_KEY)
+
   if (!stored) {
     saveLocalStorage(LOCALSTORAGE_KEY, {
       corner: defaultWidgetConfig.corner,
@@ -45,20 +58,37 @@ const getInitialWidgetConfig = (): WidgetConfig => {
       componentsTree: defaultWidgetConfig.componentsTree,
     })
 
-    return defaultWidgetConfig
+    return {
+      ...defaultWidgetConfig,
+      dimensions: storedSize?.dimensions ?? defaultWidgetConfig.dimensions,
+      lastDimensions: storedSize?.lastDimensions ?? defaultWidgetConfig.lastDimensions,
+      componentsTree: storedSize?.componentsTree ?? defaultWidgetConfig.componentsTree,
+    }
   }
 
   return {
     corner: stored.corner ?? defaultWidgetConfig.corner,
-    dimensions: stored.dimensions ?? defaultWidgetConfig.dimensions,
+    dimensions: storedSize?.dimensions ?? stored.dimensions ?? defaultWidgetConfig.dimensions,
 
     lastDimensions:
-      stored.lastDimensions ?? stored.dimensions ?? defaultWidgetConfig.lastDimensions,
-    componentsTree: stored.componentsTree ?? defaultWidgetConfig.componentsTree,
+      storedSize?.lastDimensions ??
+      stored.lastDimensions ??
+      stored.dimensions ??
+      defaultWidgetConfig.lastDimensions,
+    componentsTree:
+      storedSize?.componentsTree ?? stored.componentsTree ?? defaultWidgetConfig.componentsTree,
   }
 }
 
 export const signalWidget = signal<WidgetConfig>(getInitialWidgetConfig())
+
+export const saveWidgetSizeSession = (widget: WidgetConfig): void => {
+  saveSessionStorage<WidgetSizeSession>(SESSIONSTORAGE_SIZE_KEY, {
+    dimensions: widget.dimensions,
+    lastDimensions: widget.lastDimensions,
+    componentsTree: widget.componentsTree,
+  })
+}
 
 export const setDefaultWidgetCorner = (corner: Corner): void => {
   const stored = readLocalStorage<WidgetSettings>(LOCALSTORAGE_KEY)

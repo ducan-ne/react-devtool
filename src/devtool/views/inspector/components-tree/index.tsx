@@ -374,7 +374,7 @@ const TreeNodeItem = ({
 								"rounded py-[1px] px-1",
 								"bg-neutral-700 text-neutral-300",
 								"truncate",
-								firstWrapperType.type === "memo" && "bg-[#8e61e3] text-white",
+								firstWrapperType.type === "memo" && "bg-[#58c4dc] text-[#06181d]",
 								typeHighlight && "bg-yellow-300 text-black",
 							)}
 						>
@@ -1011,7 +1011,7 @@ export const ComponentsTree = () => {
 				</span>
 			</div>
 			<div ref={refMainContainer} className="flex flex-col h-full">
-				<div className="p-2 border-b border-[#1e1e1e]">
+				<div className="p-2 border-b border-[#16313d]">
 					<div
 						ref={refSearchInputContainer}
 						title={`Search components by:
@@ -1039,8 +1039,8 @@ export const ComponentsTree = () => {
 							"flex items-center gap-x-1 px-2",
 							"rounded",
 							"border border-transparent",
-							"focus-within:border-[#454545]",
-							"bg-[#1e1e1e] text-neutral-300",
+							"focus-within:border-[#58c4dc]/60",
+							"bg-[#0e171d] text-[#d8f8ff]",
 							"transition-colors",
 							"whitespace-nowrap",
 							"overflow-hidden",
@@ -1186,9 +1186,9 @@ export const ComponentsTree = () => {
 											className={cn(
 												"absolute left-0 w-full overflow-hidden",
 												"text-neutral-400 hover:text-neutral-300",
-												"bg-transparent hover:bg-[#5f3f9a]/20",
+												"bg-transparent hover:bg-[#58c4dc]/10",
 												(isSelected || isKeyboardSelected) &&
-													"text-neutral-300 bg-[#5f3f9a]/40 hover:bg-[#5f3f9a]/40",
+													"text-neutral-100 bg-[#58c4dc]/20 hover:bg-[#58c4dc]/20",
 											)}
 											style={{
 												top: virtualItem.start,

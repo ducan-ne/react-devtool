@@ -67,6 +67,26 @@ export const saveLocalStorage = <T>(storageKey: string, state: T): void => {
 		window.localStorage.setItem(storageKey, JSON.stringify(state))
 	} catch {}
 }
+
+export const readSessionStorage = <T>(storageKey: string): T | null => {
+	if (!IS_CLIENT) return null
+
+	try {
+		const stored = window.sessionStorage.getItem(storageKey)
+		return stored ? JSON.parse(stored) : null
+	} catch {
+		return null
+	}
+}
+
+export const saveSessionStorage = <T>(storageKey: string, state: T): void => {
+	if (!IS_CLIENT) return
+
+	try {
+		window.sessionStorage.setItem(storageKey, JSON.stringify(state))
+	} catch {}
+}
+
 export const removeLocalStorage = (storageKey: string): void => {
 	if (!IS_CLIENT) return
 

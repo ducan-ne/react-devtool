@@ -93,7 +93,6 @@ function Properties({
 export function FeatureFlags({
 	name = "Flags",
 	values,
-	onChange,
 }: FeatureFlagsProps) {
 	return (
 		<div className="react-devtool-properties">
@@ -190,7 +189,7 @@ export function Button({
 	return (
 		<button
 			className={cn([
-				"inline-flex items-center justify-center gap-x-1 rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:pointer-events-none disabled:opacity-50",
+				"inline-flex items-center justify-center gap-x-1 rounded-md font-medium transition-[background,color,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#58c4dc]/60 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0b1117] disabled:pointer-events-none disabled:opacity-50",
 				{
 					// Sizes
 					"h-8 px-3 py-2 text-xs": size === "default",
@@ -198,11 +197,14 @@ export function Button({
 					"h-9 px-4 py-2 text-sm": size === "lg",
 
 					// Variants
-					"bg-[#18181B] text-white hover:bg-[#34343b]": variant === "default",
-					"border border-neutral-600 bg-transparent text-neutral-300 hover:bg-neutral-800":
+					"bg-[#58c4dc] text-[#06181d] shadow-[0_0_0_1px_rgba(88,196,220,0.35),0_8px_24px_rgba(0,0,0,0.22)] hover:bg-[#7ddff0]":
+						variant === "default",
+					"border border-[#2b5362] bg-[#0e171d] text-[#b9f2ff] hover:border-[#58c4dc]/70 hover:bg-[#132731]":
 						variant === "outline",
-					"text-neutral-300 hover:bg-neutral-800": variant === "ghost",
-					"bg-red-600 text-white hover:bg-red-700": variant === "destructive",
+					"text-[#b9f2ff] hover:bg-[#132731] hover:text-white":
+						variant === "ghost",
+					"bg-[#f87171] text-[#2a0808] hover:bg-[#fca5a5]":
+						variant === "destructive",
 				},
 				className,
 			])}
@@ -237,8 +239,10 @@ export function Toggle({
 			disabled={disabled}
 			onClick={() => onChange?.(!checked)}
 			className={cn([
-				"relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50",
-				checked ? "bg-blue-600" : "bg-neutral-600",
+				"relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#58c4dc]/60 disabled:cursor-not-allowed disabled:opacity-50",
+				checked
+					? "bg-[#58c4dc] shadow-[0_0_18px_rgba(88,196,220,0.28)]"
+					: "bg-[#33414c]",
 				className,
 			])}
 		>
@@ -266,7 +270,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 		return (
 			<div className="space-y-1">
 				{label && (
-					<label htmlFor={id} className="text-xs font-medium text-neutral-300">
+					<label htmlFor={id} className="text-xs font-medium text-[#b9f2ff]">
 						{label}
 					</label>
 				)}
@@ -274,7 +278,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 					id={id}
 					ref={ref}
 					className={cn([
-						"flex h-8 w-full rounded border border-neutral-600 bg-[#1e1e1e] px-2 py-1 text-xs text-neutral-300 placeholder:text-neutral-500 focus:border-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50",
+						"flex h-8 w-full rounded-md border border-[#2b5362] bg-[#0e171d] px-2.5 py-1 text-xs text-[#e6fbff] placeholder:text-[#6b8790] focus:border-[#58c4dc] focus:outline-none focus:ring-2 focus:ring-[#58c4dc]/20 disabled:cursor-not-allowed disabled:opacity-50",
 						error && "border-red-500 focus:border-red-500 focus:ring-red-500",
 						className,
 					])}
@@ -316,7 +320,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 		return (
 			<div className="space-y-1">
 				{label && (
-					<label htmlFor={id} className="text-xs font-medium text-neutral-300">
+					<label htmlFor={id} className="text-xs font-medium text-[#b9f2ff]">
 						{label}
 					</label>
 				)}
@@ -324,7 +328,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 					id={id}
 					ref={ref}
 					className={cn([
-						"flex h-8 w-full rounded border border-neutral-600 bg-[#1e1e1e] px-2 py-1 text-xs text-neutral-300 focus:border-neutral-400 focus:outline-none focus:ring-1 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50",
+						"flex h-8 w-full rounded-md border border-[#2b5362] bg-[#0e171d] px-2.5 py-1 text-xs text-[#e6fbff] focus:border-[#58c4dc] focus:outline-none focus:ring-2 focus:ring-[#58c4dc]/20 disabled:cursor-not-allowed disabled:opacity-50",
 						error && "border-red-500 focus:border-red-500 focus:ring-red-500",
 						className,
 					])}
@@ -362,7 +366,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
 					ref={ref}
 					type="radio"
 					className={cn([
-						"h-3 w-3 rounded-full border border-neutral-600 text-blue-600 focus:ring-1 focus:ring-blue-600 focus:ring-offset-0",
+						"h-3 w-3 rounded-full border border-[#2b5362] bg-[#0e171d] text-[#58c4dc] focus:ring-2 focus:ring-[#58c4dc]/40 focus:ring-offset-0",
 						className,
 					])}
 					{...props}
@@ -370,7 +374,7 @@ export const Radio = forwardRef<HTMLInputElement, RadioProps>(
 				{label && (
 					<label
 						htmlFor={id}
-						className="text-xs text-neutral-300 cursor-pointer"
+						className="text-xs text-[#d8f8ff] cursor-pointer"
 					>
 						{label}
 					</label>
@@ -402,7 +406,7 @@ export function RadioGroup({
 
 	return (
 		<div className={cn("space-y-2", className)}>
-			{label && <p className="text-xs font-medium text-neutral-300">{label}</p>}
+			{label && <p className="text-xs font-medium text-[#b9f2ff]">{label}</p>}
 			<div className="space-y-1">
 				{Array.isArray(children)
 					? children.map((child, index) => {
@@ -453,7 +457,7 @@ export function ButtonGroup({
 			className={cn([
 				"inline-flex",
 				orientation === "horizontal" ? "flex-row" : "flex-col",
-				"rounded border border-neutral-600 overflow-hidden",
+				"overflow-hidden rounded-md border border-[#2b5362] bg-[#0b1117]",
 				className,
 			])}
 		>
@@ -464,10 +468,10 @@ export function ButtonGroup({
 							className={cn([
 								orientation === "horizontal" &&
 									index > 0 &&
-									"border-l border-neutral-600",
+									"border-l border-[#2b5362]",
 								orientation === "vertical" &&
 									index > 0 &&
-									"border-t border-neutral-600",
+									"border-t border-[#2b5362]",
 							])}
 						>
 							{child && typeof child === "object" && "props" in child
@@ -486,6 +490,116 @@ export function ButtonGroup({
 					))
 				: children}
 		</div>
+	)
+}
+
+type DividerProps = Omit<ComponentProps<"div">, "children"> & {
+	orientation?: "horizontal" | "vertical"
+	label?: ReactNode
+}
+
+export function Divider({
+	className,
+	orientation = "horizontal",
+	label,
+	...props
+}: DividerProps) {
+	if (orientation === "vertical") {
+		return (
+			<div
+				role="separator"
+				aria-orientation="vertical"
+				className={cn(
+					"mx-3 h-full min-h-6 w-px shrink-0 bg-gradient-to-b from-transparent via-[#2b5362] to-transparent",
+					className,
+				)}
+				{...props}
+			/>
+		)
+	}
+
+	if (label) {
+		return (
+			<div
+				role="separator"
+				aria-orientation="horizontal"
+				className={cn("my-3 flex w-full items-center gap-2", className)}
+				{...props}
+			>
+				<span className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2b5362] to-[#2b5362]" />
+				<span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6fbfd1]">
+					{label}
+				</span>
+				<span className="h-px flex-1 bg-gradient-to-r from-[#2b5362] via-[#2b5362] to-transparent" />
+			</div>
+		)
+	}
+
+	return (
+		<div
+			role="separator"
+			aria-orientation="horizontal"
+			className={cn(
+				"my-3 h-px w-full bg-gradient-to-r from-transparent via-[#2b5362] to-transparent",
+				className,
+			)}
+			{...props}
+		/>
+	)
+}
+
+type GroupProps = Omit<ComponentProps<"section">, "title"> & {
+	title?: ReactNode
+	description?: ReactNode
+	actions?: ReactNode
+	compact?: boolean
+}
+
+export function Group({
+	title,
+	description,
+	actions,
+	compact = false,
+	children,
+	className,
+	...props
+}: GroupProps) {
+	const headingId = useId()
+	const hasHeader = Boolean(title || description || actions)
+
+	return (
+		<section
+			aria-labelledby={title ? headingId : undefined}
+			className={cn(
+				"rounded-xl border border-[#203642] bg-[linear-gradient(135deg,#101820_0%,#0b1117_58%,#071d26_100%)] text-[#d8f8ff] shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_18px_48px_rgba(0,0,0,0.24)]",
+				compact ? "p-3" : "p-4",
+				className,
+			)}
+			{...props}
+		>
+			{hasHeader && (
+				<div className="flex items-start justify-between gap-3">
+					<div className="min-w-0 space-y-1">
+						{title && (
+							<h3
+								id={headingId}
+								className="flex items-center gap-2 text-sm font-semibold text-white"
+							>
+								<span className="h-3.5 w-1 rounded-full bg-[#58c4dc] shadow-[0_0_14px_rgba(88,196,220,0.45)]" />
+								<span className="truncate">{title}</span>
+							</h3>
+						)}
+						{description && (
+							<p className="m-0 text-xs leading-5 text-[#8ba7b0]">
+								{description}
+							</p>
+						)}
+					</div>
+					{actions && <div className="shrink-0">{actions}</div>}
+				</div>
+			)}
+			<div className={cn("space-y-3", hasHeader && "mt-3")}>{children}</div>
+		</section>
 	)
 }
 
@@ -509,8 +623,8 @@ export function Section({
 	if (collapsible) {
 		return (
 			<details open={!defaultCollapsed} className={cn("space-y-2", className)}>
-				<summary className="flex items-center gap-x-2 cursor-pointer text-sm font-medium text-neutral-300 hover:text-white list-none [&::-webkit-details-marker]:hidden">
-					<span className="transition-transform [details[open]_&]:rotate-90">
+				<summary className="flex cursor-pointer items-center gap-x-2 text-sm font-medium text-[#d8f8ff] hover:text-white list-none [&::-webkit-details-marker]:hidden">
+					<span className="text-[#58c4dc] transition-transform [details[open]_&]:rotate-90">
 						▶
 					</span>
 					{title}
@@ -522,7 +636,10 @@ export function Section({
 
 	return (
 		<div className={cn("space-y-2", className)}>
-			<h3 className="text-sm font-medium text-neutral-300">{title}</h3>
+			<h3 className="flex items-center gap-2 text-sm font-semibold text-[#d8f8ff]">
+				<span className="h-3 w-1 rounded-full bg-[#58c4dc]" />
+				{title}
+			</h3>
 			<div className="space-y-2">{children}</div>
 		</div>
 	)
@@ -559,11 +676,11 @@ export function Tabs({
 			{/* Tab list */}
 			<div
 				role="tablist"
-				className="flex space-x-1 border-b border-neutral-600"
+				className="flex space-x-1 border-b border-[#2b5362]"
 				aria-orientation="horizontal"
 			>
 				{Array.isArray(children)
-					? children.map((child, index) => {
+					? children.map((child) => {
 							if (
 								child &&
 								typeof child === "object" &&
@@ -583,10 +700,10 @@ export function Tabs({
 										tabIndex={isSelected ? 0 : -1}
 										onClick={() => handleValueChange(tabValue)}
 										className={cn([
-											"px-3 py-1 text-xs font-medium border-b-2 transition-colors focus:outline-none focus:ring-1 focus:ring-blue-400",
+											"border-b-2 px-3 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[#58c4dc]/50",
 											isSelected
-												? "border-blue-500 text-blue-400"
-												: "border-transparent text-neutral-400 hover:text-neutral-300",
+												? "border-[#58c4dc] text-[#8fe8f7]"
+												: "border-transparent text-[#8ba7b0] hover:text-[#d8f8ff]",
 										])}
 									>
 										{child.props.label}
@@ -600,7 +717,7 @@ export function Tabs({
 
 			{/* Tab panels */}
 			{Array.isArray(children)
-				? children.map((child, index) => {
+				? children.map((child) => {
 						if (child && typeof child === "object" && "props" in child) {
 							const tabValue = child.props.value || child.props.label
 							const isSelected = value === tabValue
@@ -652,11 +769,11 @@ export function CodeBlock({
 	return (
 		<figure className={cn("space-y-1", className)}>
 			{title && (
-				<figcaption className="text-xs text-neutral-400 font-medium">
+				<figcaption className="text-xs text-[#8ba7b0] font-medium">
 					{title}
 				</figcaption>
 			)}
-			<pre className="bg-[#0d1117] border border-neutral-600 rounded p-3 text-xs font-mono text-neutral-300 overflow-auto">
+			<pre className="overflow-auto rounded-lg border border-[#203642] bg-[#071016] p-3 font-mono text-xs text-[#d8f8ff] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
 				<code
 					{...(language && { className: `language-${language}` })}
 					data-language={language}

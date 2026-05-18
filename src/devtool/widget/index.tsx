@@ -16,6 +16,7 @@ import {
   signalRefWidget,
   signalWidget,
   signalWidgetViews,
+  saveWidgetSizeSession,
   updateDimensions,
   type WidgetStates,
 } from "../state"
@@ -157,6 +158,7 @@ export const Widget = () => {
         lastDimensions: signalWidget.value.lastDimensions,
         componentsTree: signalWidget.value.componentsTree,
       })
+      saveWidgetSizeSession(signalWidget.value)
     }
 
     updateDimensions()
@@ -280,6 +282,7 @@ export const Widget = () => {
           signalWidgetCollapsed.value = collapsedPosition
           saveLocalStorage(LOCALSTORAGE_COLLAPSED_KEY, collapsedPosition)
           saveLocalStorage(LOCALSTORAGE_KEY, signalWidget.value)
+          saveWidgetSizeSession(signalWidget.value)
           updateWidgetPosition(false)
 
           document.removeEventListener("pointermove", handlePointerMove)
@@ -376,6 +379,7 @@ export const Widget = () => {
         lastDimensions: signalWidget.value.lastDimensions,
         componentsTree: signalWidget.value.componentsTree,
       })
+      saveWidgetSizeSession(signalWidget.value)
     }
 
     document.addEventListener("pointermove", handlePointerMove)
@@ -520,7 +524,7 @@ export const Widget = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!event.altKey || event.key.toLowerCase() !== "r") return
+      if (!(event.altKey && event.code === "KeyR")) return
 
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) {

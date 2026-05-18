@@ -3,10 +3,11 @@ import { Devtool, flags, useFlag } from "./devtool"
 import {
 	Button,
 	CodeBlock,
+	Divider,
 	FeatureFlags,
+	Group,
 	Input,
 	Inspector,
-	Section,
 	Tab,
 	Tabs,
 	Toggle,
@@ -127,13 +128,14 @@ function SearchPage() {
   <FeatureFlags name="Agent rollouts" values={rolloutFlags} />
 </Devtool>;`
 
-const uiCode = `import { Button, CodeBlock, Inspector, Section } from "react-devtool/ui";
+const uiCode = `import { Button, Divider, Group, Inspector } from "react-devtool/ui";
 
 <Devtool>
-  <Section title="Session">
+  <Group title="Session" description="Current signed-in user and request context.">
     <Inspector data={session} expandLevel={2} />
+    <Divider />
     <Button onClick={refreshSession}>Refresh</Button>
-  </Section>
+  </Group>
 </Devtool>`
 
 const features = [
@@ -170,7 +172,7 @@ const apiRows = [
 	["flags(initial)", "Creates a subscribable feature flag object."],
 	["values(initial)", "Creates a subscribable runtime value object."],
 	["useFlag(flags, key)", "Reads a single flag value from React."],
-	["react-devtool/ui", "Exports Button, Input, Toggle, Section, Tabs, CodeBlock, Inspector, and FeatureFlags."],
+	["react-devtool/ui", "Exports Button, Input, Toggle, Group, Divider, Section, Tabs, CodeBlock, Inspector, and FeatureFlags."],
 ]
 
 function copyText(value: string) {
@@ -484,13 +486,17 @@ function DevtoolPanel({
 }) {
 	return (
 		<div className="space-y-4 p-1">
-			<Section title="Demo controls">
+			<Group
+				title="Demo controls"
+				description="Local state controls rendered inside the toolbar popup."
+			>
 				<Button onClick={onIncrement}>Increment count ({count})</Button>
 				<Input
 					label="User id"
 					value={userId}
 					onChange={(event) => onUserIdChange(event.currentTarget.value)}
 				/>
+				<Divider label="Flags" />
 				<div className="flex items-center justify-between rounded border border-neutral-700 p-2">
 					<span className="text-xs text-neutral-300">Debug labels</span>
 					<Toggle
@@ -505,11 +511,11 @@ function DevtoolPanel({
 						onChange={(checked) => onFlagChange("verboseLogs", checked)}
 					/>
 				</div>
-			</Section>
+			</Group>
 
-			<Section title="Feature flags">
+			<Group title="Feature flags" description="Backed by the subscribable flags helper.">
 				<FeatureFlags values={demoFlags} />
-			</Section>
+			</Group>
 
 			<Tabs defaultValue="snapshot">
 				<Tab label="Snapshot" value="snapshot">
@@ -523,6 +529,23 @@ function DevtoolPanel({
 				</Tab>
 			</Tabs>
 		</div>
+	)
+}
+
+function ToolbarHint() {
+	return (
+		<svg
+			className="toolbar-hint"
+			viewBox="0 0 150 92"
+			aria-hidden="true"
+		>
+			<title>Arrow pointing to React Devtool toolbar</title>
+			<path
+				d="M8 18C39 6 69 12 89 35C104 52 115 64 134 76"
+				className="toolbar-hint-path"
+			/>
+			<path d="M121 79L139 79L133 62" className="toolbar-hint-head" />
+		</svg>
 	)
 }
 
@@ -578,6 +601,7 @@ export function App() {
 				<span>MIT licensed. Built for React app teams.</span>
 				<a href="#">Back to top</a>
 			</footer>
+			<ToolbarHint />
 			<Devtool toolbarPlacement="bottom-right">
 				<DevtoolPanel
 					count={count}

@@ -15,11 +15,10 @@ describe('ButtonGroup', () => {
     const two = screen.getByRole('button', { name: 'Two' })
     const wrapper = two.closest('div')
     expect(wrapper?.className).toContain('border-l')
-    expect(wrapper?.className).toContain('border-neutral-600')
+    expect(wrapper?.className).toContain('border-[#2b5362]')
 
     const one = screen.getByRole('button', { name: 'One' })
     const firstWrapper = one.closest('div')
     expect(firstWrapper?.className).not.toContain('border-l')
   })
 })
-

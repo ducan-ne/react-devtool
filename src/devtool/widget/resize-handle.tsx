@@ -3,7 +3,12 @@ import { useCallback, useEffect, useRef } from "preact/hooks"
 import { Store } from "~core/index"
 import { Icon } from "~web/components/icon"
 import { LOCALSTORAGE_KEY, MIN_CONTAINER_WIDTH, MIN_SIZE } from "~web/constants"
-import { signalRefWidget, signalWidget, signalWidgetViews } from "~web/state"
+import {
+	saveWidgetSizeSession,
+	signalRefWidget,
+	signalWidget,
+	signalWidgetViews,
+} from "~web/state"
 import { cn, saveLocalStorage } from "~web/utils/helpers"
 import {
 	calculateNewSizeAndPosition,
@@ -216,6 +221,7 @@ export const ResizeHandle = ({ position }: ResizeHandleProps) => {
 					lastDimensions: signalWidget.value.lastDimensions,
 					componentsTree: signalWidget.value.componentsTree,
 				})
+				saveWidgetSizeSession(signalWidget.value)
 			}
 
 			document.addEventListener("pointermove", handlePointerMove, {
@@ -320,6 +326,15 @@ export const ResizeHandle = ({ position }: ResizeHandleProps) => {
 			})
 
 			saveLocalStorage(LOCALSTORAGE_KEY, {
+				corner: newCorner,
+				dimensions: newDimensions,
+				lastDimensions: dimensions,
+				componentsTree: {
+					...signalWidget.value.componentsTree,
+					width: newTreeWidth,
+				},
+			})
+			saveWidgetSizeSession({
 				corner: newCorner,
 				dimensions: newDimensions,
 				lastDimensions: dimensions,

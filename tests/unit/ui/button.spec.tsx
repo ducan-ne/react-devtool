@@ -8,14 +8,16 @@ describe('Button', () => {
     render(<Button>Click</Button>)
     const btn = screen.getByRole('button', { name: 'Click' })
     const classes = btn.className
-    expect(classes).toContain('bg-[#18181B]')
+    expect(classes).toContain('bg-[#58c4dc]')
+    expect(classes).toContain('text-[#06181d]')
   })
 
   it('applies outline variant', () => {
     render(<Button variant="outline">Outline</Button>)
     const btn = screen.getByRole('button', { name: 'Outline' })
     const classes = btn.className
-    expect(classes).toContain('border-neutral-600')
+    expect(classes).toContain('border-[#2b5362]')
+    expect(classes).toContain('text-[#b9f2ff]')
   })
 
   it('applies ghost and destructive variants', () => {
@@ -29,8 +31,8 @@ describe('Button', () => {
     const ghost = screen.getByRole('button', { name: 'Ghost' })
     const destructive = screen.getByRole('button', { name: 'Delete' })
 
-    expect(ghost.className).toContain('hover:bg-neutral-800')
-    expect(destructive.className).toContain('bg-red-600')
+    expect(ghost.className).toContain('hover:bg-[#132731]')
+    expect(destructive.className).toContain('bg-[#f87171]')
   })
 
   it('applies size classes: sm and lg', () => {

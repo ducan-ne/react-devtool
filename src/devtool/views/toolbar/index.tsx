@@ -93,13 +93,13 @@ export const Toolbar = constant(() => {
 
   if (isInspectActive) {
     inspectIcon = <Icon name="icon-inspect" />
-    inspectColor = "#8e61e3"
+    inspectColor = "#58c4dc"
   } else if (isInspectFocused) {
     inspectIcon = <Icon name="icon-focus" />
-    inspectColor = "#8e61e3"
+    inspectColor = "#58c4dc"
   } else {
     inspectIcon = <Icon name="icon-inspect" />
-    inspectColor = "#999"
+    inspectColor = "#8ba7b0"
   }
   return (
     <div className="flex max-h-9 min-h-9 flex-1 items-stretch overflow-hidden">

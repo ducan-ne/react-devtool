@@ -78,7 +78,7 @@ export const HeaderInspect = () => {
 				{name ?? "Unknown"}
 				<span
 					title={firstWrapperType?.title}
-					className="flex items-center gap-x-1 text-[10px] text-purple-400"
+					className="flex items-center gap-x-1 text-[10px] text-[#58c4dc]"
 				>
 					{!!firstWrapperType && (
 						<>
@@ -87,10 +87,11 @@ export const HeaderInspect = () => {
 								className={cn(
 									"rounded py-[1px] px-1",
 									"truncate",
-									firstWrapperType.compiler && "bg-purple-800 text-neutral-400",
+									firstWrapperType.compiler && "bg-[#12313a] text-[#8ba7b0]",
 									!firstWrapperType.compiler &&
 										"bg-neutral-700 text-neutral-300",
-									firstWrapperType.type === "memo" && "bg-[#5f3f9a] text-white",
+									firstWrapperType.type === "memo" &&
+										"bg-[#58c4dc] text-[#06181d]",
 								)}
 							>
 								{firstWrapperType.type}

@@ -33,7 +33,7 @@ const contentClassName = computed(() => {
 		"flex flex-1 flex-col",
 		"overflow-hidden z-10",
 		"rounded-lg",
-		"bg-wash-dark",
+		"bg-[#0b1117]",
 		"opacity-100",
 		"transition-[border-radius]",
 		"peer-hover/left:rounded-l-none",
@@ -53,10 +53,10 @@ export const Content = () => {
 						"relative",
 						"flex-1 flex",
 						"text-white",
-						"bg-wash-dark",
+						"bg-[#0b1117]",
 						"transition-opacity delay-150",
 						"overflow-hidden",
-						"border-b border-[#222]",
+						"border-b border-[#16313d]",
 					)}
 				>
 					<ContentView isOpen={isContentViewOpen}>
