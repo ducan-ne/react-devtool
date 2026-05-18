@@ -598,7 +598,7 @@ export function App() {
 			/>
 			<Docs />
 			<footer className="site-footer">
-				<span>MIT licensed. Built for React app teams.</span>
+				<span>Apache-2.0 licensed. Built for React app teams.</span>
 				<a href="#">Back to top</a>
 			</footer>
 			<ToolbarHint />

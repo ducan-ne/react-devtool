@@ -1,5 +1,5 @@
 import { MIN_SIZE, SAFE_AREA } from "../constants"
-import type { Corner, Position, ResizeHandleProps, Size } from "./types"
+import type { Corner, Position, ResizeHandlePosition, Size } from "./types"
 
 class WindowDimensions {
 	maxWidth: number
@@ -50,7 +50,7 @@ export const getWindowDimensions = () => {
 }
 
 export const getOppositeCorner = (
-	position: ResizeHandleProps["position"],
+	position: ResizeHandlePosition,
 	currentCorner: Corner,
 	isFullScreen: boolean,
 	isFullWidth?: boolean,
@@ -158,15 +158,16 @@ export const calculatePosition = (
 }
 
 const positionMatchesCorner = (
-	position: ResizeHandleProps["position"],
+	position: ResizeHandlePosition,
 	corner: Corner,
 ): boolean => {
 	const [vertical, horizontal] = corner.split("-")
-	return position !== vertical && position !== horizontal
+	const positionParts = position.split("-")
+	return !positionParts.includes(vertical) && !positionParts.includes(horizontal)
 }
 
 export const getHandleVisibility = (
-	position: ResizeHandleProps["position"],
+	position: ResizeHandlePosition,
 	corner: Corner,
 	isFullWidth: boolean,
 	isFullHeight: boolean,
@@ -175,6 +176,9 @@ export const getHandleVisibility = (
 		return true
 	}
 
+	const [vertical, horizontal] = corner.split("-")
+	const positionParts = position.split("-")
+
 	// Normal state
 	if (!isFullWidth && !isFullHeight) {
 		return positionMatchesCorner(position, corner)
@@ -182,12 +186,12 @@ export const getHandleVisibility = (
 
 	// Full width state
 	if (isFullWidth) {
-		return position !== corner.split("-")[0]
+		return !positionParts.includes(vertical)
 	}
 
 	// Full height state
 	if (isFullHeight) {
-		return position !== corner.split("-")[1]
+		return !positionParts.includes(horizontal)
 	}
 
 	return false
@@ -208,7 +212,7 @@ export const calculateBoundedSize = (
 }
 
 export const calculateNewSizeAndPosition = (
-	position: ResizeHandleProps["position"],
+	position: ResizeHandlePosition,
 	initialSize: Size,
 	initialPosition: Position,
 	deltaX: number,

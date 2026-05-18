@@ -20,6 +20,15 @@ import {
 } from "./helpers"
 import type { Corner, ResizeHandleProps } from "./types"
 
+const isHorizontalResize = (position: ResizeHandleProps["position"]) =>
+	position.includes("left") || position.includes("right")
+
+const isVerticalResize = (position: ResizeHandleProps["position"]) =>
+	position.includes("top") || position.includes("bottom")
+
+const isCornerResize = (position: ResizeHandleProps["position"]) =>
+	isHorizontalResize(position) && isVerticalResize(position)
+
 export const ResizeHandle = ({ position }: ResizeHandleProps) => {
 	const refContainer = useRef<HTMLDivElement>(null)
 
@@ -244,6 +253,8 @@ export const ResizeHandle = ({ position }: ResizeHandleProps) => {
 			const containerStyle = widget.style
 			const { dimensions, corner } = signalWidget.value
 			const windowDims = getWindowDimensions()
+			const resizesWidth = isHorizontalResize(position)
+			const resizesHeight = isVerticalResize(position)
 
 			const isCurrentFullWidth = windowDims.isFullWidth(dimensions.width)
 			const isCurrentFullHeight = windowDims.isFullHeight(dimensions.height)
@@ -261,26 +272,32 @@ export const ResizeHandle = ({ position }: ResizeHandleProps) => {
 				isCurrentFullHeight,
 			)
 
-			if (position === "left" || position === "right") {
-				newWidth = isCurrentFullWidth ? dimensions.width : windowDims.maxWidth
-				if (isPartiallyMaximized) {
-					newWidth = isCurrentFullWidth ? MIN_SIZE.width : windowDims.maxWidth
-				}
+			if (isCornerResize(position)) {
+				newWidth = isFullScreen ? MIN_SIZE.width : windowDims.maxWidth
+				newHeight = isFullScreen ? MIN_SIZE.initialHeight : windowDims.maxHeight
 			} else {
-				newHeight = isCurrentFullHeight
-					? dimensions.height
-					: windowDims.maxHeight
-				if (isPartiallyMaximized) {
-					newHeight = isCurrentFullHeight
-						? MIN_SIZE.initialHeight
-						: windowDims.maxHeight
+				if (resizesWidth) {
+					newWidth = isCurrentFullWidth ? dimensions.width : windowDims.maxWidth
+					if (isPartiallyMaximized) {
+						newWidth = isCurrentFullWidth ? MIN_SIZE.width : windowDims.maxWidth
+					}
 				}
-			}
 
-			if (isFullScreen) {
-				if (position === "left" || position === "right") {
+				if (resizesHeight) {
+					newHeight = isCurrentFullHeight
+						? dimensions.height
+						: windowDims.maxHeight
+					if (isPartiallyMaximized) {
+						newHeight = isCurrentFullHeight
+							? MIN_SIZE.initialHeight
+							: windowDims.maxHeight
+					}
+				}
+
+				if (isFullScreen && resizesWidth) {
 					newWidth = MIN_SIZE.width
-				} else {
+				}
+				if (isFullScreen && resizesHeight) {
 					newHeight = MIN_SIZE.initialHeight
 				}
 			}
@@ -301,7 +318,7 @@ export const ResizeHandle = ({ position }: ResizeHandleProps) => {
 
 			const newTreeWidth = isCurrentFullWidth
 				? MIN_CONTAINER_WIDTH
-				: (position === "left" || position === "right") && !isCurrentFullWidth
+				: resizesWidth && !isCurrentFullWidth
 					? Math.min(maxTreeWidth, Math.max(MIN_CONTAINER_WIDTH, defaultWidth))
 					: Math.min(
 							maxTreeWidth,
@@ -363,21 +380,29 @@ export const ResizeHandle = ({ position }: ResizeHandleProps) => {
 					"resize-right peer/right z-10": position === "right",
 					"resize-top peer/top": position === "top",
 					"resize-bottom peer/bottom": position === "bottom",
+					"resize-top-left": position === "top-left",
+					"resize-top-right": position === "top-right",
+					"resize-bottom-left": position === "bottom-left",
+					"resize-bottom-right": position === "bottom-right",
 				},
 			)}
 		>
-			<span className="resize-line-wrapper">
-				<span className="resize-line">
-					<Icon
-						name="icon-ellipsis"
-						size={18}
-						className={cn(
-							"text-neutral-400",
-							(position === "left" || position === "right") && "rotate-90",
-						)}
-					/>
+			{isCornerResize(position) ? (
+				<span className="resize-corner-dot" />
+			) : (
+				<span className="resize-line-wrapper">
+					<span className="resize-line">
+						<Icon
+							name="icon-ellipsis"
+							size={18}
+							className={cn(
+								"text-neutral-400",
+								isHorizontalResize(position) && "rotate-90",
+							)}
+						/>
+					</span>
 				</span>
-			</span>
+			)}
 		</div>
 	)
 }

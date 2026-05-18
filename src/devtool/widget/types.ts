@@ -9,6 +9,7 @@ export interface Size {
 }
 
 export type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right"
+export type ResizeHandlePosition = Corner | "top" | "bottom" | "left" | "right"
 
 export type CollapsedPosition = {
 	corner: Corner
@@ -16,7 +17,7 @@ export type CollapsedPosition = {
 }
 
 export interface ResizeHandleProps {
-	position: Corner | "top" | "bottom" | "left" | "right"
+	position: ResizeHandlePosition
 }
 
 interface WidgetDimensions {

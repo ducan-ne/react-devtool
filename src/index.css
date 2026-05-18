@@ -804,7 +804,7 @@ svg {
 	@apply shadow-lg;
 	@apply font-mono text-[13px] text-white;
 	@apply select-none;
-	@apply cursor-move;
+	@apply cursor-grab;
 	@apply opacity-0;
 	@apply z-[2147483678];
 	@apply animate-fade-in animation-duration-300 animation-delay-300;
@@ -828,6 +828,45 @@ svg {
 	perspective: 1000; /* Creates proper 3D context for crisp text */
 	-webkit-transform-style: preserve-3d; /* Ensures consistent text rendering across browsers */
 	transform-style: preserve-3d;
+}
+
+#react-devtool-toolbar.react-devtool-collapsed,
+#react-devtool-toolbar.react-devtool-collapsed * {
+	cursor: pointer !important;
+}
+
+#react-devtool-toolbar.react-devtool-drag-pending,
+#react-devtool-toolbar.react-devtool-drag-pending * {
+	cursor: grab !important;
+}
+
+#react-devtool-toolbar.react-devtool-drag-pending::after {
+	position: absolute;
+	inset: -5px;
+	border: 1px solid rgba(88, 196, 220, 0.72);
+	border-radius: inherit;
+	box-shadow: 0 0 0 0 rgba(88, 196, 220, 0.32);
+	content: "";
+	pointer-events: none;
+	animation: react-devtool-drag-ready 850ms ease-in-out infinite;
+}
+
+#react-devtool-toolbar.react-devtool-dragging,
+#react-devtool-toolbar.react-devtool-dragging * {
+	cursor: grabbing !important;
+}
+
+@keyframes react-devtool-drag-ready {
+	0%,
+	100% {
+		opacity: 0.38;
+		box-shadow: 0 0 0 0 rgba(88, 196, 220, 0.3);
+	}
+
+	50% {
+		opacity: 1;
+		box-shadow: 0 0 0 7px rgba(88, 196, 220, 0);
+	}
 }
 
 .button {
@@ -940,6 +979,67 @@ svg {
 	.resize-line {
 		@apply rounded-b-lg;
 		@apply -translate-y-full;
+	}
+}
+
+.resize-top-left,
+.resize-top-right,
+.resize-bottom-left,
+.resize-bottom-right {
+	@apply w-6 h-6;
+
+	.resize-corner-dot {
+		@apply absolute;
+		@apply w-2 h-2 rounded-full;
+		@apply opacity-0 transition-opacity;
+		background: #071016;
+		box-shadow: inset 0 0 0 1px rgba(88, 196, 220, 0.32);
+	}
+
+	&:hover {
+		.resize-corner-dot {
+			@apply opacity-100;
+		}
+	}
+}
+
+.resize-top-left {
+	@apply top-0 left-0;
+	@apply -translate-x-1/2 -translate-y-1/2;
+	cursor: nwse-resize;
+
+	.resize-corner-dot {
+		@apply right-1 bottom-1;
+	}
+}
+
+.resize-top-right {
+	@apply top-0 right-0;
+	@apply translate-x-1/2 -translate-y-1/2;
+	cursor: nesw-resize;
+
+	.resize-corner-dot {
+		@apply left-1 bottom-1;
+	}
+}
+
+.resize-bottom-left {
+	@apply bottom-0 left-0;
+	@apply -translate-x-1/2 translate-y-1/2;
+	cursor: nesw-resize;
+
+	.resize-corner-dot {
+		@apply right-1 top-1;
+	}
+}
+
+.resize-bottom-right {
+	@apply bottom-0 right-0;
+	@apply translate-x-1/2 translate-y-1/2;
+	cursor: nwse-resize;
+
+	.resize-corner-dot {
+		@apply left-1 top-1;
 	}
 }
 

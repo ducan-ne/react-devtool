@@ -253,4 +253,4 @@ Contributions are welcome. A typical local loop is:
 
 ## License
 
-MIT © [React Devtool](https://github.com/ducan-ne/react-devtool)
+Apache-2.0 © [React Devtool](https://github.com/ducan-ne/react-devtool)

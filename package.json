@@ -13,7 +13,7 @@
   "bugs": {
     "url": "https://github.com/ducan-ne/react-devtool/issues"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": "ducan-ne",
   "repository": {
     "type": "git",

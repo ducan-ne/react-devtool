@@ -164,226 +164,386 @@ export const Widget = () => {
     updateDimensions()
   }, [])
 
-  const handleDrag = useCallback((e: JSX.TargetedPointerEvent<HTMLDivElement>) => {
-    e.preventDefault()
+  const refSuppressNextClick = useRef(false)
+  const refClickSuppressCleanup = useRef<(() => void) | null>(null)
+  const refRestoreDocumentCursor = useRef<(() => void) | null>(null)
+  const [dragFeedback, setDragFeedback] = useState<"idle" | "pending" | "dragging">("idle")
 
-    if (
-      !refWidget.current ||
-      (e.target as HTMLElement).closest("button") ||
-      (e.target as HTMLElement).closest("input") ||
-      (e.target as HTMLElement).closest("select")
-    )
-      return
+  const suppressNextToolbarClick = useCallback(() => {
+    refSuppressNextClick.current = true
+    refClickSuppressCleanup.current?.()
 
-    const container = refWidget.current
-    const containerStyle = container.style
-    const { dimensions } = signalWidget.value
+    let timeoutId: number | null = null
 
-    const initialMouseX = e.clientX
-    const initialMouseY = e.clientY
+    const cleanup = () => {
+      document.removeEventListener("click", handleClick, true)
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
+        timeoutId = null
+      }
+      refClickSuppressCleanup.current = null
+    }
 
-    const initialX = dimensions.position.x
-    const initialY = dimensions.position.y
+    const handleClick = (clickEvent: MouseEvent) => {
+      refSuppressNextClick.current = false
+      clickEvent.preventDefault()
+      clickEvent.stopPropagation()
+      clickEvent.stopImmediatePropagation()
+      cleanup()
+    }
 
-    let currentX = initialX
-    let currentY = initialY
-    let rafId: number | null = null
-    let hasMoved = false
-    let lastMouseX = initialMouseX
-    let lastMouseY = initialMouseY
+    refClickSuppressCleanup.current = cleanup
+    document.addEventListener("click", handleClick, true)
+    timeoutId = window.setTimeout(() => {
+      refSuppressNextClick.current = false
+      cleanup()
+    }, 10_000)
+  }, [])
 
-    const handlePointerMove = (e: globalThis.PointerEvent) => {
-      if (rafId) return
+  const restoreDocumentCursor = useCallback(() => {
+    refRestoreDocumentCursor.current?.()
+  }, [])
 
-      hasMoved = true
-      lastMouseX = e.clientX
-      lastMouseY = e.clientY
+  const setDocumentDraggingCursor = useCallback(() => {
+    refRestoreDocumentCursor.current?.()
 
-      rafId = requestAnimationFrame(() => {
-        const deltaX = lastMouseX - initialMouseX
-        const deltaY = lastMouseY - initialMouseY
+    const body = document.body
+    const root = document.documentElement
+    const previousBodyCursor = body.style.cursor
+    const previousRootCursor = root.style.cursor
 
-        currentX = Number(initialX) + deltaX
-        currentY = Number(initialY) + deltaY
+    body.style.cursor = "grabbing"
+    root.style.cursor = "grabbing"
+    refRestoreDocumentCursor.current = () => {
+      body.style.cursor = previousBodyCursor
+      root.style.cursor = previousRootCursor
+      refRestoreDocumentCursor.current = null
+    }
+  }, [])
 
-        /* [CURSOR GENERATED] Anti-blur fix:
-         * Changed from transition: 'all' and transform: translate() to:
-         * 1. transition: none - Prevents interpolation blur during drag
-         * 2. translate3d - Forces GPU acceleration for crisp text
-         */
-        containerStyle.transition = "none"
-        containerStyle.transform = `translate3d(${currentX}px, ${currentY}px, 0)`
+  const startDrag = useCallback(
+    (
+      initialMouseX: number,
+      initialMouseY: number,
+      activationEvent?: globalThis.PointerEvent,
+    ) => {
+      if (!refWidget.current) return
 
-        const widgetRight = currentX + dimensions.width
-        const widgetBottom = currentY + dimensions.height
+      const container = refWidget.current
+      const containerStyle = container.style
+      const { dimensions } = signalWidget.value
 
-        const outsideLeft = Math.max(0, -currentX)
-        const outsideRight = Math.max(0, widgetRight - window.innerWidth)
-        const outsideTop = Math.max(0, -currentY)
-        const outsideBottom = Math.max(0, widgetBottom - window.innerHeight)
+      const initialX = dimensions.position.x
+      const initialY = dimensions.position.y
 
-        const horizontalOutside = Math.min(dimensions.width, outsideLeft + outsideRight)
-        const verticalOutside = Math.min(dimensions.height, outsideTop + outsideBottom)
-        const areaOutside =
-          horizontalOutside * dimensions.height +
-          verticalOutside * dimensions.width -
-          horizontalOutside * verticalOutside
-        const totalArea = dimensions.width * dimensions.height
+      let currentX = initialX
+      let currentY = initialY
+      let rafId: number | null = null
+      let hasMoved = false
+      let lastMouseX = initialMouseX
+      let lastMouseY = initialMouseY
 
-        // todo: delete this doesn't do anything
-        let shouldCollapse = areaOutside > totalArea * 0.35
+      setDragFeedback("dragging")
+      setDocumentDraggingCursor()
 
-        if (!shouldCollapse && ReactDevtoolInternals.options.value.showFPS) {
-          const fpsRight = currentX + dimensions.width
-          const fpsLeft = fpsRight - 100
+      const stopDraggingFeedback = () => {
+        setDragFeedback("idle")
+        restoreDocumentCursor()
+      }
 
-          const fpsFullyOutside =
-            fpsRight <= 0 ||
-            fpsLeft >= window.innerWidth ||
-            currentY + dimensions.height <= 0 ||
-            currentY >= window.innerHeight
+      const resetClickSuppressionSoon = () => {
+        if (!refSuppressNextClick.current && !refClickSuppressCleanup.current) return
+        window.setTimeout(() => {
+          refSuppressNextClick.current = false
+          refClickSuppressCleanup.current?.()
+        }, 500)
+      }
 
-          shouldCollapse = fpsFullyOutside
+      const handlePointerMove = (e: globalThis.PointerEvent) => {
+        if (rafId) return
+
+        hasMoved = true
+        lastMouseX = e.clientX
+        lastMouseY = e.clientY
+
+        rafId = requestAnimationFrame(() => {
+          const deltaX = lastMouseX - initialMouseX
+          const deltaY = lastMouseY - initialMouseY
+
+          currentX = Number(initialX) + deltaX
+          currentY = Number(initialY) + deltaY
+
+          /* [CURSOR GENERATED] Anti-blur fix:
+           * Changed from transition: 'all' and transform: translate() to:
+           * 1. transition: none - Prevents interpolation blur during drag
+           * 2. translate3d - Forces GPU acceleration for crisp text
+           */
+          containerStyle.transition = "none"
+          containerStyle.transform = `translate3d(${currentX}px, ${currentY}px, 0)`
+
+          const widgetRight = currentX + dimensions.width
+          const widgetBottom = currentY + dimensions.height
+
+          const outsideLeft = Math.max(0, -currentX)
+          const outsideRight = Math.max(0, widgetRight - window.innerWidth)
+          const outsideTop = Math.max(0, -currentY)
+          const outsideBottom = Math.max(0, widgetBottom - window.innerHeight)
+
+          const horizontalOutside = Math.min(dimensions.width, outsideLeft + outsideRight)
+          const verticalOutside = Math.min(dimensions.height, outsideTop + outsideBottom)
+          const areaOutside =
+            horizontalOutside * dimensions.height +
+            verticalOutside * dimensions.width -
+            horizontalOutside * verticalOutside
+          const totalArea = dimensions.width * dimensions.height
+
+          // todo: delete this doesn't do anything
+          let shouldCollapse = areaOutside > totalArea * 0.35
+
+          if (!shouldCollapse && ReactDevtoolInternals.options.value.showFPS) {
+            const fpsRight = currentX + dimensions.width
+            const fpsLeft = fpsRight - 100
+
+            const fpsFullyOutside =
+              fpsRight <= 0 ||
+              fpsLeft >= window.innerWidth ||
+              currentY + dimensions.height <= 0 ||
+              currentY >= window.innerHeight
+
+            shouldCollapse = fpsFullyOutside
+          }
+
+          if (shouldCollapse) {
+            const widgetCenterX = currentX + dimensions.width / 2
+            const widgetCenterY = currentY + dimensions.height / 2
+            const screenCenterX = window.innerWidth / 2
+            const screenCenterY = window.innerHeight / 2
+
+            let targetCorner: Corner
+            if (widgetCenterX < screenCenterX) {
+              targetCorner = widgetCenterY < screenCenterY ? "top-left" : "bottom-left"
+            } else {
+              targetCorner = widgetCenterY < screenCenterY ? "top-right" : "bottom-right"
+            }
+
+            let orientation: "horizontal" | "vertical"
+            const horizontalOverflow = Math.max(outsideLeft, outsideRight)
+            const verticalOverflow = Math.max(outsideTop, outsideBottom)
+
+            orientation = horizontalOverflow > verticalOverflow ? "horizontal" : "vertical"
+
+            signalWidget.value = {
+              ...signalWidget.value,
+              corner: targetCorner,
+              lastDimensions: {
+                ...dimensions,
+                position: calculatePosition(targetCorner, dimensions.width, dimensions.height),
+              },
+            }
+
+            const collapsedPosition: CollapsedPosition = {
+              corner: targetCorner,
+              orientation,
+            }
+
+            signalWidgetCollapsed.value = collapsedPosition
+            saveLocalStorage(LOCALSTORAGE_COLLAPSED_KEY, collapsedPosition)
+            saveLocalStorage(LOCALSTORAGE_KEY, signalWidget.value)
+            saveWidgetSizeSession(signalWidget.value)
+            updateWidgetPosition(false)
+            resetClickSuppressionSoon()
+            stopDraggingFeedback()
+
+            document.removeEventListener("pointermove", handlePointerMove)
+            document.removeEventListener("pointerup", handlePointerEnd)
+            document.removeEventListener("pointercancel", handlePointerEnd)
+            if (rafId) {
+              cancelAnimationFrame(rafId)
+              rafId = null
+            }
+          }
+
+          rafId = null
+        })
+      }
+
+      const handlePointerEnd = () => {
+        if (!container) return
+
+        if (rafId) {
+          cancelAnimationFrame(rafId)
+          rafId = null
         }
 
-        if (shouldCollapse) {
-          const widgetCenterX = currentX + dimensions.width / 2
-          const widgetCenterY = currentY + dimensions.height / 2
-          const screenCenterX = window.innerWidth / 2
-          const screenCenterY = window.innerHeight / 2
+        document.removeEventListener("pointermove", handlePointerMove)
+        document.removeEventListener("pointerup", handlePointerEnd)
+        document.removeEventListener("pointercancel", handlePointerEnd)
+        resetClickSuppressionSoon()
+        stopDraggingFeedback()
 
-          let targetCorner: Corner
-          if (widgetCenterX < screenCenterX) {
-            targetCorner = widgetCenterY < screenCenterY ? "top-left" : "bottom-left"
-          } else {
-            targetCorner = widgetCenterY < screenCenterY ? "top-right" : "bottom-right"
-          }
+        // Calculate total movement distance
+        const totalDeltaX = Math.abs(lastMouseX - initialMouseX)
+        const totalDeltaY = Math.abs(lastMouseY - initialMouseY)
+        const totalMovement = Math.sqrt(totalDeltaX * totalDeltaX + totalDeltaY * totalDeltaY)
 
-          let orientation: "horizontal" | "vertical"
-          const horizontalOverflow = Math.max(outsideLeft, outsideRight)
-          const verticalOverflow = Math.max(outsideTop, outsideBottom)
+        // Only consider it a move if we moved more than 60 pixels
+        if (!hasMoved || totalMovement < 60) return
 
-          orientation = horizontalOverflow > verticalOverflow ? "horizontal" : "vertical"
+        const newCorner = getBestCorner(
+          lastMouseX,
+          lastMouseY,
+          initialMouseX,
+          initialMouseY,
+          Store.inspectState.value.kind === "focused" ? 80 : 40,
+        )
 
-          signalWidget.value = {
-            ...signalWidget.value,
-            corner: targetCorner,
-            lastDimensions: {
-              ...dimensions,
-              position: calculatePosition(targetCorner, dimensions.width, dimensions.height),
-            },
-          }
+        if (newCorner === signalWidget.value.corner) {
+          /* [CURSOR GENERATED] Anti-blur fix:
+           * Changed from transition: 'all' to transition: 'transform'
+           * to prevent unnecessary property interpolation that was
+           * causing text blur during animation
+           */
+          containerStyle.transition = "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+          const currentPosition = signalWidget.value.dimensions.position
+          requestAnimationFrame(() => {
+            containerStyle.transform = `translate3d(${currentPosition.x}px, ${currentPosition.y}px, 0)`
+          })
 
-          const collapsedPosition: CollapsedPosition = {
-            corner: targetCorner,
-            orientation,
-          }
+          return
+        }
 
-          signalWidgetCollapsed.value = collapsedPosition
-          saveLocalStorage(LOCALSTORAGE_COLLAPSED_KEY, collapsedPosition)
-          saveLocalStorage(LOCALSTORAGE_KEY, signalWidget.value)
-          saveWidgetSizeSession(signalWidget.value)
-          updateWidgetPosition(false)
+        const snappedPosition = calculatePosition(newCorner, dimensions.width, dimensions.height)
 
-          document.removeEventListener("pointermove", handlePointerMove)
-          document.removeEventListener("pointerup", handlePointerEnd)
+        if (currentX === initialX && currentY === initialY) return
+
+        const onTransitionEnd = () => {
+          containerStyle.transition = "none"
+          updateDimensions()
+          container.removeEventListener("transitionend", onTransitionEnd)
           if (rafId) {
             cancelAnimationFrame(rafId)
             rafId = null
           }
         }
 
-        rafId = null
-      })
-    }
-
-    const handlePointerEnd = () => {
-      if (!container) return
-
-      if (rafId) {
-        cancelAnimationFrame(rafId)
-        rafId = null
-      }
-
-      document.removeEventListener("pointermove", handlePointerMove)
-      document.removeEventListener("pointerup", handlePointerEnd)
-
-      // Calculate total movement distance
-      const totalDeltaX = Math.abs(lastMouseX - initialMouseX)
-      const totalDeltaY = Math.abs(lastMouseY - initialMouseY)
-      const totalMovement = Math.sqrt(totalDeltaX * totalDeltaX + totalDeltaY * totalDeltaY)
-
-      // Only consider it a move if we moved more than 60 pixels
-      if (!hasMoved || totalMovement < 60) return
-
-      const newCorner = getBestCorner(
-        lastMouseX,
-        lastMouseY,
-        initialMouseX,
-        initialMouseY,
-        Store.inspectState.value.kind === "focused" ? 80 : 40,
-      )
-
-      if (newCorner === signalWidget.value.corner) {
-        /* [CURSOR GENERATED] Anti-blur fix:
-         * Changed from transition: 'all' to transition: 'transform'
-         * to prevent unnecessary property interpolation that was
-         * causing text blur during animation
-         */
+        container.addEventListener("transitionend", onTransitionEnd)
         containerStyle.transition = "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-        const currentPosition = signalWidget.value.dimensions.position
+
         requestAnimationFrame(() => {
-          containerStyle.transform = `translate3d(${currentPosition.x}px, ${currentPosition.y}px, 0)`
+          containerStyle.transform = `translate3d(${snappedPosition.x}px, ${snappedPosition.y}px, 0)`
         })
 
+        signalWidget.value = {
+          corner: newCorner,
+          dimensions: {
+            isFullWidth: dimensions.isFullWidth,
+            isFullHeight: dimensions.isFullHeight,
+            width: dimensions.width,
+            height: dimensions.height,
+            position: snappedPosition,
+          },
+          lastDimensions: signalWidget.value.lastDimensions,
+          componentsTree: signalWidget.value.componentsTree,
+        }
+
+        saveLocalStorage(LOCALSTORAGE_KEY, {
+          corner: newCorner,
+          dimensions: signalWidget.value.dimensions,
+          lastDimensions: signalWidget.value.lastDimensions,
+          componentsTree: signalWidget.value.componentsTree,
+        })
+        saveWidgetSizeSession(signalWidget.value)
+      }
+
+      document.addEventListener("pointermove", handlePointerMove)
+      document.addEventListener("pointerup", handlePointerEnd)
+      document.addEventListener("pointercancel", handlePointerEnd)
+      if (activationEvent) {
+        handlePointerMove(activationEvent)
+      }
+    },
+    [restoreDocumentCursor, setDocumentDraggingCursor],
+  )
+
+  const handleDrag = useCallback(
+    (e: JSX.TargetedPointerEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement
+      const shouldUseLongPress = Boolean(target.closest("button"))
+      const isTextInput = Boolean(
+        target.closest('input, textarea, select, [contenteditable="true"]'),
+      )
+
+      if (!refWidget.current || isTextInput) return
+
+      if (!shouldUseLongPress) {
+        e.preventDefault()
+        startDrag(e.clientX, e.clientY)
         return
       }
 
-      const snappedPosition = calculatePosition(newCorner, dimensions.width, dimensions.height)
+      const initialMouseX = e.clientX
+      const initialMouseY = e.clientY
+      let longPressTimeout: number | null = null
+      let feedbackTimeout: number | null = null
+      let didActivateDrag = false
+      let lastPendingPointerEvent: globalThis.PointerEvent | undefined
 
-      if (currentX === initialX && currentY === initialY) return
-
-      const onTransitionEnd = () => {
-        containerStyle.transition = "none"
-        updateDimensions()
-        container.removeEventListener("transitionend", onTransitionEnd)
-        if (rafId) {
-          cancelAnimationFrame(rafId)
-          rafId = null
+      const cleanupPendingLongPress = () => {
+        if (longPressTimeout !== null) {
+          window.clearTimeout(longPressTimeout)
+          longPressTimeout = null
+        }
+        if (feedbackTimeout !== null) {
+          window.clearTimeout(feedbackTimeout)
+          feedbackTimeout = null
+        }
+        document.removeEventListener("pointermove", handlePendingPointerMove)
+        document.removeEventListener("pointerup", handlePendingPointerEnd)
+        document.removeEventListener("pointercancel", handlePendingPointerEnd)
+        if (!didActivateDrag) {
+          setDragFeedback("idle")
         }
       }
 
-      container.addEventListener("transitionend", onTransitionEnd)
-      containerStyle.transition = "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+      const activateLongPressDrag = (activationEvent?: globalThis.PointerEvent) => {
+        if (didActivateDrag) return
 
-      requestAnimationFrame(() => {
-        containerStyle.transform = `translate3d(${snappedPosition.x}px, ${snappedPosition.y}px, 0)`
-      })
-
-      signalWidget.value = {
-        corner: newCorner,
-        dimensions: {
-          isFullWidth: dimensions.isFullWidth,
-          isFullHeight: dimensions.isFullHeight,
-          width: dimensions.width,
-          height: dimensions.height,
-          position: snappedPosition,
-        },
-        lastDimensions: signalWidget.value.lastDimensions,
-        componentsTree: signalWidget.value.componentsTree,
+        didActivateDrag = true
+        suppressNextToolbarClick()
+        cleanupPendingLongPress()
+        startDrag(initialMouseX, initialMouseY, activationEvent)
       }
 
-      saveLocalStorage(LOCALSTORAGE_KEY, {
-        corner: newCorner,
-        dimensions: signalWidget.value.dimensions,
-        lastDimensions: signalWidget.value.lastDimensions,
-        componentsTree: signalWidget.value.componentsTree,
-      })
-      saveWidgetSizeSession(signalWidget.value)
-    }
+      const handlePendingPointerMove = (moveEvent: globalThis.PointerEvent) => {
+        lastPendingPointerEvent = moveEvent
+      }
 
-    document.addEventListener("pointermove", handlePointerMove)
-    document.addEventListener("pointerup", handlePointerEnd)
+      const handlePendingPointerEnd = () => {
+        cleanupPendingLongPress()
+      }
+
+      feedbackTimeout = window.setTimeout(() => {
+        if (!didActivateDrag) {
+          setDragFeedback("pending")
+        }
+      }, 300)
+      longPressTimeout = window.setTimeout(() => {
+        activateLongPressDrag(lastPendingPointerEvent)
+      }, 800)
+      document.addEventListener("pointermove", handlePendingPointerMove, { passive: true })
+      document.addEventListener("pointerup", handlePendingPointerEnd)
+      document.addEventListener("pointercancel", handlePendingPointerEnd)
+    },
+    [startDrag, suppressNextToolbarClick],
+  )
+
+  const handleToolbarClickCapture = useCallback((e: JSX.TargetedMouseEvent<HTMLDivElement>) => {
+    if (!refSuppressNextClick.current) return
+
+    refSuppressNextClick.current = false
+    refClickSuppressCleanup.current?.()
+    e.preventDefault()
+    e.stopPropagation()
   }, [])
 
   const handleCollapsedDrag = useCallback((e: JSX.TargetedPointerEvent<HTMLDivElement>) => {
@@ -524,12 +684,28 @@ export const Widget = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!(event.altKey && event.code === "KeyR")) return
-
       const target = event.target as HTMLElement | null
       if (target?.closest('input, textarea, select, [contenteditable="true"]')) {
         return
       }
+
+      if (event.key === "Escape") {
+        const inspectStateKind = Store.inspectState.value.kind
+        const isInspectActive =
+          inspectStateKind !== "inspect-off" && inspectStateKind !== "uninitialized"
+        if (signalWidgetViews.value.view === "none" && !isInspectActive) return
+
+        event.preventDefault()
+        signalWidgetViews.value = { view: "none" }
+
+        if (isInspectActive) {
+          Store.inspectState.value = { kind: "inspect-off" }
+        }
+
+        return
+      }
+
+      if (!(event.altKey && event.code === "KeyR")) return
 
       event.preventDefault()
       if (signalWidgetCollapsed.value) {
@@ -545,8 +721,8 @@ export const Widget = () => {
         signalWidgetViews.value.view === "none" ? { view: "notifications" } : { view: "none" }
     }
 
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown, true)
+    return () => window.removeEventListener("keydown", handleKeyDown, true)
   }, [expandCollapsedToolbar])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: no deps
@@ -631,6 +807,8 @@ export const Widget = () => {
       unsubscribeSignalWidgetViews()
       unsubscribeStoreInspectState()
       unsubscribeSignalWidget()
+      refClickSuppressCleanup.current?.()
+      restoreDocumentCursor()
 
       saveLocalStorage(LOCALSTORAGE_KEY, {
         ...defaultWidgetConfig,
@@ -666,6 +844,7 @@ export const Widget = () => {
           dir="ltr"
           ref={refWidget}
           onPointerDown={!isCollapsed ? handleDrag : handleCollapsedDrag}
+          onClickCapture={handleToolbarClickCapture}
           className={cn(
             "fixed inset-0",
             isCollapsed
@@ -686,7 +865,9 @@ export const Widget = () => {
             "font-mono text-[13px]",
             "user-select-none",
             "opacity-0",
-            isCollapsed ? "cursor-pointer" : "cursor-move",
+            isCollapsed ? "react-devtool-collapsed cursor-pointer" : "cursor-grab",
+            dragFeedback === "pending" && "react-devtool-drag-pending",
+            dragFeedback === "dragging" && "react-devtool-dragging cursor-grabbing",
             "z-[124124124124]",
             "animate-fade-in animation-duration-300 animation-delay-300",
             "will-change-transform",
@@ -713,6 +894,10 @@ export const Widget = () => {
               <ResizeHandle position="bottom" />
               <ResizeHandle position="left" />
               <ResizeHandle position="right" />
+              <ResizeHandle position="top-left" />
+              <ResizeHandle position="top-right" />
+              <ResizeHandle position="bottom-left" />
+              <ResizeHandle position="bottom-right" />
               <Content />
             </>
           )}
