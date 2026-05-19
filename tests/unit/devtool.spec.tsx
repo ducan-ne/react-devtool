@@ -1,10 +1,14 @@
 import React from 'react'
-import { describe, it, expect } from 'vitest'
+import { beforeEach, describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { act } from 'react-dom/test-utils'
 import { values, flags, useFlag } from '../../src/devtool'
 
 describe('devtool values/flags', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('values publishes updates via subscribe', () => {
     const state = values({ count: 0 })
     const events: Array<{ count: number }> = []
@@ -38,6 +42,63 @@ describe('devtool values/flags', () => {
     })
 
     expect(screen.getByTestId('flag').textContent).toBe('true')
+  })
+
+  it('hydrates persisted flags and merges them with current defaults', () => {
+    localStorage.setItem(
+      'react-devtool:flags:checkout',
+      JSON.stringify({
+        source: 'react-devtool.flags',
+        value: {
+          featureA: true,
+          staleFlag: true,
+        },
+      }),
+    )
+
+    const featureFlags = flags(
+      {
+        featureA: false,
+        featureB: true,
+      },
+      { persist: 'checkout' },
+    )
+
+    expect(featureFlags.value).toEqual({
+      featureA: true,
+      featureB: true,
+    })
+  })
+
+  it('persists flag changes when persistence is enabled', () => {
+    const featureFlags = flags({ featureA: false }, { persist: 'checkout' })
+
+    featureFlags.value = { featureA: true }
+
+    const storedValue = JSON.parse(localStorage.getItem('react-devtool:flags:checkout') ?? '{}')
+    expect(storedValue).toEqual({
+      source: 'react-devtool.flags',
+      value: {
+        featureA: true,
+      },
+    })
+  })
+
+  it('supports resetting and clearing persisted flags', () => {
+    const featureFlags = flags({ featureA: false }, { persist: 'checkout' })
+
+    featureFlags.value = { featureA: true }
+    expect(localStorage.getItem('react-devtool:flags:checkout')).not.toBeNull()
+
+    featureFlags.clearPersisted()
+    expect(localStorage.getItem('react-devtool:flags:checkout')).toBeNull()
+
+    featureFlags.value = { featureA: true }
+    featureFlags.reset()
+
+    const storedValue = JSON.parse(localStorage.getItem('react-devtool:flags:checkout') ?? '{}')
+    expect(featureFlags.value).toEqual({ featureA: false })
+    expect(storedValue.value).toEqual({ featureA: false })
   })
 
   it('unsubscribe prevents further notifications from values', () => {

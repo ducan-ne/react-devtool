@@ -82,10 +82,13 @@ async function highlightCode(code: string, language: CodeLanguage) {
 	})
 }
 
-const demoFlags = flags<Record<string, boolean>>({
-	showDebugLabels: true,
-	verboseLogs: false,
-})
+const demoFlags = flags<Record<string, boolean>>(
+	{
+		showDebugLabels: true,
+		verboseLogs: false,
+	},
+	{ persist: "demo" },
+)
 
 const installCommand = "npm install react-devtool"
 
@@ -105,7 +108,10 @@ export function App() {
 const flagCode = `import { Devtool, flags, useFlag } from "react-devtool";
 import { FeatureFlags } from "react-devtool/ui";
 
-const featureFlags = flags({ newCheckout: false });
+const featureFlags = flags(
+  { newCheckout: false },
+  { persist: "checkout" },
+);
 
 function Checkout() {
   const enabled = useFlag(featureFlags, "newCheckout");
@@ -115,9 +121,10 @@ function Checkout() {
 const agentFlagCode = `import { Devtool, flags, useFlag } from "react-devtool";
 import { FeatureFlags } from "react-devtool/ui";
 
-const rolloutFlags = flags({
-  agentSearch: false,
-});
+const rolloutFlags = flags(
+  { agentSearch: false },
+  { persist: "agent-rollouts" },
+);
 
 function SearchPage() {
   const agentSearch = useFlag(rolloutFlags, "agentSearch");
@@ -169,7 +176,7 @@ const agentWorkflow = [
 
 const apiRows = [
 	["Devtool", "Mounts the floating toolbar and renders your custom panel."],
-	["flags(initial)", "Creates a subscribable feature flag object."],
+	["flags(initial, options?)", "Creates a subscribable feature flag object with optional persistence."],
 	["values(initial)", "Creates a subscribable runtime value object."],
 	["useFlag(flags, key)", "Reads a single flag value from React."],
 	["react-devtool/ui", "Exports Button, Input, Toggle, Group, Divider, Section, Tabs, CodeBlock, Inspector, and FeatureFlags."],

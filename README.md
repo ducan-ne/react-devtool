@@ -120,6 +120,45 @@ export function App() {
 }
 ```
 
+Flags are in-memory by default. Pass `persist` as the second argument to opt into localStorage-backed flags that survive reloads:
+
+```tsx
+const featureFlags = flags(
+  {
+    newCheckout: false,
+    verboseLogs: true,
+  },
+  {
+    persist: "checkout",
+  },
+);
+```
+
+The shorthand stores values under `react-devtool:flags:checkout`, merges persisted values with current defaults, ignores deleted/stale flag keys, and keeps the existing `useFlag` and `FeatureFlags` APIs unchanged.
+
+For more control, pass a persistence object:
+
+```tsx
+const featureFlags = flags(
+  {
+    newCheckout: false,
+    verboseLogs: true,
+  },
+  {
+    persist: {
+      key: "checkout",
+      version: 1,
+      syncTabs: true,
+      debounceMs: 100,
+    },
+  },
+);
+
+featureFlags.reset();
+featureFlags.clearPersisted();
+featureFlags.hydrate();
+```
+
 ## Agent-friendly feature flag development
 
 Feature flags are a practical guardrail for agent-built changes. Keep PRs and CI for code quality, then use flags to control runtime exposure while the new path is still being tested.
@@ -136,9 +175,10 @@ Recommended loop:
 import { Devtool, flags, useFlag } from "react-devtool";
 import { FeatureFlags } from "react-devtool/ui";
 
-const rolloutFlags = flags({
-  agentSearch: false,
-});
+const rolloutFlags = flags(
+  { agentSearch: false },
+  { persist: "agent-rollouts" },
+);
 
 function SearchPage() {
   const agentSearch = useFlag(rolloutFlags, "agentSearch");
@@ -193,7 +233,7 @@ export function App() {
 | --- | --- |
 | `Devtool` | Initializes the in-page devtool and syncs its children into the devtool UI. |
 | `values(initialValue)` | Creates a subscribable signal-like value container. |
-| `flags(initialFlags)` | Creates a subscribable signal-like flag container. |
+| `flags(initialFlags, options?)` | Creates a subscribable signal-like flag container, with optional persistence. |
 | `useFlag(flags, key)` | React hook that subscribes to one flag value. |
 
 ### `react-devtool/ui`

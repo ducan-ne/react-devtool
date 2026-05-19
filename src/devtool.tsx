@@ -1,7 +1,16 @@
 import { useEffect, useRef, type ReactNode } from "react"
 import { initDevtool } from "@devtool/core/index"
 import { userChildren } from "@devtool/state"
-export { flags, useFlag, values, type Subscribable } from "./flags"
+export {
+	flags,
+	useFlag,
+	values,
+	type FlagOptions,
+	type FlagPersistHydrateStrategy,
+	type FlagPersistOptions,
+	type Flags,
+	type Subscribable,
+} from "./flags"
 
 export type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right"
 
