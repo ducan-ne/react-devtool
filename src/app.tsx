@@ -82,12 +82,12 @@ async function highlightCode(code: string, language: CodeLanguage) {
 	})
 }
 
-const demoFlags = flags<Record<string, boolean>>(
+const demoFlags = flags(
 	{
 		showDebugLabels: true,
 		verboseLogs: false,
 	},
-	{ persist: "demo" },
+	{ persist: "demo", name: "demoFlags" },
 )
 
 const installCommand = "npm install react-devtool"
@@ -110,7 +110,7 @@ import { FeatureFlags } from "react-devtool/ui";
 
 const featureFlags = flags(
   { newCheckout: false },
-  { persist: "checkout" },
+  { persist: "checkout", name: "featureFlags" },
 );
 
 function Checkout() {
@@ -123,8 +123,11 @@ import { FeatureFlags } from "react-devtool/ui";
 
 const rolloutFlags = flags(
   { agentSearch: false },
-  { persist: "agent-rollouts" },
+  { persist: "agent-rollouts", name: "rolloutFlags" },
 );
+
+// With <Devtool /> mounted, agents can flip flags from the console:
+// window.flags.rolloutFlags.agentSearch = true
 
 function SearchPage() {
   const agentSearch = useFlag(rolloutFlags, "agentSearch");
@@ -132,7 +135,7 @@ function SearchPage() {
 }
 
 <Devtool>
-  <FeatureFlags name="Agent rollouts" values={rolloutFlags} />
+  <FeatureFlags name="rolloutFlags" values={rolloutFlags} />
 </Devtool>;`
 
 const uiCode = `import { Button, Divider, Group, Inspector } from "react-devtool/ui";
@@ -176,7 +179,8 @@ const agentWorkflow = [
 
 const apiRows = [
 	["Devtool", "Mounts the floating toolbar and renders your custom panel."],
-	["flags(initial, options?)", "Creates a subscribable feature flag object with optional persistence."],
+	["flags(initial, options?)", "Creates a subscribable feature flag object with optional persistence and window.flags registration via options.name."],
+	["window.flags", "Agent-facing runtime API (only while <Devtool /> is mounted). Read/write flag values and inspect window.flags.llms."],
 	["values(initial)", "Creates a subscribable runtime value object."],
 	["useFlag(flags, key)", "Reads a single flag value from React."],
 	["react-devtool/ui", "Exports Button, Input, Toggle, Group, Divider, Section, Tabs, CodeBlock, Inspector, and FeatureFlags."],
@@ -520,8 +524,8 @@ function DevtoolPanel({
 				</div>
 			</Group>
 
-			<Group title="Feature flags" description="Backed by the subscribable flags helper.">
-				<FeatureFlags values={demoFlags} />
+			<Group title="Feature flags" description="Backed by the subscribable flags helper. Agents can also use window.flags.demoFlags.">
+				<FeatureFlags name="demoFlags" values={demoFlags} />
 			</Group>
 
 			<Tabs defaultValue="snapshot">

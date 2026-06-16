@@ -11,6 +11,7 @@ import {
 import { Inspector as ReactInspector } from "react-inspector"
 import { twMerge } from "tailwind-merge"
 import type { Subscribable } from "./flags"
+import { registerFlagSet } from "./window-flags"
 
 export { useFlag } from "./flags"
 export type { Subscribable } from "./flags"
@@ -94,6 +95,14 @@ export function FeatureFlags({
 	name = "Flags",
 	values,
 }: FeatureFlagsProps) {
+	useEffect(() => {
+		if (name === "Flags") {
+			return
+		}
+
+		registerFlagSet(name, values, { ...values.value })
+	}, [name, values])
+
 	return (
 		<div className="react-devtool-properties">
 			<Properties name={name} data={values} />

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "preact/hooks"
 import { Store } from "~core/index"
 import { cn, getExtendedDisplayName } from "~web/utils/helpers"
 import { signalWidgetViews, userChildren } from "~web/state"
+import { buildFlagsLlmsText, subscribeFlagsLlms } from "../../../window-flags"
 import { Logo } from "~web/components/logo"
 import { Icon } from "~web/components/icon"
 import { onCLS, onINP, onFCP, onLCP, onTTFB } from "web-vitals"
@@ -143,6 +144,13 @@ const ReactContentRenderer = () => {
     const container = refContainer.current
     if (!container) return
 
+    const syncLlmsAttribute = () => {
+      container.setAttribute("data-llms", buildFlagsLlmsText())
+    }
+
+    syncLlmsAttribute()
+    const unsubscribeLlms = subscribeFlagsLlms(syncLlmsAttribute)
+
     let unmounted = false
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     let createRootPromise: Promise<any> | null = null
@@ -188,6 +196,7 @@ const ReactContentRenderer = () => {
 
     return () => {
       unmounted = true
+      unsubscribeLlms()
       unsubscribe()
       if (refRoot.current) {
         refRoot.current.unmount()
@@ -196,7 +205,7 @@ const ReactContentRenderer = () => {
     }
   }, [])
 
-  return <div ref={refContainer} className="h-full w-full" />
+  return <div ref={refContainer} className="h-full w-full" data-react-devtool-panel />
 }
 
 const formatPreview = (value: unknown): string => {

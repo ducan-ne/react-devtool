@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react"
 import { initDevtool } from "@devtool/core/index"
 import { userChildren } from "@devtool/state"
+import { mountWindowFlags, unmountWindowFlags } from "./window-flags"
 export {
 	flags,
 	useFlag,
@@ -8,9 +9,10 @@ export {
 	type FlagOptions,
 	type FlagPersistHydrateStrategy,
 	type FlagPersistOptions,
-	type Flags,
+	type FlagSet,
 	type Subscribable,
 } from "./flags"
+export type { Flags, WindowFlagsApi } from "./window-flags"
 
 export type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right"
 
@@ -38,8 +40,10 @@ export const Devtool = ({ children, toolbarPlacement }: DevtoolProps) => {
       dangerouslyForceRunInProduction: true,
       ...(toolbarPlacement ? { toolbarPlacement } : {}),
     })
+    mountWindowFlags()
 
     return () => {
+      unmountWindowFlags()
       initDevtool({ enabled: false })
     }
   }, [toolbarPlacement])

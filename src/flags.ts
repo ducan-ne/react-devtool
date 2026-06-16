@@ -1,5 +1,6 @@
 import { signal, type Signal } from "@preact/signals"
 import { useSyncExternalStore } from "react"
+import { registerFlagSet } from "./window-flags"
 
 const FLAGS_STORAGE_PREFIX = "react-devtool:flags:"
 const FLAGS_STORAGE_SOURCE = "react-devtool.flags"
@@ -22,6 +23,10 @@ export type FlagPersistOptions<T> = {
 
 export type FlagOptions<T> = {
 	persist?: false | string | FlagPersistOptions<T>
+	/**
+	 * Registers this flag set on `window.flags` while `<Devtool />` is mounted.
+	 */
+	name?: string
 }
 
 type StorageResolver = () => Storage | null | undefined
@@ -232,7 +237,7 @@ export function values<T>(values: T): Values<T> {
 	return state
 }
 
-export type Flags<T> = Signal<T> &
+export type FlagSet<T> = Signal<T> &
 	Subscribable<T> & {
 		reset: () => void
 		hydrate: () => void
@@ -242,7 +247,7 @@ export type Flags<T> = Signal<T> &
 export function flags<T extends Record<string, boolean>>(
 	values: T,
 	options: FlagOptions<T> = {},
-): Flags<T> {
+): FlagSet<T> {
 	const defaults = cloneFlags(values)
 	const persistOptions = normalizePersistOptions(options.persist)
 	const persistedFlags = persistOptions
@@ -250,7 +255,7 @@ export function flags<T extends Record<string, boolean>>(
 		: null
 	const state = signal(
 		mergeFlags(defaults, persistedFlags, persistOptions?.hydrate ?? "merge"),
-	) as Flags<T>
+	) as FlagSet<T>
 	const originalSubscribe = state.subscribe.bind(state)
 
 	state.subscribe = (fn: (value: T) => void) => {
@@ -329,6 +334,10 @@ export function flags<T extends Record<string, boolean>>(
 
 		clearPendingPersist()
 		removePersistedFlags(persistOptions)
+	}
+
+	if (options.name) {
+		registerFlagSet(options.name, state, defaults)
 	}
 
 	if (persistOptions) {
